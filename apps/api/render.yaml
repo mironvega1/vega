@@ -4,7 +4,7 @@ services:
     runtime: python
     rootDir: apps/api
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: python -m uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -18,16 +18,4 @@ services:
         sync: false
       - key: ENVIRONMENT
         value: production
-```
-
-Ctrl+S ile kaydet.
-
----
-
-### 4. VS Code'da Procfile oluştur
-
-`apps/api` klasörüne sağ tık → **New File** → `Procfile`
-
-İçine yapıştır:
-```
-web: uvicorn main:app --host 0.0.0.0 --port $PORT
+        
