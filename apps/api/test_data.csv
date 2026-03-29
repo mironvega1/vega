@@ -1,0 +1,11 @@
+fiyat,net_m2,brut_m2,oda_sayisi,kat_no,toplam_kat,ilce,mahalle,bina_yasi,cephe,lat,lng
+2500000,120,140,3+1,3,8,Kadıköy,Moda,15,güney,40.9833,29.0333
+1800000,95,110,2+1,5,10,Beşiktaş,Levent,8,kuzey,41.0766,29.0100
+3200000,150,175,4+1,7,12,Sarıyer,Tarabya,5,güney-doğu,41.1200,29.0500
+1200000,75,90,2+1,2,6,Üsküdar,Bağlarbaşı,20,batı,41.0200,29.0150
+4500000,200,230,5+1,10,15,Beşiktaş,Bebek,3,güney,41.0800,29.0450
+```
+
+Kaydet. Şimdi API'yi test etmek için tarayıcıda şunu aç:
+```
+https://vega-api-9ps9.onrender.com/docs
