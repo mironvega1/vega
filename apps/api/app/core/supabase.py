@@ -1,10 +1,15 @@
 from supabase import create_client, Client
 from app.core.config import settings
 
-def get_supabase() -> Client:
-    return create_client(
-        settings.SUPABASE_URL,
-        settings.SUPABASE_SERVICE_KEY
-    )
+_supabase_client = None
 
-supabase: Client = get_supabase()
+def get_supabase() -> Client:
+    global _supabase_client
+    if _supabase_client is None:
+        _supabase_client = create_client(
+            settings.SUPABASE_URL,
+            settings.SUPABASE_SERVICE_KEY
+        )
+    return _supabase_client
+
+supabase = get_supabase()
