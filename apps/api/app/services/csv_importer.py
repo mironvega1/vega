@@ -154,7 +154,7 @@ async def import_csv(
 
     # Kalan kayıtları yaz
     if batch:
-        supabase.table("listings").insert(batch).execute()
+        supabase.schema("vega").table("listings").insert(batch).execute()
         results["success"] += len(batch)
 
     return results
