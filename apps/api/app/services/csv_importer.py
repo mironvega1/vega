@@ -1,12 +1,9 @@
 import csv
 import io
-import h3
 from datetime import datetime
 from typing import Optional
 from app.core.supabase import supabase
 
-
-REQUIRED_COLUMNS = ["fiyat", "net_m2", "ilce", "mahalle"]
 
 COLUMN_ALIASES = {
     "fiyat": ["fiyat", "price", "tutar", "satis_fiyati"],
@@ -27,17 +24,14 @@ COLUMN_ALIASES = {
 
 
 def normalize_columns(headers: list[str]) -> dict[str, str]:
-    """CSV kolonlarını standart isimlere çevir."""
     mapping = {}
     headers_lower = [h.lower().strip() for h in headers]
-
     for standard_col, aliases in COLUMN_ALIASES.items():
         for alias in aliases:
             if alias in headers_lower:
                 original = headers[headers_lower.index(alias)]
                 mapping[original] = standard_col
                 break
-
     return mapping
 
 
@@ -67,13 +61,6 @@ def parse_int(value: str) -> Optional[int]:
         return int(float(value.strip()))
     except ValueError:
         return None
-
-
-def get_h3_indexes(lat: float, lng: float) -> dict:
-    return {
-        "h3_res8": h3.latlng_to_cell(lat, lng, 8),
-        "h3_res6": h3.latlng_to_cell(lat, lng, 6),
-    }
 
 
 async def import_csv(
@@ -129,22 +116,10 @@ async def import_csv(
                 "adres_acik": normalized.get("adres") or None,
             }
 
-            # Konum varsa H3 hesapla
-            lat = parse_float(normalized.get("lat", ""))
-            lng = parse_float(normalized.get("lng", ""))
-
-            if lat and lng:
-                h3_indexes = get_h3_indexes(lat, lng)
-                listing["h3_res8"] = h3_indexes["h3_res8"]
-                listing["h3_res6"] = h3_indexes["h3_res6"]
-                listing["geom"] = f"POINT({lng} {lat})"
-
             batch.append(listing)
 
-            # Her 50 satırda bir Supabase'e yaz
             if len(batch) >= 50:
-                response = supabase.schema("vega").table("listings").insert(batch).execute()
-            
+                supabase.schema("vega").table("listings").insert(batch).execute()
                 results["success"] += len(batch)
                 batch = []
 
@@ -152,10 +127,8 @@ async def import_csv(
             results["error"] += 1
             results["errors"].append(f"Satır {i+2}: {str(e)}")
 
-    # Kalan kayıtları yaz
     if batch:
         supabase.schema("vega").table("listings").insert(batch).execute()
         results["success"] += len(batch)
 
     return results
-    
