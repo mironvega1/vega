@@ -29,7 +29,7 @@ async def get_listings(
     offset: int = 0
 ):
     from app.core.supabase import supabase
-    response = supabase.table("listings")\
+    supabase.schema("vega").table("listings").insert(batch).execute()
         .select("*")\
         .eq("agency_id", agency_id)\
         .eq("durum", "active")\

@@ -143,7 +143,8 @@ async def import_csv(
 
             # Her 50 satırda bir Supabase'e yaz
             if len(batch) >= 50:
-                response = supabase.table("listings").insert(batch).execute()
+                response = supabase.schema("vega").table("listings").insert(batch).execute()
+            
                 results["success"] += len(batch)
                 batch = []
 
