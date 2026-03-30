@@ -29,12 +29,5 @@ async def get_listings(
     offset: int = 0
 ):
     from app.core.supabase import supabase
-    supabase.schema("vega").table("listings").insert(batch).execute()
-        .select("*")\
-        .eq("agency_id", agency_id)\
-        .eq("durum", "active")\
-        .range(offset, offset + limit - 1)\
-        .execute()
-
+    response = supabase.schema("vega").table("listings").select("*").eq("agency_id", agency_id).eq("durum", "active").range(offset, offset + limit - 1).execute()
     return {"listings": response.data, "count": len(response.data)}
-    
