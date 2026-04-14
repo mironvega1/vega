@@ -1,6 +1,3 @@
-curl -o ~/vega/apps/api/app/services/location_features.py \
-  https://raw.githubusercontent.com/mironvega1/vega/main/apps/api/app/services/location_features.py
-cat > ~/vega/apps/api/app/services/location_features.py << 'ENDOFFILE'
 import httpx
 import math
 from typing import Dict, List, Any
@@ -106,10 +103,3 @@ async def get_location_score(lat: float, lng: float) -> Dict[str, Any]:
             "mall_score": scores["mall"],
         }
     }
-ENDOFFILE
-cat ~/vega/apps/api/requirements.txt
-
-
-
-cat ~/vega/apps/api/requirements.txt
-
