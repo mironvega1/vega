@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+supabase
+httpx
+pandas
+numpy
+scikit-learn
+shap
+python-multipart
