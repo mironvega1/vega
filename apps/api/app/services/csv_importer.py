@@ -114,6 +114,9 @@ async def import_csv(
                 "bina_yasi": parse_int(normalized.get("bina_yasi", "")),
                 "cephe": normalized.get("cephe") or None,
                 "adres_acik": normalized.get("adres") or None,
+                "lat": parse_float(normalized.get("lat", "")),
+                "lng": parse_float(normalized.get("lng", "")),
+
             }
 
             batch.append(listing)
