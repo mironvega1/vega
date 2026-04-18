@@ -117,6 +117,9 @@ async def import_csv(
                 "lat": parse_float(normalized.get("lat", "")),
                 "lng": parse_float(normalized.get("lng", "")),
 
+                "lat": parse_float(normalized.get("lat", "")),
+                "lng": parse_float(normalized.get("lng", "")),
+
             }
 
             batch.append(listing)
