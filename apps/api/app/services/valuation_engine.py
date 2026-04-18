@@ -11,15 +11,22 @@ ENCODERS_PATH = "/tmp/vega_encoders.pkl"
 
 
 def fetch_training_data() -> pd.DataFrame:
-    response = supabase.schema("vega").table("listings").select(
-        "fiyat, net_m2, brut_m2, oda_sayisi, kat_no, toplam_kat, bina_yasi, cephe"
-    ).eq("durum", "active").execute()
+    all_data = []
+    batch_size = 1000
+    offset = 0
+    while True:
+        response = supabase.schema("vega").table("listings").select(
+            "fiyat, net_m2, brut_m2, oda_sayisi, kat_no, toplam_kat, bina_yasi, cephe, il, ilce, mahalle"
+        ).eq("durum", "active").range(offset, offset + batch_size - 1).execute()
+        if not response.data:
+            break
+        all_data.extend(response.data)
+        offset += batch_size
 
-    data = response.data
-    if not data:
+    if not all_data:
         return pd.DataFrame()
 
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(all_data)
     df = df.dropna(subset=["fiyat", "net_m2"])
     df["fiyat"] = df["fiyat"].astype(float)
     df["net_m2"] = df["net_m2"].astype(float)
@@ -28,38 +35,52 @@ def fetch_training_data() -> pd.DataFrame:
     df["bina_yasi"] = df["bina_yasi"].fillna(10).astype(float)
     df["cephe"] = df["cephe"].fillna("güney")
     df["oda_sayisi"] = df["oda_sayisi"].fillna("3+1")
-
+    df["il"] = df["il"].fillna("istanbul")
+    df["ilce"] = df["ilce"].fillna("merkez")
+    df["mahalle"] = df["mahalle"].fillna("merkez")
     return df
 
 
 def train_model():
     df = fetch_training_data()
-
     if len(df) < 3:
         return None, None
 
     le_cephe = LabelEncoder()
     le_oda = LabelEncoder()
+    le_il = LabelEncoder()
+    le_ilce = LabelEncoder()
+    le_mahalle = LabelEncoder()
 
     df["cephe_enc"] = le_cephe.fit_transform(df["cephe"])
     df["oda_enc"] = le_oda.fit_transform(df["oda_sayisi"])
+    df["il_enc"] = le_il.fit_transform(df["il"].str.lower().str.strip())
+    df["ilce_enc"] = le_ilce.fit_transform(df["ilce"].str.lower().str.strip())
+    df["mahalle_enc"] = le_mahalle.fit_transform(df["mahalle"].str.lower().str.strip())
 
-    features = ["net_m2", "kat_no", "toplam_kat", "bina_yasi", "cephe_enc", "oda_enc"]
+    features = ["net_m2", "kat_no", "toplam_kat", "bina_yasi", "cephe_enc", "oda_enc", "il_enc", "ilce_enc", "mahalle_enc"]
     X = df[features].values
     y = df["fiyat"].values
 
     model = GradientBoostingRegressor(
-        n_estimators=100,
-        max_depth=4,
-        learning_rate=0.1,
+        n_estimators=200,
+        max_depth=5,
+        learning_rate=0.05,
+        subsample=0.8,
         random_state=42
     )
     model.fit(X, y)
 
+    encoders = {
+        "cephe": le_cephe,
+        "oda": le_oda,
+        "il": le_il,
+        "ilce": le_ilce,
+        "mahalle": le_mahalle
+    }
     joblib.dump(model, MODEL_PATH)
-    joblib.dump({"cephe": le_cephe, "oda": le_oda}, ENCODERS_PATH)
-
-    return model, {"cephe": le_cephe, "oda": le_oda}
+    joblib.dump(encoders, ENCODERS_PATH)
+    return model, encoders
 
 
 def get_model():
@@ -76,40 +97,48 @@ def predict_price(
     toplam_kat: int,
     bina_yasi: int,
     cephe: str,
-    oda_sayisi: str
+    oda_sayisi: str,
+    il: str = "istanbul",
+    ilce: str = "merkez",
+    mahalle: str = "merkez"
 ) -> dict:
     model, encoders = get_model()
-
     if model is None:
-        return {"error": "Yeterli veri yok. Daha fazla ilan yükleyin."}
+        return {"error": "Yeterli veri yok."}
 
-    try:
-        cephe_enc = encoders["cephe"].transform([cephe])[0]
-    except ValueError:
-        cephe_enc = 0
+    def safe_encode(encoder, value, default=0):
+        try:
+            return encoder.transform([value.lower().strip()])[0]
+        except ValueError:
+            return default
 
-    try:
-        oda_enc = encoders["oda"].transform([oda_sayisi])[0]
-    except ValueError:
-        oda_enc = 0
+    cephe_enc = safe_encode(encoders["cephe"], cephe)
+    oda_enc = safe_encode(encoders["oda"], oda_sayisi)
+    il_enc = safe_encode(encoders["il"], il)
+    ilce_enc = safe_encode(encoders["ilce"], ilce)
+    mahalle_enc = safe_encode(encoders["mahalle"], mahalle)
 
-    X = np.array([[net_m2, kat_no, toplam_kat, bina_yasi, cephe_enc, oda_enc]])
+    X = np.array([[net_m2, kat_no, toplam_kat, bina_yasi, cephe_enc, oda_enc, il_enc, ilce_enc, mahalle_enc]])
     tahmin = model.predict(X)[0]
 
-    feature_names = ["net_m2", "kat_no", "toplam_kat", "bina_yasi", "cephe", "oda_sayisi"]
+    feature_names = ["net_m2", "kat_no", "toplam_kat", "bina_yasi", "cephe", "oda_sayisi", "il", "ilce", "mahalle"]
     importances = model.feature_importances_
     shap_values = {
         name: round(float(imp * tahmin), 0)
         for name, imp in zip(feature_names, importances)
     }
 
+    veri_yuzdesi = min(1.0, len(encoders["ilce"].classes_) / 50)
+    guven_skoru = round(0.60 + (0.35 * veri_yuzdesi), 2)
+
     return {
         "tahmin_fiyat": round(float(tahmin), 0),
-        "alt_aralik": round(float(tahmin * 0.90), 0),
-        "ust_aralik": round(float(tahmin * 1.10), 0),
-        "guven_skoru": 0.75,
+        "alt_aralik": round(float(tahmin * 0.88), 0),
+        "ust_aralik": round(float(tahmin * 1.12), 0),
+        "guven_skoru": guven_skoru,
         "shap_values": shap_values,
-        "model_version": "v0.1-gbm"
+        "model_version": "v0.2-gbm",
+        "lokasyon": {"il": il, "ilce": ilce, "mahalle": mahalle}
     }
 
 
@@ -120,4 +149,3 @@ def retrain():
         os.remove(ENCODERS_PATH)
     model, encoders = train_model()
     return model is not None
-    
