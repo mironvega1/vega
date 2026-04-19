@@ -11,6 +11,9 @@ class ValuationRequest(BaseModel):
     bina_yasi: int = 10
     cephe: str = "güney"
     oda_sayisi: str = "3+1"
+    il: str = "istanbul"
+    ilce: str = "merkez"
+    mahalle: str = "merkez"
 
 @router.post("/valuation/predict")
 async def predict(req: ValuationRequest):
@@ -20,7 +23,10 @@ async def predict(req: ValuationRequest):
         toplam_kat=req.toplam_kat,
         bina_yasi=req.bina_yasi,
         cephe=req.cephe,
-        oda_sayisi=req.oda_sayisi
+        oda_sayisi=req.oda_sayisi,
+        il=req.il,
+        ilce=req.ilce,
+        mahalle=req.mahalle
     )
     return result
 
