@@ -4,7 +4,7 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 
 from fastapi import FastAPI
-from fastapi.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.middleware import api_key_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import api_router
