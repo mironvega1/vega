@@ -149,3 +149,58 @@ def retrain():
         os.remove(ENCODERS_PATH)
     model, encoders = train_model()
     return model is not None
+
+
+def predict_liquidity(
+    il: str = "istanbul",
+    ilce: str = "merkez",
+    fiyat: float = 5000000,
+    net_m2: float = 100,
+    oda_sayisi: str = "3+1"
+) -> dict:
+    """Kaç günde satılır tahmini — basit kural bazlı model."""
+    
+    ILCE_TALEP = {
+        "besiktas": 0.95, "kadikoy": 0.92, "sisli": 0.88, "uskudar": 0.85,
+        "bakirkoy": 0.83, "sariyer": 0.80, "atasehir": 0.78, "maltepe": 0.72,
+        "kartal": 0.68, "pendik": 0.65, "umraniye": 0.70, "esenyurt": 0.60,
+        "bagcilar": 0.58, "basaksehir": 0.65, "beylikduzu": 0.62,
+        "cankaya": 0.85, "nilufer": 0.78, "konak": 0.75, "muratpasa": 0.80,
+        "konyaalti": 0.82, "bodrum": 0.70, "merkez": 0.60,
+    }
+    
+    talep_skoru = ILCE_TALEP.get(ilce.lower().strip(), 0.60)
+    
+    m2_fiyat = fiyat / max(net_m2, 1)
+    if m2_fiyat > 150000:
+        fiyat_carpan = 1.8
+    elif m2_fiyat > 80000:
+        fiyat_carpan = 1.3
+    elif m2_fiyat > 40000:
+        fiyat_carpan = 1.0
+    else:
+        fiyat_carpan = 0.8
+
+    baz_gun = 45
+    tahmini_gun = int(baz_gun * fiyat_carpan / talep_skoru)
+    tahmini_gun = max(7, min(365, tahmini_gun))
+
+    if tahmini_gun <= 30:
+        kategori = "Hizli"
+        renk = "green"
+    elif tahmini_gun <= 90:
+        kategori = "Orta"
+        renk = "yellow"
+    else:
+        kategori = "Yavas"
+        renk = "red"
+
+    return {
+        "tahmini_satis_suresi_gun": tahmini_gun,
+        "kategori": kategori,
+        "renk": renk,
+        "talep_skoru": round(talep_skoru, 2),
+        "m2_fiyat": round(m2_fiyat, 0),
+        "lokasyon": {"il": il, "ilce": ilce},
+        "aciklama": f"{ilce.title()} bolgesinde bu fiyat araliginda ortalama {tahmini_gun} gunluk satis suresi bekleniyor."
+    }

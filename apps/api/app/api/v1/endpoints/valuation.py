@@ -34,3 +34,20 @@ async def predict(req: ValuationRequest):
 async def retrain_model():
     success = retrain()
     return {"success": success, "message": "Model yeniden eğitildi" if success else "Yeterli veri yok"}
+class LiquidityRequest(BaseModel):
+    il: str = "istanbul"
+    ilce: str = "merkez"
+    fiyat: float = 5000000
+    net_m2: float = 100
+    oda_sayisi: str = "3+1"
+
+@router.post("/valuation/liquidity")
+async def liquidity(req: LiquidityRequest):
+    from app.services.valuation_engine import predict_liquidity
+    return predict_liquidity(
+        il=req.il,
+        ilce=req.ilce,
+        fiyat=req.fiyat,
+        net_m2=req.net_m2,
+        oda_sayisi=req.oda_sayisi
+    )
