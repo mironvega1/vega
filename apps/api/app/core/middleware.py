@@ -14,6 +14,7 @@ async def api_key_middleware(request: Request, call_next):
         "/api/v1/valuation/retrain",
         "/api/v1/listings",
         "/api/v1/valuation/predict",
+        "/api/v1/valuation/liquidity",
     ]
     if request.url.path in open_paths:
         return await call_next(request)
