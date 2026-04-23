@@ -32,11 +32,11 @@ export default function Valuation() {
     };
 
     const [valRes, liqRes] = await Promise.all([
-      fetch(\`\${API_URL}/api/v1/valuation/predict\`, {
+      fetch(`${API_URL}/api/v1/valuation/predict`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       }),
-      fetch(\`\${API_URL}/api/v1/valuation/liquidity\`, {
+      fetch(`${API_URL}/api/v1/valuation/liquidity`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ il: form.il, ilce: form.ilce, fiyat: 0, net_m2: parseFloat(form.net_m2), oda_sayisi: form.oda_sayisi })
       })
@@ -46,7 +46,7 @@ export default function Valuation() {
     const liqData = await liqRes.json();
 
     if (valData.tahmin_fiyat) {
-      const updatedLiq = await fetch(\`\${API_URL}/api/v1/valuation/liquidity\`, {
+      const updatedLiq = await fetch(`${API_URL}/api/v1/valuation/liquidity`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ il: form.il, ilce: form.ilce, fiyat: valData.tahmin_fiyat, net_m2: parseFloat(form.net_m2), oda_sayisi: form.oda_sayisi })
       });
@@ -161,7 +161,7 @@ export default function Valuation() {
                     <div className="text-xs text-gray-400 w-24">{k}</div>
                     <div className="flex-1 bg-gray-800 rounded-full h-2">
                       <div className="bg-purple-500 h-2 rounded-full"
-                        style={{width: \`\${Math.min(100, Math.abs(v) / Math.max(...Object.values(result.shap_values).map(Number)) * 100)}%\`}}/>
+                        style={{width: `${Math.min(100, Math.abs(v) / Math.max(...Object.values(result.shap_values).map(Number)) * 100)}%`}}/>
                     </div>
                     <div className="text-xs text-gray-300 w-20 text-right">₺{Number(v).toLocaleString("tr-TR")}</div>
                   </div>
