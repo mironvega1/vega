@@ -33,23 +33,16 @@ export default function MapPage() {
     link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
     document.head.appendChild(link);
 
-    const map = L.map("map").setView([41.0082, 28.9784], 11);
+    const map = L.map("map").setView([39.0, 35.0], 6);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
     // Test koordinatlar (gerçek veri gelince lat/lng kullanacağız)
-    const testCoords: [number, number][] = [
-      [40.9833, 29.0333],
-      [41.0766, 29.0100],
-      [41.1200, 29.0500],
-      [41.0200, 29.0150],
-      [41.0800, 29.0450],
-    ];
-
-    listings.forEach((listing, i) => {
-      const coord = testCoords[i % testCoords.length];
+    listings.forEach((listing) => {
+      if (!listing.lat || !listing.lng) return;
+      const coord: [number, number] = [listing.lat, listing.lng];
       const marker = L.circleMarker(coord, {
         radius: 10,
         fillColor: "#9333ea",
