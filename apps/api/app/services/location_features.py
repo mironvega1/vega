@@ -2,7 +2,7 @@ import httpx
 import math
 from typing import Dict, List, Any
 
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 
 def _haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     R = 6371000
@@ -19,44 +19,45 @@ def _distance_score(distance_m: float, ideal_m: float = 500, worst_m: float = 30
         return 0.0
     return round(100 * (1 - (distance_m - ideal_m) / (worst_m - ideal_m)), 1)
 
-async def _overpass_query(query: str) -> List[Dict]:
-    async with httpx.AsyncClient(timeout=15.0) as client:
-        resp = await client.post(OVERPASS_URL, data={"data": query})
+async def _nominatim_search(query: str, lat: float, lng: float, radius: int = 2000) -> List[Dict]:
+    async with httpx.AsyncClient(timeout=10.0, headers={"User-Agent": "vega-realestate/1.0"}) as client:
+        params = {
+            "q": query,
+            "format": "json",
+            "limit": 5,
+            "countrycodes": "tr",
+            "viewbox": f"{lng-0.05},{lat+0.05},{lng+0.05},{lat-0.05}",
+            "bounded": 1,
+        }
+        resp = await client.get(NOMINATIM_URL, params=params)
         resp.raise_for_status()
-        data = resp.json()
-        return data.get("elements", [])
+        return resp.json()
 
 async def get_nearby_amenities(lat: float, lng: float, radius: int = 1500) -> Dict[str, Any]:
     categories = {
-        "school": f'node["amenity"="school"](around:{radius},{lat},{lng});way["amenity"="school"](around:{radius},{lat},{lng});',
-        "hospital": f'node["amenity"~"hospital|clinic"](around:{radius},{lat},{lng});way["amenity"~"hospital|clinic"](around:{radius},{lat},{lng});',
-        "mall": f'node["shop"="mall"](around:{radius},{lat},{lng});way["shop"="mall"](around:{radius},{lat},{lng});node["shop"="supermarket"](around:{radius},{lat},{lng});',
-        "metro": f'node["station"="subway"](around:{radius},{lat},{lng});node["railway"="station"](around:{radius},{lat},{lng});node["railway"="subway_entrance"](around:{radius},{lat},{lng});',
+        "school": "okul",
+        "hospital": "hastane",
+        "mall": "avm market",
+        "metro": "metro istasyon",
     }
     results = {}
-    for category, amenity_filter in categories.items():
-        query = f"""
-[out:json][timeout:10];
-(
-  {amenity_filter}
-);
-out center 10;
-"""
+    for category, query in categories.items():
         try:
-            elements = await _overpass_query(query)
+            elements = await _nominatim_search(query, lat, lng, radius)
             items = []
             for el in elements[:5]:
-                el_lat = el.get("lat") or (el.get("center") or {}).get("lat")
-                el_lng = el.get("lon") or (el.get("center") or {}).get("lon")
+                el_lat = float(el.get("lat", 0))
+                el_lng = float(el.get("lon", 0))
                 if not el_lat or not el_lng:
                     continue
                 dist = _haversine(lat, lng, el_lat, el_lng)
-                items.append({
-                    "name": el.get("tags", {}).get("name", "İsimsiz"),
-                    "distance_m": round(dist),
-                    "lat": el_lat,
-                    "lng": el_lng,
-                })
+                if dist <= radius:
+                    items.append({
+                        "name": el.get("display_name", "").split(",")[0],
+                        "distance_m": round(dist),
+                        "lat": el_lat,
+                        "lng": el_lng,
+                    })
             items.sort(key=lambda x: x["distance_m"])
             results[category] = items
         except Exception:
