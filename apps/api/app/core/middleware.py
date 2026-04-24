@@ -15,6 +15,7 @@ async def api_key_middleware(request: Request, call_next):
         "/api/v1/listings",
         "/api/v1/valuation/predict",
         "/api/v1/valuation/liquidity",
+        "/api/v1/valuation/bina-karsilastirma",
         "/api/v1/location/score",
         "/api/v1/location/amenities",
     ]
