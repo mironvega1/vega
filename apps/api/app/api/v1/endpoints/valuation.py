@@ -51,3 +51,35 @@ async def liquidity(req: LiquidityRequest):
         net_m2=req.net_m2,
         oda_sayisi=req.oda_sayisi
     )
+
+
+class BinaKarsilastirmaRequest(BaseModel):
+    il: str = "istanbul"
+    ilce: str = "besiktas"
+    net_m2: float = 100
+    oda_sayisi: str = "3+1"
+    bina_yasi: int = 10
+    cephe: str = "guney"
+    toplam_kat: int = 10
+
+@router.post("/valuation/bina-karsilastirma")
+async def bina_karsilastirma(req: BinaKarsilastirmaRequest):
+    from app.services.valuation_engine import predict_price
+    results = []
+    for kat in range(1, req.toplam_kat + 1):
+        result = predict_price(
+            net_m2=req.net_m2,
+            kat_no=kat,
+            toplam_kat=req.toplam_kat,
+            bina_yasi=req.bina_yasi,
+            cephe=req.cephe,
+            oda_sayisi=req.oda_sayisi,
+            il=req.il,
+            ilce=req.ilce,
+        )
+        results.append({
+            "kat": kat,
+            "fiyat": result.get("tahmin_fiyat", 0),
+            "guven": result.get("guven_skoru", 0),
+        })
+    return {"karsilastirma": results, "il": req.il, "ilce": req.ilce, "net_m2": req.net_m2}
