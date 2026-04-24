@@ -34,6 +34,7 @@ export default function MapPage() {
     document.head.appendChild(link);
 
     const map = L.map("map").setView([39.0, 35.0], 6);
+    (window as any)._vegaMap = map;
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
