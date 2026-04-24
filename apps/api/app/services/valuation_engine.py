@@ -128,8 +128,12 @@ def predict_price(
         for name, imp in zip(feature_names, importances)
     }
 
-    veri_yuzdesi = min(1.0, len(encoders["ilce"].classes_) / 50)
-    guven_skoru = round(0.60 + (0.35 * veri_yuzdesi), 2)
+    toplam_ilce = len(encoders["ilce"].classes_)
+    ilce_biliniyor = ilce.lower().strip() in [c.lower() for c in encoders["ilce"].classes_]
+    il_biliniyor = il.lower().strip() in [c.lower() for c in encoders["il"].classes_]
+    veri_carpan = min(1.0, toplam_ilce / 50)
+    lokasyon_carpan = 0.95 if ilce_biliniyor else (0.80 if il_biliniyor else 0.65)
+    guven_skoru = round(min(0.97, max(0.55, 0.55 * lokasyon_carpan + 0.40 * veri_carpan)), 2)
 
     return {
         "tahmin_fiyat": round(float(tahmin), 0),
