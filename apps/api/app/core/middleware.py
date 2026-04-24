@@ -18,6 +18,7 @@ async def api_key_middleware(request: Request, call_next):
         "/api/v1/valuation/bina-karsilastirma",
         "/api/v1/location/score",
         "/api/v1/location/amenities",
+        "/api/v1/ai/chat",
     ]
     if request.url.path in open_paths:
         return await call_next(request)
