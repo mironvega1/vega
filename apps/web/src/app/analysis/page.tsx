@@ -64,11 +64,50 @@ const Sel = ({ label, val, onChange, opts }: any) => (
   </div>
 );
 
-const Section = ({ title }: { title: string }) => (
-  <div style={{fontSize:11,color:"#FFD700",letterSpacing:2,marginTop:20,marginBottom:12,paddingBottom:8,borderBottom:`1px solid #1a1a1a`}}>
-    {title}
+const Section = ({ title, step }: { title: string; step?: number }) => (
+  <div style={{display:"flex",alignItems:"center",gap:10,marginTop:22,marginBottom:12,paddingBottom:8,borderBottom:`1px solid #1a1a1a`}}>
+    {step && <span style={{background:"rgba(255,215,0,0.12)",border:"1px solid rgba(255,215,0,0.25)",color:"#FFD700",fontSize:10,fontWeight:700,width:20,height:20,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{step}</span>}
+    <span style={{fontSize:11,color:"#FFD700",letterSpacing:2,fontWeight:500}}>{title}</span>
   </div>
 );
+
+function downloadPDF(content: string, title: string) {
+  const date = new Date().toLocaleDateString('tr-TR');
+  const safeContent = content
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  const html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Times New Roman',Times,serif;font-size:11.5pt;line-height:1.85;color:#1a1a1a;background:#fff}
+    .page{max-width:21cm;margin:0 auto;padding:2.5cm 3cm}
+    .hdr{text-align:center;border-bottom:2px solid #1a1a1a;padding-bottom:14px;margin-bottom:28px}
+    .hdr h1{font-size:15pt;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+    .hdr p{font-size:10pt;color:#666;margin-top:6px}
+    .body{white-space:pre-wrap;font-family:'Times New Roman',Times,serif}
+    .ftr{margin-top:48px;padding-top:12px;border-top:1px solid #ccc;font-size:8.5pt;color:#aaa;text-align:center}
+    @media print{.page{padding:0}@page{margin:2cm 2.5cm;size:A4}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="hdr"><h1>${title}</h1><p>${date} &nbsp;·&nbsp; Vega Intelligence Platform</p></div>
+    <div class="body">${safeContent}</div>
+    <div class="ftr">Bu belge Vega Intelligence Platform tarafından oluşturulmuştur. Hukuki bağlayıcılık için noter onayı gerekebilir.</div>
+  </div>
+  <script>window.onload=function(){setTimeout(function(){window.print()},400)}</script>
+</body>
+</html>`;
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
 
 export default function AnalysisPage() {
   const pathname = usePathname();
@@ -135,7 +174,16 @@ export default function AnalysisPage() {
 
   const renderKira = () => (
     <div>
-      <Section title="MÜLK BİLGİLERİ" />
+      {/* Info banner */}
+      <div style={{background:"rgba(255,215,0,0.05)",border:"1px solid rgba(255,215,0,0.15)",borderRadius:8,padding:"10px 14px",marginBottom:4,display:"flex",alignItems:"flex-start",gap:10}}>
+        <span style={{color:D.gold,fontSize:14,marginTop:1}}>📋</span>
+        <div>
+          <div style={{fontSize:12,color:D.gold,fontWeight:500,marginBottom:2}}>TBK Uyumlu Kira Sözleşmesi</div>
+          <div style={{fontSize:11,color:D.muted,lineHeight:1.5}}>Tüm alanları doldurun — kefil, TC, depozito ve artış oranı sözleşmeye işlenir.</div>
+        </div>
+      </div>
+
+      <Section title="MÜLK BİLGİLERİ" step={1} />
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         <div style={fld}><label style={lbl}>İL *</label>
           <select style={inp} value={kira.mulk_il} onChange={e=>setKira({...kira,mulk_il:e.target.value})}>
@@ -145,10 +193,10 @@ export default function AnalysisPage() {
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         <Inp label="MAHALLE *" val={kira.mulk_mahalle} onChange={(e:any)=>setKira({...kira,mulk_mahalle:e.target.value})} ph="Moda" />
-        <Inp label="SOKAK *" val={kira.mulk_sokak} onChange={(e:any)=>setKira({...kira,mulk_sokak:e.target.value})} ph="Bahariye Cad." />
+        <Inp label="SOKAK / CADDE *" val={kira.mulk_sokak} onChange={(e:any)=>setKira({...kira,mulk_sokak:e.target.value})} ph="Bahariye Cad." />
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        <Inp label="KAPI NO *" val={kira.mulk_kapi_no} onChange={(e:any)=>setKira({...kira,mulk_kapi_no:e.target.value})} ph="12" />
+        <Inp label="KAPI NO" val={kira.mulk_kapi_no} onChange={(e:any)=>setKira({...kira,mulk_kapi_no:e.target.value})} ph="12" />
         <Inp label="DAİRE NO" val={kira.mulk_daire_no} onChange={(e:any)=>setKira({...kira,mulk_daire_no:e.target.value})} ph="5" />
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
@@ -156,10 +204,10 @@ export default function AnalysisPage() {
           <select style={inp} value={kira.mulk_tip} onChange={e=>setKira({...kira,mulk_tip:e.target.value})}>
             {["Daire","Dükkan","Ofis","Villa","Depo"].map(o=><option key={o}>{o}</option>)}
           </select></div>
-        <Inp label="NET M² *" val={kira.mulk_m2} onChange={(e:any)=>setKira({...kira,mulk_m2:e.target.value})} ph="120" />
+        <Inp label="NET M²" val={kira.mulk_m2} onChange={(e:any)=>setKira({...kira,mulk_m2:e.target.value})} ph="120" />
         <div style={fld}><label style={lbl}>ODA</label>
           <select style={inp} value={kira.mulk_oda} onChange={e=>setKira({...kira,mulk_oda:e.target.value})}>
-            {["1+0","1+1","2+1","3+1","4+1","5+1"].map(o=><option key={o}>{o}</option>)}
+            {["Stüdyo","1+1","2+1","3+1","4+1","5+1"].map(o=><option key={o}>{o}</option>)}
           </select></div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
@@ -170,28 +218,30 @@ export default function AnalysisPage() {
           </select></div>
       </div>
 
-      <Section title="KİRA KOŞULLARI" />
+      <Section title="KİRA KOŞULLARI" step={2} />
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        <Inp label="AYLIK KİRA (TL) *" val={kira.kira_bedeli} onChange={(e:any)=>setKira({...kira,kira_bedeli:e.target.value})} ph="25000" />
+        <Inp label="AYLIK KİRA (TL) *" val={kira.kira_bedeli} onChange={(e:any)=>setKira({...kira,kira_bedeli:e.target.value})} ph="25.000" />
         <Inp label="ÖDEME GÜNÜ" val={kira.odeme_gunu} onChange={(e:any)=>setKira({...kira,odeme_gunu:e.target.value})} ph="Her ayın 1'i" />
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
-        <div style={fld}><label style={lbl}>SÜRE</label>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        <div style={fld}><label style={lbl}>SÖZLEŞME SÜRESİ</label>
           <select style={inp} value={kira.sozlesme_suresi} onChange={e=>setKira({...kira,sozlesme_suresi:e.target.value})}>
             {["6 ay","1 yıl","2 yıl","3 yıl"].map(o=><option key={o}>{o}</option>)}
           </select></div>
-        <Inp label="BAŞLANGIÇ TARİHİ *" val={kira.baslangic_tarihi} onChange={(e:any)=>setKira({...kira,baslangic_tarihi:e.target.value})} ph="01/06/2026" />
+        <Inp label="BAŞLANGIÇ TARİHİ *" val={kira.baslangic_tarihi} onChange={(e:any)=>setKira({...kira,baslangic_tarihi:e.target.value})} ph="01/06/2026" type="text" />
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         <div style={fld}><label style={lbl}>DEPOZİTO</label>
           <select style={inp} value={kira.depozito_ay} onChange={e=>setKira({...kira,depozito_ay:e.target.value})}>
-            {["1","2","3"].map(o=><option key={o}>{o + " aylık"}</option>)}
+            {["1","2","3"].map(o=><option key={o}>{o + " aylık kira"}</option>)}
+          </select></div>
+        <div style={fld}><label style={lbl}>KİRA ARTIŞ ORANI</label>
+          <select style={inp} value={kira.artis_orani} onChange={e=>setKira({...kira,artis_orani:e.target.value})}>
+            {["TÜFE","ÜFE","TÜFE+ÜFE Ort.","Sabit %25"].map(o=><option key={o}>{o}</option>)}
           </select></div>
       </div>
-      <div style={fld}><label style={lbl}>KİRA ARTIŞ ORANI</label>
-        <select style={inp} value={kira.artis_orani} onChange={e=>setKira({...kira,artis_orani:e.target.value})}>
-          {["TÜFE","ÜFE","TÜFE+ÜFE Ort.","Sabit %25"].map(o=><option key={o}>{o}</option>)}
-        </select></div>
 
-      <Section title="KİRACI BİLGİLERİ" />
+      <Section title="KİRACI BİLGİLERİ" step={3} />
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         <Inp label="AD *" val={kira.kiraci_ad} onChange={(e:any)=>setKira({...kira,kiraci_ad:e.target.value})} ph="Ahmet" />
         <Inp label="SOYAD *" val={kira.kiraci_soyad} onChange={(e:any)=>setKira({...kira,kiraci_soyad:e.target.value})} ph="Yılmaz" />
@@ -200,9 +250,9 @@ export default function AnalysisPage() {
         <Inp label="TC KİMLİK NO *" val={kira.kiraci_tc} onChange={(e:any)=>setKira({...kira,kiraci_tc:e.target.value})} ph="12345678901" />
         <Inp label="TELEFON" val={kira.kiraci_telefon} onChange={(e:any)=>setKira({...kira,kiraci_telefon:e.target.value})} ph="0532 xxx xx xx" />
       </div>
-      <Inp label="MEVCUT ADRES" val={kira.kiraci_adres} onChange={(e:any)=>setKira({...kira,kiraci_adres:e.target.value})} ph="İstanbul, Şişli..." />
+      <Inp label="MEVCUT ADRES" val={kira.kiraci_adres} onChange={(e:any)=>setKira({...kira,kiraci_adres:e.target.value})} ph="İstanbul, Şişli, Halaskargazi Cad. No:45" />
 
-      <Section title="KİRAYA VEREN BİLGİLERİ" />
+      <Section title="KİRAYA VEREN BİLGİLERİ" step={4} />
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         <Inp label="AD *" val={kira.ev_sahibi_ad} onChange={(e:any)=>setKira({...kira,ev_sahibi_ad:e.target.value})} ph="Fatma" />
         <Inp label="SOYAD *" val={kira.ev_sahibi_soyad} onChange={(e:any)=>setKira({...kira,ev_sahibi_soyad:e.target.value})} ph="Demir" />
@@ -212,28 +262,49 @@ export default function AnalysisPage() {
         <Inp label="TELEFON" val={kira.ev_sahibi_telefon} onChange={(e:any)=>setKira({...kira,ev_sahibi_telefon:e.target.value})} ph="0542 xxx xx xx" />
       </div>
 
-      <Section title="KEFİL (Opsiyonel)" />
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
-        <Inp label="AD" val={kira.kefil_ad} onChange={(e:any)=>setKira({...kira,kefil_ad:e.target.value})} ph="Mehmet" />
-        <Inp label="SOYAD" val={kira.kefil_soyad} onChange={(e:any)=>setKira({...kira,kefil_soyad:e.target.value})} ph="Kaya" />
-        <Inp label="TC" val={kira.kefil_tc} onChange={(e:any)=>setKira({...kira,kefil_tc:e.target.value})} ph="11122233344" />
+      <Section title="KEFİL (Opsiyonel)" step={5} />
+      <div style={{background:"rgba(255,255,255,0.02)",border:`1px solid ${D.brd}`,borderRadius:8,padding:"12px",marginBottom:4}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+          <Inp label="AD" val={kira.kefil_ad} onChange={(e:any)=>setKira({...kira,kefil_ad:e.target.value})} ph="Mehmet" />
+          <Inp label="SOYAD" val={kira.kefil_soyad} onChange={(e:any)=>setKira({...kira,kefil_soyad:e.target.value})} ph="Kaya" />
+          <Inp label="TC KİMLİK NO" val={kira.kefil_tc} onChange={(e:any)=>setKira({...kira,kefil_tc:e.target.value})} ph="11122233344" />
+        </div>
       </div>
 
-      <Section title="ÖZEL ŞARTLAR" />
-      <div style={fld}><textarea style={{...inp,height:80,resize:"vertical"}} value={kira.ozel_sartlar}
-        onChange={e=>setKira({...kira,ozel_sartlar:e.target.value})}
-        placeholder="Evcil hayvan yasak. Aidat kiracıya ait. İzinsiz tadilat yapılamaz..." /></div>
+      <Section title="ÖZEL ŞARTLAR" step={6} />
+      <div style={fld}>
+        <textarea style={{...inp,height:90,resize:"vertical",lineHeight:1.6}}
+          value={kira.ozel_sartlar}
+          onChange={e=>setKira({...kira,ozel_sartlar:e.target.value})}
+          placeholder="Örn: Evcil hayvan yasak. Aidat kiracıya ait. İzinsiz tadilat yapılamaz..." />
+        <div style={{fontSize:10,color:D.dim,marginTop:4}}>Boş bırakabilirsiniz — standart şartlar otomatik eklenir.</div>
+      </div>
 
-      <button style={{background:loading||!kira.mulk_ilce||!kira.kiraci_ad?D.brd:D.gold,color:loading||!kira.mulk_ilce||!kira.kiraci_ad?D.muted:"#000",
-        border:"none",borderRadius:8,padding:"12px 24px",fontSize:13,fontWeight:700,cursor:loading||!kira.mulk_ilce||!kira.kiraci_ad?"not-allowed":"pointer",width:"100%",marginTop:8}}
-        onClick={()=>post("/api/v1/analysis/sozlesme/kira", kira)} disabled={loading||!kira.mulk_ilce||!kira.kiraci_ad}>
-        {loading?"Sözleşme Hazırlanıyor...":"Kira Sözleşmesi Oluştur"}
+      <button
+        style={{background:loading||!kira.mulk_ilce||!kira.kiraci_ad||!kira.kira_bedeli?D.brd:D.gold,
+          color:loading||!kira.mulk_ilce||!kira.kiraci_ad||!kira.kira_bedeli?D.muted:"#000",
+          border:"none",borderRadius:8,padding:"13px 24px",fontSize:13,fontWeight:700,
+          cursor:loading||!kira.mulk_ilce||!kira.kiraci_ad||!kira.kira_bedeli?"not-allowed":"pointer",
+          width:"100%",marginTop:8,letterSpacing:0.3}}
+        onClick={()=>post("/api/v1/analysis/sozlesme/kira", kira)}
+        disabled={loading||!kira.mulk_ilce||!kira.kiraci_ad||!kira.kira_bedeli}>
+        {loading ? "Sözleşme Hazırlanıyor..." : "Kira Sözleşmesi Oluştur →"}
       </button>
+      <div style={{textAlign:"center",fontSize:10,color:D.dim,marginTop:8}}>
+        İlçe · Kiracı adı · Kira bedeli zorunludur
+      </div>
     </div>
   );
 
   const renderSatis = () => (
     <div>
+      <div style={{background:"rgba(255,215,0,0.05)",border:"1px solid rgba(255,215,0,0.15)",borderRadius:8,padding:"10px 14px",marginBottom:4,display:"flex",alignItems:"flex-start",gap:10}}>
+        <span style={{color:D.gold,fontSize:14,marginTop:1}}>🤝</span>
+        <div>
+          <div style={{fontSize:12,color:D.gold,fontWeight:500,marginBottom:2}}>Satış Ön Sözleşmesi (Promesse)</div>
+          <div style={{fontSize:11,color:D.muted,lineHeight:1.5}}>Ada/parsel, ödeme planı ve cezai şart dahil tam tapu devir belgesi.</div>
+        </div>
+      </div>
       <Section title="TAŞINMAZ BİLGİLERİ" />
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         <div style={fld}><label style={lbl}>İL *</label>
@@ -523,9 +594,17 @@ export default function AnalysisPage() {
               <div>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
                   <div style={{fontSize:12,color:D.gold,fontWeight:500,letterSpacing:1}}>SONUÇ</div>
-                  <button onClick={copy} style={{background:"transparent",border:`1px solid ${D.brd2}`,borderRadius:6,padding:"5px 14px",color:copied?D.gold:D.muted,fontSize:11,cursor:"pointer"}}>
-                    {copied?"Kopyalandı ✓":"Kopyala"}
-                  </button>
+                  <div style={{display:"flex",gap:8}}>
+                    {(tab === "kira_soz" || tab === "satis_soz") && (
+                      <button onClick={() => downloadPDF(result, tab === "kira_soz" ? "Kira Sözleşmesi" : "Satış Ön Sözleşmesi")}
+                        style={{background:"rgba(255,215,0,0.1)",border:`1px solid rgba(255,215,0,0.3)`,borderRadius:6,padding:"5px 14px",color:D.gold,fontSize:11,cursor:"pointer",fontWeight:500}}>
+                        PDF İndir
+                      </button>
+                    )}
+                    <button onClick={copy} style={{background:"transparent",border:`1px solid ${D.brd2}`,borderRadius:6,padding:"5px 14px",color:copied?D.gold:D.muted,fontSize:11,cursor:"pointer"}}>
+                      {copied?"Kopyalandı ✓":"Kopyala"}
+                    </button>
+                  </div>
                 </div>
                 <div style={{background:D.bg2,border:`1px solid ${D.brd}`,borderRadius:10,padding:"20px",fontSize:13,lineHeight:1.9,color:"rgba(255,255,255,0.8)",whiteSpace:"pre-wrap",fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif"}}>
                   {result}
