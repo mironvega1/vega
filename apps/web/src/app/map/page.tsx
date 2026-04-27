@@ -2,11 +2,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAgencyId } from "@/hooks/useAgencyId";
+import { createClient } from "@/lib/supabase/client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 export default function MapPage() {
   const { agencyId } = useAgencyId();
+  const [accountType, setAccountType] = useState<string>("");
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data: { user } }) => {
+      setAccountType(user?.user_metadata?.account_type || "individual");
+    });
+  }, []);
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -72,39 +79,47 @@ export default function MapPage() {
     };
   }, [loading, listings]);
 
-  return (
-    <main className="min-h-screen bg-gray-950 text-white">
-      <header className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold tracking-tight">VEGA</Link>
-        <nav className="flex items-center gap-6 text-sm text-gray-400">
-          <Link href="/dashboard" className="hover:text-white">Dashboard</Link>
-          <Link href="/listings" className="hover:text-white">İlanlar</Link>
-          <Link href="/map" className="text-white">Harita</Link>
-          <Link href="/valuation" className="hover:text-white">Değerleme</Link>
-        </nav>
-      </header>
-
-      <div className="flex h-[calc(100vh-57px)]">
-        {/* Sol panel */}
-        <div className="w-72 border-r border-gray-800 bg-gray-900 p-4 overflow-y-auto">
-          <h2 className="font-semibold mb-4">İlanlar ({listings.length})</h2>
-          {loading ? (
-            <div className="text-gray-500 text-sm">Yükleniyor...</div>
-          ) : (
-            listings.map((l) => (
-              <div key={l.id} className="border border-gray-800 rounded-lg p-3 mb-2 hover:border-purple-700 cursor-pointer transition-colors">
-                <div className="font-medium text-purple-400">₺{Number(l.fiyat).toLocaleString("tr-TR")}</div>
-                <div className="text-gray-400 text-xs mt-1">{l.net_m2} m² · {l.oda_sayisi} · {l.kat_no}. kat</div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Harita */}
-        <div className="flex-1 relative">
-          <div id="map" className="w-full h-full" />
+  // Kurumsal değilse upgrade ekranı
+  if (accountType && accountType !== "agency") {
+    return (
+      <div style={{minHeight:"100vh",background:"#080808",color:"#e0e0e0",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif"}}>
+        <div style={{textAlign:"center",maxWidth:420}}>
+          <div style={{fontSize:40,marginBottom:16}}>◉</div>
+          <div style={{fontSize:22,fontWeight:500,marginBottom:8}}>Kurumsal Özellik</div>
+          <div style={{fontSize:14,color:"#555",lineHeight:1.7,marginBottom:28}}>Canlı harita ve ilan yönetimi sadece Kurumsal planlarda kullanılabilir. Ekibinizle birlikte portföyünüzü harita üzerinde yönetin.</div>
+          <Link href="/auth/signup" style={{background:"#FFD700",color:"#000",textDecoration:"none",padding:"12px 28px",borderRadius:8,fontWeight:700,fontSize:14}}>
+            Kurumsal Plana Geç
+          </Link>
+          <div style={{marginTop:16}}><Link href="/dashboard" style={{color:"#444",fontSize:13,textDecoration:"none"}}>← Geri dön</Link></div>
         </div>
       </div>
-    </main>
+    );
+  }
+
+  return (
+    <div style={{height:"100vh",background:"#080808",display:"flex",fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif"}}>
+      {/* Sol panel */}
+      <div style={{width:260,borderRight:"1px solid #161616",background:"#0a0a0a",display:"flex",flexDirection:"column"}}>
+        <div style={{padding:"20px 16px",borderBottom:"1px solid #161616"}}>
+          <Link href="/dashboard" style={{fontSize:18,color:"#FFD700",letterSpacing:4,fontWeight:300,textDecoration:"none"}}>VEGA</Link>
+          <div style={{fontSize:12,color:"#333",marginTop:8}}>Acente Portföyü — {listings.length} ilan</div>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:"8px"}}>
+          {loading ? (
+            <div style={{padding:20,textAlign:"center",color:"#333",fontSize:12}}>Yükleniyor...</div>
+          ) : listings.map((l) => (
+            <div key={l.id} style={{border:"1px solid #161616",borderRadius:8,padding:"10px 12px",marginBottom:4,background:"rgba(255,255,255,0.01)"}}>
+              <div style={{fontSize:13,fontWeight:500,color:"#FFD700"}}>₺{Number(l.fiyat).toLocaleString("tr-TR")}</div>
+              <div style={{fontSize:11,color:"#555",marginTop:2}}>{l.net_m2}m² · {l.oda_sayisi} · {l.kat_no}. kat</div>
+              <div style={{fontSize:10,color:"#333",marginTop:1}}>{l.ilce || ""}{l.il?`, ${l.il}`:""}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Harita */}
+      <div style={{flex:1,position:"relative"}}>
+        <div id="map" style={{width:"100%",height:"100%"}} />
+      </div>
+    </div>
   );
 }
