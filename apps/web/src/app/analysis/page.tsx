@@ -48,6 +48,28 @@ const fld: React.CSSProperties = { marginBottom:14 };
 
 const ILLER = ["istanbul","ankara","izmir","bursa","antalya","adana","konya","gaziantep","mugla","kayseri","mersin"];
 
+const Inp = ({ label, val, onChange, ph="", type="text" }: any) => (
+  <div style={fld}>
+    <label style={lbl}>{label}</label>
+    <input style={inp} type={type} value={val} onChange={onChange} placeholder={ph} />
+  </div>
+);
+
+const Sel = ({ label, val, onChange, opts }: any) => (
+  <div style={fld}>
+    <label style={lbl}>{label}</label>
+    <select style={inp} value={val} onChange={onChange}>
+      {opts.map((o: string) => <option key={o} value={o}>{o}</option>)}
+    </select>
+  </div>
+);
+
+const Section = ({ title }: { title: string }) => (
+  <div style={{fontSize:11,color:"#FFD700",letterSpacing:2,marginTop:20,marginBottom:12,paddingBottom:8,borderBottom:`1px solid #1a1a1a`}}>
+    {title}
+  </div>
+);
+
 export default function AnalysisPage() {
   const pathname = usePathname();
   const [tab, setTab] = useState<Tab>("kira_soz");
@@ -110,28 +132,6 @@ export default function AnalysisPage() {
   };
 
   const copy = () => { navigator.clipboard.writeText(result); setCopied(true); setTimeout(()=>setCopied(false),2000); };
-
-  const Inp = ({ label, val, onChange, ph="", type="text" }: any) => (
-    <div style={fld}>
-      <label style={lbl}>{label}</label>
-      <input style={inp} type={type} value={val} onChange={onChange} placeholder={ph} />
-    </div>
-  );
-
-  const Sel = ({ label, val, onChange, opts }: any) => (
-    <div style={fld}>
-      <label style={lbl}>{label}</label>
-      <select style={inp} value={val} onChange={onChange}>
-        {opts.map((o: string) => <option key={o} value={o}>{o}</option>)}
-      </select>
-    </div>
-  );
-
-  const Section = ({ title }: { title: string }) => (
-    <div style={{fontSize:11,color:D.gold,letterSpacing:2,marginTop:20,marginBottom:12,paddingBottom:8,borderBottom:`1px solid ${D.brd}`}}>
-      {title}
-    </div>
-  );
 
   const renderKira = () => (
     <div>

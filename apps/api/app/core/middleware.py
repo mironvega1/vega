@@ -19,14 +19,10 @@ async def api_key_middleware(request: Request, call_next):
         "/api/v1/location/score",
         "/api/v1/location/amenities",
         "/api/v1/ai/chat",
-        "/api/v1/analysis/sozlesme/kira",
-        "/api/v1/analysis/sozlesme/satis",
-        "/api/v1/analysis/adres-analiz",
-        "/api/v1/analysis/deal-score",
-        "/api/v1/analysis/bolge-hakimiyet",
-        "/api/v1/analysis/risk",
     ]
-    if request.url.path in open_paths:
+    open_prefixes = ["/api/v1/analysis/"]
+    path = request.url.path
+    if path in open_paths or any(path.startswith(p) for p in open_prefixes):
         return await call_next(request)
 
     api_key = request.headers.get("x-api-key")
