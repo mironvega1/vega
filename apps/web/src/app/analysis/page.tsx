@@ -133,33 +133,6 @@ export default function AnalysisPage() {
     </div>
   );
 
-  const btn = (disabled: boolean, label: string, loadLabel: string) => (
-    <button onClick={() => {}} disabled={disabled}
-      style={{background:disabled?D.brd:D.gold, color:disabled?D.muted:"#000",
-        border:"none", borderRadius:8, padding:"11px 24px", fontSize:13, fontWeight:700,
-        cursor:disabled?"not-allowed":"pointer", marginTop:8, letterSpacing:0.5, width:"100%"}}>
-      {loading ? loadLabel : label}
-    </button>
-  );
-
-  const adresAlanlari = (obj: any, set: any, prefix="mulk_") => (
-    <>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        <div style={fld}>
-          <label style={lbl}>İL *</label>
-          <select style={inp} value={obj[`${prefix}il`] || obj.il} onChange={e=>set({...obj,[`${prefix}il`||"il"]:e.target.value})}>
-            {ILLER.map(i=><option key={i}>{i}</option>)}
-          </select>
-        </div>
-        <Inp label="İLÇE *" val={obj[`${prefix}ilce`]||obj.ilce} onChange={(e:any)=>set({...obj,[prefix+"ilce"]||"ilce":e.target.value})} ph="Kadıköy" />
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-        <Inp label="MAHALLE *" val={obj[`${prefix}mahalle`]||obj.mahalle} onChange={(e:any)=>set({...obj,[prefix+"mahalle"]||"mahalle":e.target.value})} ph="Moda" />
-        <Inp label="SOKAK" val={obj[`${prefix}sokak`]||obj.sokak} onChange={(e:any)=>set({...obj,[prefix+"sokak"]||"sokak":e.target.value})} ph="Bahariye Cad." />
-      </div>
-    </>
-  );
-
   const renderKira = () => (
     <div>
       <Section title="MÜLK BİLGİLERİ" />
