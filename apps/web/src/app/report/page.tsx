@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const AGENCY_ID = "41897482-1325-4f6d-83bf-d26583054f15";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 export default function ReportPage() {
