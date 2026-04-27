@@ -24,46 +24,48 @@ export default function LoginPage() {
     }
   }
 
+  const s = {
+    page: {minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#080808',fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif"} as React.CSSProperties,
+    card: {background:'#0d0d0d',padding:'40px',borderRadius:'14px',border:'1px solid #1a1a1a',width:'100%',maxWidth:'400px'} as React.CSSProperties,
+    label: {display:'block',fontSize:'12px',marginBottom:'6px',color:'#666',letterSpacing:1} as React.CSSProperties,
+    input: {width:'100%',padding:'10px 14px',borderRadius:'8px',border:'1px solid #222',fontSize:'13px',background:'#111',color:'#e0e0e0',boxSizing:'border-box' as const,outline:'none'} as React.CSSProperties,
+  }
+
   return (
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#f9f9f9'}}>
-      <div style={{background:'white',padding:'2rem',borderRadius:'12px',border:'1px solid #eee',width:'100%',maxWidth:'400px'}}>
-        <h1 style={{fontSize:'22px',fontWeight:'600',marginBottom:'0.5rem'}}>Vega'ya giriş yap</h1>
-        <p style={{color:'#666',fontSize:'14px',marginBottom:'1.5rem'}}>Emlak değerleme platformu</p>
+    <div style={s.page}>
+      <div style={s.card}>
+        <div style={{marginBottom:28}}>
+          <div style={{fontSize:18,color:'#FFD700',letterSpacing:4,fontWeight:300,marginBottom:4}}>VEGA</div>
+          <div style={{fontSize:20,fontWeight:500,color:'#e0e0e0'}}>Giriş yap</div>
+          <div style={{color:'#444',fontSize:13,marginTop:4}}>Emlak zeka platformuna hoş geldin</div>
+        </div>
+
         <form onSubmit={handleLogin}>
-          <div style={{marginBottom:'1rem'}}>
-            <label style={{display:'block',fontSize:'13px',marginBottom:'4px',color:'#444'}}>E-posta</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              style={{width:'100%',padding:'10px 12px',borderRadius:'8px',border:'1px solid #ddd',fontSize:'14px',boxSizing:'border-box'}}
-              placeholder="ornek@email.com"
-            />
+          <div style={{marginBottom:14}}>
+            <label style={s.label}>E-POSTA</label>
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required
+              placeholder="ornek@email.com" style={s.input} />
           </div>
-          <div style={{marginBottom:'1.5rem'}}>
-            <label style={{display:'block',fontSize:'13px',marginBottom:'4px',color:'#444'}}>Şifre</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              style={{width:'100%',padding:'10px 12px',borderRadius:'8px',border:'1px solid #ddd',fontSize:'14px',boxSizing:'border-box'}}
-              placeholder="••••••••"
-            />
+          <div style={{marginBottom:24}}>
+            <label style={s.label}>ŞİFRE</label>
+            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} required
+              placeholder="••••••••" style={s.input} />
           </div>
-          {error && <p style={{color:'#e53e3e',fontSize:'13px',marginBottom:'1rem'}}>{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{width:'100%',padding:'11px',background:'#000',color:'white',borderRadius:'8px',border:'none',fontSize:'14px',fontWeight:'500',cursor:loading?'not-allowed':'pointer',opacity:loading?0.7:1}}
-          >
-            {loading ? 'Giriş yapılıyor...' : 'Giriş yap'}
+
+          {error && <div style={{color:'#f87171',fontSize:13,marginBottom:16,padding:'10px 14px',background:'rgba(248,113,113,0.08)',borderRadius:8}}>{error}</div>}
+
+          <button type="submit" disabled={loading}
+            style={{width:'100%',padding:'12px',background:loading?'#222':'#FFD700',color:loading?'#555':'#000',
+              borderRadius:'8px',border:'none',fontSize:'14px',fontWeight:'700',cursor:loading?'not-allowed':'pointer',
+              letterSpacing:0.5,transition:'all 0.15s'}}>
+            {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
           </button>
         </form>
-        <p style={{textAlign:'center',marginTop:'1rem',fontSize:'13px',color:'#666'}}>
-          Hesabın yok mu? <a href="/auth/signup" style={{color:'#000',fontWeight:'500'}}>Kayıt ol</a>
-        </p>
+
+        <div style={{textAlign:'center',marginTop:20,fontSize:13,color:'#444'}}>
+          Hesabın yok mu?{' '}
+          <a href="/auth/signup" style={{color:'#FFD700',fontWeight:500,textDecoration:'none'}}>Kayıt ol</a>
+        </div>
       </div>
     </div>
   )

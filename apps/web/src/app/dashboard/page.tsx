@@ -6,13 +6,14 @@ import { useAgencyId } from "@/hooks/useAgencyId";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Ana Merkez", icon: "◈", desc: "AI & Genel Bakış" },
-  { href: "/valuation", label: "AI Değerleme", icon: "◎", desc: "Fiyat tahmini" },
-  { href: "/map", label: "Canlı Harita", icon: "◉", desc: "Koordinat bazlı" },
-  { href: "/listings", label: "İlan Yönetimi", icon: "▦", desc: "CSV yükleme" },
-  { href: "/zone-scores", label: "Bölge Skoru", icon: "◐", desc: "A/B/C/D analizi" },
-  { href: "/bina-karsilastirma", label: "Kat Analizi", icon: "▤", desc: "Bina içi fiyat" },
-  { href: "/report", label: "PDF Rapor", icon: "▣", desc: "Müşteri raporu" },
+  { href: "/dashboard",          label: "Ana Merkez",     icon: "◈", desc: "AI & Genel Bakış" },
+  { href: "/analysis",           label: "Analiz Merkezi", icon: "◎", desc: "Sözleşme & Piyasa" },
+  { href: "/valuation",          label: "AI Değerleme",   icon: "⚡", desc: "Fiyat tahmini" },
+  { href: "/map",                label: "Canlı Harita",   icon: "◉", desc: "Koordinat bazlı" },
+  { href: "/listings",           label: "İlan Yönetimi",  icon: "▦", desc: "CSV yükleme" },
+  { href: "/zone-scores",        label: "Bölge Skoru",    icon: "◐", desc: "A/B/C/D analizi" },
+  { href: "/bina-karsilastirma", label: "Kat Analizi",    icon: "▤", desc: "Bina içi fiyat" },
+  { href: "/report",             label: "PDF Rapor",      icon: "▣", desc: "Müşteri raporu" },
 ];
 
 const SUGGESTIONS = [
