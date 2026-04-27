@@ -1,17 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAgencyId } from "@/hooks/useAgencyId";
 
-const AGENCY_ID = "41897482-1325-4f6d-83bf-d26583054f15";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 export default function MapPage() {
+  const { agencyId } = useAgencyId();
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!agencyId) return;
     fetch(`${API_URL}/api/v1/listings?limit=100`, {
-      headers: { "agency-id": AGENCY_ID },
+      headers: { "agency-id": agencyId },
     })
       .then((r) => r.json())
       .then((d) => {
@@ -19,7 +21,7 @@ export default function MapPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [agencyId]);
 
   useEffect(() => {
     if (loading) return;

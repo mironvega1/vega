@@ -16,7 +16,7 @@ export default function SignupPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { agency_name: agencyName } }
@@ -25,6 +25,10 @@ export default function SignupPage() {
       setError(error.message)
       setLoading(false)
     } else {
+      // Store agency_id = user.id so each user has their own tenant scope
+      if (data.user) {
+        await supabase.auth.updateUser({ data: { agency_id: data.user.id } })
+      }
       router.push('/dashboard')
     }
   }

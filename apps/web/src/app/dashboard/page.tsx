@@ -2,8 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-
-const AGENCY_ID = "41897482-1325-4f6d-83bf-d26583054f15";
+import { useAgencyId } from "@/hooks/useAgencyId";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 const NAV_ITEMS = [
@@ -25,6 +24,7 @@ const SUGGESTIONS = [
 ];
 
 export default function Dashboard() {
+  const { agencyId } = useAgencyId();
   const [listings, setListings] = useState<any[]>([]);
   const [messages, setMessages] = useState<{role:string,content:string}[]>([
     {role:"assistant", content:"Merhaba! Ben Vega AI — Türkiye gayrimenkul piyasasının en kapsamlı AI asistanıyım.\n\nFiyat analizi, bölge karşılaştırması, yatırım tavsiyeleri ve piyasa trendleri konusunda yardımcı olabilirim.\n\nNe öğrenmek istersiniz?"}
@@ -37,7 +37,8 @@ export default function Dashboard() {
   const pathname = usePathname();
 
   useEffect(() => {
-    fetch(`${API_URL}/api/v1/listings?limit=500`, { headers: { "agency-id": AGENCY_ID } })
+    if (!agencyId) return;
+    fetch(`${API_URL}/api/v1/listings?limit=500`, { headers: { "agency-id": agencyId } })
       .then(r => r.json())
       .then(d => {
         const l = d.listings || [];
@@ -48,7 +49,7 @@ export default function Dashboard() {
         setStats({total:l.length, avg, avgM2, cities});
         setLoading(false);
       }).catch(()=>setLoading(false));
-  }, []);
+  }, [agencyId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({behavior:"smooth"});

@@ -1,24 +1,25 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useAgencyId } from "@/hooks/useAgencyId";
 
-const AGENCY_ID = "41897482-1325-4f6d-83bf-d26583054f15";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 export default function Listings() {
+  const { agencyId } = useAgencyId();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file || !agencyId) return;
     setLoading(true);
     const form = new FormData();
     form.append("file", file);
 
     const res = await fetch(`${API_URL}/api/v1/listings/import-csv?listing_type=satilik`, {
       method: "POST",
-      headers: { "agency-id": AGENCY_ID },
+      headers: { "agency-id": agencyId },
       body: form,
     });
     const data = await res.json();
