@@ -19,12 +19,12 @@ const NAV_ITEMS = [
 
 type Tab = "kira_soz" | "satis_soz" | "adres" | "deal" | "bolge" | "risk";
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: "kira_soz",  label: "Kira Sözleşmesi",    icon: "🏠" },
-  { id: "satis_soz", label: "Satış Sözleşmesi",   icon: "🤝" },
-  { id: "adres",     label: "Adres Analizi",       icon: "📍" },
-  { id: "deal",      label: "Deal Skoru",          icon: "🎯" },
-  { id: "bolge",     label: "Bölge Hakimiyeti",    icon: "🏆" },
-  { id: "risk",      label: "Risk Analizi",        icon: "⚠️" },
+  { id: "kira_soz",  label: "Kira Sözleşmesi",    icon: "▣" },
+  { id: "satis_soz", label: "Satış Sözleşmesi",   icon: "◫" },
+  { id: "adres",     label: "Adres Analizi",       icon: "◉" },
+  { id: "deal",      label: "Deal Skoru",          icon: "◈" },
+  { id: "bolge",     label: "Bölge Hakimiyeti",    icon: "◭" },
+  { id: "risk",      label: "Risk Analizi",        icon: "◎" },
 ];
 
 const D = {
@@ -176,12 +176,9 @@ export default function AnalysisPage() {
   const renderKira = () => (
     <div>
       {/* Info banner */}
-      <div style={{background:"rgba(255,215,0,0.05)",border:"1px solid rgba(255,215,0,0.15)",borderRadius:8,padding:"10px 14px",marginBottom:4,display:"flex",alignItems:"flex-start",gap:10}}>
-        <span style={{color:D.gold,fontSize:14,marginTop:1}}>📋</span>
-        <div>
-          <div style={{fontSize:12,color:D.gold,fontWeight:500,marginBottom:2}}>TBK Uyumlu Kira Sözleşmesi</div>
-          <div style={{fontSize:11,color:D.muted,lineHeight:1.5}}>Tüm alanları doldurun — kefil, TC, depozito ve artış oranı sözleşmeye işlenir.</div>
-        </div>
+      <div style={{background:"rgba(255,215,0,0.05)",border:"1px solid rgba(255,215,0,0.15)",borderRadius:8,padding:"10px 14px",marginBottom:4}}>
+        <div style={{fontSize:12,color:D.gold,fontWeight:500,marginBottom:2}}>▣ TBK Uyumlu Kira Sözleşmesi</div>
+        <div style={{fontSize:11,color:D.muted,lineHeight:1.5}}>Tüm alanları doldurun — kefil, TC, depozito ve artış oranı sözleşmeye işlenir.</div>
       </div>
 
       <Section title="MÜLK BİLGİLERİ" step={1} />
@@ -299,12 +296,9 @@ export default function AnalysisPage() {
 
   const renderSatis = () => (
     <div>
-      <div style={{background:"rgba(255,215,0,0.05)",border:"1px solid rgba(255,215,0,0.15)",borderRadius:8,padding:"10px 14px",marginBottom:4,display:"flex",alignItems:"flex-start",gap:10}}>
-        <span style={{color:D.gold,fontSize:14,marginTop:1}}>🤝</span>
-        <div>
-          <div style={{fontSize:12,color:D.gold,fontWeight:500,marginBottom:2}}>Satış Ön Sözleşmesi (Promesse)</div>
-          <div style={{fontSize:11,color:D.muted,lineHeight:1.5}}>Ada/parsel, ödeme planı ve cezai şart dahil tam tapu devir belgesi.</div>
-        </div>
+      <div style={{background:"rgba(255,215,0,0.05)",border:"1px solid rgba(255,215,0,0.15)",borderRadius:8,padding:"10px 14px",marginBottom:4}}>
+        <div style={{fontSize:12,color:D.gold,fontWeight:500,marginBottom:2}}>◫ Satış Ön Sözleşmesi (Promesse)</div>
+        <div style={{fontSize:11,color:D.muted,lineHeight:1.5}}>Ada/parsel, ödeme planı ve cezai şart dahil tam tapu devir belgesi.</div>
       </div>
       <Section title="TAŞINMAZ BİLGİLERİ" />
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>

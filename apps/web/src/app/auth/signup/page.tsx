@@ -54,11 +54,11 @@ const STATS = [
 
 const FEATURES = [
   { icon: '◎', title: 'AI Değerleme', desc: 'Sokak bazlı fiyat tahmini, SHAP açıklaması ile her faktörü görün.' },
-  { icon: '📋', title: 'Sözleşme Üretici', desc: 'Kira & satış sözleşmeleri, kefil, depozito, TC dahil tam hukuki taslak.' },
-  { icon: '📍', title: 'Adres Analizi', desc: 'Sokak numarasına kadar inerek gerçekçi piyasa & yatırım analizi.' },
-  { icon: '🎯', title: 'Deal Skoru', desc: 'Her mülk için 0-100 fırsat puanı — kaçırma / ortalama / pahalı.' },
+  { icon: '▣', title: 'Sözleşme Üretici', desc: 'Kira & satış sözleşmeleri, kefil, depozito, TC dahil tam hukuki taslak.' },
+  { icon: '◐', title: 'Adres Analizi', desc: 'Sokak numarasına kadar inerek gerçekçi piyasa & yatırım analizi.' },
+  { icon: '◈', title: 'Deal Skoru', desc: 'Her mülk için 0-100 fırsat puanı — kaçırma / ortalama / pahalı.' },
   { icon: '◉', title: 'Canlı Harita', desc: 'Tüm acente portföyü harita üzerinde. (Kurumsal plan)' },
-  { icon: '🏆', title: 'Bölge Hakimiyeti', desc: '90 günlük aksiyon planı ile hedef ilçede pazar liderliği.' },
+  { icon: '◭', title: 'Bölge Hakimiyeti', desc: '90 günlük aksiyon planı ile hedef ilçede pazar liderliği.' },
 ]
 
 export default function SignupPage() {
