@@ -6,14 +6,15 @@ import { useAgencyId } from "@/hooks/useAgencyId";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 const NAV_ITEMS = [
-  { href: "/dashboard",          label: "Ana Merkez",     icon: "◈", desc: "AI & Genel Bakış" },
-  { href: "/analysis",           label: "Analiz Merkezi", icon: "◎", desc: "Sözleşme & Piyasa" },
-  { href: "/valuation",          label: "AI Değerleme",   icon: "⚡", desc: "Fiyat tahmini" },
-  { href: "/map",                label: "Canlı Harita",   icon: "◉", desc: "Koordinat bazlı" },
-  { href: "/listings",           label: "İlan Yönetimi",  icon: "▦", desc: "CSV yükleme" },
-  { href: "/zone-scores",        label: "Bölge Skoru",    icon: "◐", desc: "A/B/C/D analizi" },
-  { href: "/bina-karsilastirma", label: "Kat Analizi",    icon: "▤", desc: "Bina içi fiyat" },
-  { href: "/report",             label: "PDF Rapor",      icon: "▣", desc: "Müşteri raporu" },
+  { href: "/dashboard",          label: "Ana Merkez",        icon: "◈", desc: "AI & Genel Bakış" },
+  { href: "/analysis",           label: "Analiz Merkezi",    icon: "◎", desc: "Sözleşme & Piyasa" },
+  { href: "/valuation",          label: "AI Değerleme",      icon: "⚡", desc: "Fiyat tahmini" },
+  { href: "/map",                label: "Canlı Harita",      icon: "◉", desc: "Koordinat bazlı" },
+  { href: "/listings",           label: "İlan Yönetimi",     icon: "▦", desc: "CSV yükleme" },
+  { href: "/zone-scores",        label: "Bölge Skoru",       icon: "◐", desc: "A/B/C/D analizi" },
+  { href: "/bina-karsilastirma", label: "Kat Analizi",       icon: "▤", desc: "Bina içi fiyat" },
+  { href: "/emsal",              label: "Emsal İstihbarat",  icon: "◭", desc: "Piyasa analizi" },
+  { href: "/report",             label: "PDF Rapor",         icon: "▣", desc: "Müşteri raporu" },
 ];
 
 const SUGGESTIONS = [
@@ -82,8 +83,8 @@ export default function Dashboard() {
   const STAT_CARDS = [
     { label: "Toplam İlan", value: loading ? "..." : stats.total.toLocaleString("tr-TR"), sub: "aktif portföy", color: "#FFD700" },
     { label: "Ort. Fiyat", value: loading ? "..." : `₺${(stats.avg/1000000).toFixed(1)}M`, sub: "piyasa ortalaması", color: "#22c55e" },
-    { label: "Ort. m²", value: loading ? "..." : `${stats.avgM2}m²`, sub: "metrekare", color: "#3b82f6" },
-    { label: "Şehir", value: loading ? "..." : stats.cities.toString(), sub: "aktif il", color: "#a855f7" },
+    { label: "Ort. m²", value: loading ? "..." : `${stats.avgM2}m²`, sub: "metrekare", color: "#e0e0e0" },
+    { label: "Şehir", value: loading ? "..." : stats.cities.toString(), sub: "aktif il", color: "#aaaaaa" },
   ];
 
   return (

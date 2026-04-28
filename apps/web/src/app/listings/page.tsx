@@ -1,94 +1,164 @@
-"use client";
-import { useState } from "react";
-import Link from "next/link";
-import { useAgencyId } from "@/hooks/useAgencyId";
+"use client"
+import React, { useState } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
+import { useAgencyId } from "@/hooks/useAgencyId"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com"
+const D = { bg:"#080808", bg2:"#0d0d0d", brd:"#161616", brd2:"#1e1e1e", gold:"#FFD700", text:"#e0e0e0", muted:"#555", dim:"#333" }
+
+const NAV_ITEMS = [
+  { href:"/dashboard",          label:"Ana Merkez",        icon:"◈" },
+  { href:"/analysis",           label:"Analiz Merkezi",    icon:"◎" },
+  { href:"/valuation",          label:"AI Değerleme",      icon:"⚡" },
+  { href:"/map",                label:"Canlı Harita",      icon:"◉" },
+  { href:"/listings",           label:"İlan Yönetimi",     icon:"▦" },
+  { href:"/zone-scores",        label:"Bölge Skoru",       icon:"◐" },
+  { href:"/bina-karsilastirma", label:"Kat Analizi",       icon:"▤" },
+  { href:"/emsal",              label:"Emsal İstihbarat",  icon:"◭" },
+  { href:"/report",             label:"PDF Rapor",         icon:"▣" },
+]
+
+const COLUMNS = ["fiyat","net_m2","oda_sayisi","kat_no","toplam_kat","ilce","bina_yasi","cephe"]
 
 export default function Listings() {
-  const { agencyId } = useAgencyId();
-  const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const pathname = usePathname()
+  const { agencyId } = useAgencyId()
+  const [file, setFile] = useState<File | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<any>(null)
+  const [drag, setDrag] = useState(false)
 
   const handleUpload = async () => {
-    if (!file || !agencyId) return;
-    setLoading(true);
-    const form = new FormData();
-    form.append("file", file);
+    if (!file || !agencyId) return
+    setLoading(true)
+    const form = new FormData()
+    form.append("file", file)
+    try {
+      const res = await fetch(`${API_URL}/api/v1/listings/import-csv?listing_type=satilik`, {
+        method: "POST", headers: { "agency-id": agencyId }, body: form
+      })
+      setResult(await res.json())
+    } catch { setResult({ error: "Bağlantı hatası." }) }
+    setLoading(false)
+  }
 
-    const res = await fetch(`${API_URL}/api/v1/listings/import-csv?listing_type=satilik`, {
-      method: "POST",
-      headers: { "agency-id": agencyId },
-      body: form,
-    });
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
-  };
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDrag(false)
+    const f = e.dataTransfer.files[0]
+    if (f?.name.endsWith(".csv")) setFile(f)
+  }
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
-      <header className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold tracking-tight">VEGA</Link>
-        <nav className="flex items-center gap-6 text-sm text-gray-400">
-          <Link href="/dashboard" className="hover:text-white">Dashboard</Link>
-          <Link href="/listings" className="text-white">İlanlar</Link>
-          <Link href="/valuation" className="hover:text-white">Değerleme</Link>
+    <div style={{ display:"flex", height:"100vh", background:D.bg, color:D.text, fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif", overflow:"hidden" }}>
+
+      {/* Sidebar */}
+      <div style={{ width:220, borderRight:`1px solid ${D.brd}`, display:"flex", flexDirection:"column", background:D.bg2, flexShrink:0 }}>
+        <div style={{ padding:"22px 18px 18px", borderBottom:`1px solid ${D.brd}` }}>
+          <div style={{ fontSize:20, color:D.gold, letterSpacing:4, fontWeight:300 }}>VEGA</div>
+          <div style={{ fontSize:9, color:D.dim, marginTop:3, letterSpacing:4 }}>INTELLIGENCE PLATFORM</div>
+        </div>
+        <nav style={{ flex:1, padding:"10px 0", overflowY:"auto" }}>
+          {NAV_ITEMS.map(item => {
+            const active = pathname === item.href
+            return (
+              <Link key={item.href} href={item.href} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 18px", color:active?D.gold:D.muted, textDecoration:"none", fontSize:12, borderLeft:active?`2px solid ${D.gold}`:`2px solid transparent`, background:active?"rgba(255,215,0,0.05)":"transparent" }}>
+                <span style={{ fontSize:15, width:18, textAlign:"center" }}>{item.icon}</span>
+                <span style={{ fontWeight:active?500:400 }}>{item.label}</span>
+              </Link>
+            )
+          })}
         </nav>
-      </header>
+      </div>
 
-      <div className="max-w-3xl mx-auto px-6 py-10">
-        <h1 className="text-2xl font-bold mb-8">İlan Yükle</h1>
+      {/* Main */}
+      <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-          <h2 className="font-semibold mb-2">CSV Dosyası Yükle</h2>
-          <p className="text-gray-400 text-sm mb-6">
-            CSV dosyanızda şu kolonlar olmalı: fiyat, net_m2, oda_sayisi, kat_no, toplam_kat, ilce, bina_yasi, cephe
-          </p>
-
-          <div className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center mb-6 hover:border-purple-600 transition-colors">
-            <input
-              type="file"
-              accept=".csv"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="hidden"
-              id="csv-upload"
-            />
-            <label htmlFor="csv-upload" className="cursor-pointer">
-              <div className="text-gray-400 text-sm">
-                {file ? (
-                  <span className="text-purple-400 font-medium">{file.name}</span>
-                ) : (
-                  <>CSV dosyasını seçmek için tıklayın</>
-                )}
-              </div>
-            </label>
+        {/* Header */}
+        <div style={{ padding:"18px 28px", borderBottom:`1px solid ${D.brd}`, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div>
+            <div style={{ fontSize:16, fontWeight:500 }}>İlan Yönetimi</div>
+            <div style={{ fontSize:11, color:D.muted, marginTop:2 }}>CSV ile toplu ilan yükleme · Satılık & kiralık portföy</div>
           </div>
+          <div style={{ background:"rgba(255,215,0,0.08)", border:"1px solid rgba(255,215,0,0.2)", borderRadius:16, padding:"4px 12px", fontSize:11, color:D.gold, letterSpacing:1 }}>▦ PORTFÖY</div>
+        </div>
 
-          <button
-            onClick={handleUpload}
-            disabled={!file || loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-3 rounded-xl font-medium transition-colors"
-          >
-            {loading ? "Yükleniyor..." : "İlanları Yükle"}
-          </button>
+        {/* Content */}
+        <div style={{ flex:1, overflowY:"auto", padding:"32px 28px" }}>
+          <div style={{ maxWidth:600, margin:"0 auto" }}>
 
-          {result && (
-            <div className="mt-6 p-4 bg-gray-800 rounded-xl">
-              <div className="text-green-400 font-medium mb-1">
-                ✓ {result.success} ilan başarıyla yüklendi
+            {/* Columns info */}
+            <div style={{ background:"rgba(255,215,0,0.04)", border:"1px solid rgba(255,215,0,0.12)", borderRadius:10, padding:"14px 18px", marginBottom:24 }}>
+              <div style={{ fontSize:12, color:D.gold, fontWeight:500, marginBottom:10 }}>Gerekli CSV Kolonları</div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                {COLUMNS.map(c => (
+                  <span key={c} style={{ background:"rgba(255,215,0,0.06)", border:"1px solid rgba(255,215,0,0.15)", borderRadius:5, padding:"3px 10px", fontSize:11, color:"rgba(255,215,0,0.7)", fontFamily:"monospace" }}>{c}</span>
+                ))}
               </div>
-              {result.error > 0 && (
-                <div className="text-red-400 text-sm">{result.error} ilan yüklenemedi</div>
-              )}
-              {result.errors?.map((e: string, i: number) => (
-                <div key={i} className="text-gray-400 text-xs mt-1">{e}</div>
-              ))}
+              <div style={{ fontSize:11, color:D.dim, marginTop:10 }}>il (opsiyonel) · satilik_kiralik (opsiyonel)</div>
             </div>
-          )}
+
+            {/* Drop zone */}
+            <div
+              onDragOver={e => { e.preventDefault(); setDrag(true) }}
+              onDragLeave={() => setDrag(false)}
+              onDrop={onDrop}
+              onClick={() => document.getElementById("csv-upload")?.click()}
+              style={{
+                border: `2px dashed ${drag ? "rgba(255,215,0,0.5)" : file ? "rgba(255,215,0,0.25)" : "#222"}`,
+                borderRadius: 12, padding: "44px", textAlign: "center", marginBottom: 16,
+                background: drag ? "rgba(255,215,0,0.04)" : file ? "rgba(255,215,0,0.02)" : "transparent",
+                transition: "all 0.15s", cursor: "pointer"
+              }}
+            >
+              <input type="file" accept=".csv" id="csv-upload" style={{ display:"none" }}
+                onChange={e => setFile(e.target.files?.[0] || null)} />
+              <div style={{ fontSize:28, marginBottom:12, color: file ? D.gold : D.dim }}>▦</div>
+              {file ? (
+                <div>
+                  <div style={{ fontSize:14, color:D.gold, fontWeight:500 }}>{file.name}</div>
+                  <div style={{ fontSize:11, color:D.muted, marginTop:4 }}>{(file.size / 1024).toFixed(1)} KB · Yüklemek için butona tıklayın</div>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize:13, color:D.muted }}>CSV dosyasını buraya sürükleyin</div>
+                  <div style={{ fontSize:11, color:D.dim, marginTop:4 }}>veya seçmek için tıklayın</div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleUpload}
+              disabled={!file || loading || !agencyId}
+              style={{
+                width: "100%", padding: "13px", borderRadius: 8, border: "none", fontSize: 13, fontWeight: 700,
+                background: !file || loading || !agencyId ? D.brd : D.gold,
+                color: !file || loading || !agencyId ? D.muted : "#000",
+                cursor: !file || loading || !agencyId ? "not-allowed" : "pointer",
+                letterSpacing: 0.3
+              }}>
+              {loading ? "İlanlar Yükleniyor..." : "İlanları Yükle →"}
+            </button>
+
+            {result && (
+              <div style={{ marginTop:20, background:D.bg2, border:`1px solid ${result.success > 0 ? "rgba(34,197,94,0.2)" : "rgba(248,113,113,0.2)"}`, borderRadius:10, padding:"16px 20px" }}>
+                {result.success > 0 && (
+                  <div style={{ fontSize:14, color:"#22c55e", fontWeight:500, marginBottom:6 }}>✓ {result.success} ilan başarıyla yüklendi</div>
+                )}
+                {result.error > 0 && (
+                  <div style={{ fontSize:12, color:"#f87171", marginBottom:6 }}>{result.error} ilan yüklenemedi</div>
+                )}
+                {result.errors?.map((e: string, i: number) => (
+                  <div key={i} style={{ fontSize:11, color:D.dim, marginTop:3 }}>· {e}</div>
+                ))}
+              </div>
+            )}
+
+          </div>
         </div>
       </div>
-    </main>
-  );
+      <style>{`*::-webkit-scrollbar{width:4px}*::-webkit-scrollbar-track{background:transparent}*::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px}`}</style>
+    </div>
+  )
 }

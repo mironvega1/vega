@@ -6,14 +6,15 @@ import Link from "next/link";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 const NAV_ITEMS = [
-  { href: "/dashboard",          label: "Ana Merkez",     icon: "◈" },
-  { href: "/analysis",           label: "Analiz Merkezi", icon: "◎" },
-  { href: "/valuation",          label: "AI Değerleme",   icon: "⚡" },
-  { href: "/map",                label: "Canlı Harita",   icon: "◉" },
-  { href: "/listings",           label: "İlan Yönetimi",  icon: "▦" },
-  { href: "/zone-scores",        label: "Bölge Skoru",    icon: "◐" },
-  { href: "/bina-karsilastirma", label: "Kat Analizi",    icon: "▤" },
-  { href: "/report",             label: "PDF Rapor",      icon: "▣" },
+  { href: "/dashboard",          label: "Ana Merkez",        icon: "◈" },
+  { href: "/analysis",           label: "Analiz Merkezi",    icon: "◎" },
+  { href: "/valuation",          label: "AI Değerleme",      icon: "⚡" },
+  { href: "/map",                label: "Canlı Harita",      icon: "◉" },
+  { href: "/listings",           label: "İlan Yönetimi",     icon: "▦" },
+  { href: "/zone-scores",        label: "Bölge Skoru",       icon: "◐" },
+  { href: "/bina-karsilastirma", label: "Kat Analizi",       icon: "▤" },
+  { href: "/emsal",              label: "Emsal İstihbarat",  icon: "◭" },
+  { href: "/report",             label: "PDF Rapor",         icon: "▣" },
 ];
 
 type Tab = "kira_soz" | "satis_soz" | "adres" | "deal" | "bolge" | "risk";

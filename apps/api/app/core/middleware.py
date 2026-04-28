@@ -20,7 +20,7 @@ async def api_key_middleware(request: Request, call_next):
         "/api/v1/location/amenities",
         "/api/v1/ai/chat",
     ]
-    open_prefixes = ["/api/v1/analysis/"]
+    open_prefixes = ["/api/v1/analysis/", "/api/v1/emsal/"]
     path = request.url.path
     if path in open_paths or any(path.startswith(p) for p in open_prefixes):
         return await call_next(request)
