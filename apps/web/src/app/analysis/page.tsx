@@ -6,8 +6,9 @@ import Link from "next/link";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
 const NAV_ITEMS = [
-  { href: "/dashboard",          label: "Ana Merkez",        icon: "◈" },
-  { href: "/analysis",           label: "Analiz Merkezi",    icon: "◎" },
+  { href: "/dashboard",          label: "Ana Merkez",           icon: "◈" },
+  { href: "/ai",                 label: "Emlak Yapay Zekası",   icon: "◈" },
+  { href: "/analysis",           label: "Analiz Merkezi",       icon: "◎" },
   { href: "/valuation",          label: "AI Değerleme",      icon: "⚡" },
   { href: "/map",                label: "Canlı Harita",      icon: "◉" },
   { href: "/listings",           label: "İlan Yönetimi",     icon: "▦" },

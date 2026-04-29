@@ -1,130 +1,89 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAgencyId } from "@/hooks/useAgencyId";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
-const NAV_ITEMS = [
-  { href: "/dashboard",          label: "Ana Merkez",        icon: "◈" },
-  { href: "/analysis",           label: "Analiz Merkezi",    icon: "◎" },
-  { href: "/valuation",          label: "AI Değerleme",      icon: "⚡" },
-  { href: "/map",                label: "Canlı Harita",      icon: "◉" },
-  { href: "/listings",           label: "İlan Yönetimi",     icon: "▦" },
-  { href: "/zone-scores",        label: "Bölge Skoru",       icon: "◐" },
-  { href: "/bina-karsilastirma", label: "Kat Analizi",       icon: "▤" },
-  { href: "/emsal",              label: "Emsal İstihbarat",  icon: "◭" },
-  { href: "/report",             label: "PDF Rapor",         icon: "▣" },
-];
-
 const MODULES = [
-  {
-    id: "analysis",
-    title: "Analiz Merkezi",
-    desc: "Piyasa trendleri, bölgesel veriler ve portföy performansını derinlemesine analiz edin.",
-    icon: "◎",
-    href: "/analysis",
-    accent: "#FFD700",
-    bg: "rgba(255,215,0,0.04)",
-    border: "rgba(255,215,0,0.15)",
-    tag: null,
-  },
-  {
-    id: "contract",
-    title: "Sözleşme Merkezi",
-    desc: "Kira ve satış sözleşmelerini dijital ortamda oluşturun, imzalayın ve arşivleyin.",
-    icon: "▣",
-    href: "/report",
-    accent: "#22c55e",
-    bg: "rgba(34,197,94,0.04)",
-    border: "rgba(34,197,94,0.15)",
-    tag: "Yakında",
-  },
   {
     id: "valuation",
     title: "AI Değerleme",
-    desc: "Yapay zeka destekli fiyat analizi ile mülklerinizi saniyeler içinde doğru değerlendirin.",
+    desc: "Yapay zeka ile mülk fiyatını saniyeler içinde tahmin edin.",
     icon: "⚡",
     href: "/valuation",
     accent: "#a78bfa",
-    bg: "rgba(167,139,250,0.04)",
-    border: "rgba(167,139,250,0.15)",
     tag: "AI",
+  },
+  {
+    id: "analysis",
+    title: "Analiz Merkezi",
+    desc: "Sözleşme oluşturun, piyasa trendlerini ve bölgesel verileri analiz edin.",
+    icon: "◎",
+    href: "/analysis",
+    accent: "#FFD700",
+    tag: null,
   },
   {
     id: "map",
     title: "Canlı Harita",
-    desc: "İlanlarınızı ve bölgesel fırsatları interaktif harita üzerinde koordinat bazlı keşfedin.",
+    desc: "İlanları ve fırsatları interaktif harita üzerinde keşfedin.",
     icon: "◉",
     href: "/map",
     accent: "#38bdf8",
-    bg: "rgba(56,189,248,0.04)",
-    border: "rgba(56,189,248,0.15)",
     tag: null,
   },
   {
     id: "listings",
     title: "İlan Yönetimi",
-    desc: "Tüm ilanlarınızı yönetin, CSV ile toplu yükleme yapın ve mevcut ilanları takip edin.",
+    desc: "Tüm ilanlarınızı yönetin, CSV ile toplu yükleme yapın.",
     icon: "▦",
     href: "/listings",
     accent: "#fb923c",
-    bg: "rgba(251,146,60,0.04)",
-    border: "rgba(251,146,60,0.15)",
     tag: null,
   },
   {
     id: "zone",
     title: "Bölge Skoru",
-    desc: "Mahalleleri A/B/C/D skorlamasıyla değerlendirin, yatırım fırsatlarını tespit edin.",
+    desc: "Mahalleleri A/B/C/D skorlamasıyla değerlendirin.",
     icon: "◐",
     href: "/zone-scores",
     accent: "#f472b6",
-    bg: "rgba(244,114,182,0.04)",
-    border: "rgba(244,114,182,0.15)",
     tag: null,
   },
   {
     id: "bina",
     title: "Kat Analizi",
-    desc: "Bina içi fiyat farklarını kat bazında analiz edin, en avantajlı katı belirleyin.",
+    desc: "Bina içi fiyat farklarını kat bazında inceleyin.",
     icon: "▤",
     href: "/bina-karsilastirma",
     accent: "#34d399",
-    bg: "rgba(52,211,153,0.04)",
-    border: "rgba(52,211,153,0.15)",
     tag: null,
   },
   {
     id: "emsal",
     title: "Emsal İstihbarat",
-    desc: "Piyasa emsal verilerini analiz ederek rekabetçi fiyatlandırma stratejisi oluşturun.",
+    desc: "Piyasa emsal verilerini analiz ederek rekabetçi fiyat belirleyin.",
     icon: "◭",
     href: "/emsal",
     accent: "#e879f9",
-    bg: "rgba(232,121,249,0.04)",
-    border: "rgba(232,121,249,0.15)",
     tag: null,
   },
   {
     id: "report",
     title: "PDF Rapor",
-    desc: "Profesyonel müşteri raporları oluşturun ve PDF olarak anında paylaşın.",
+    desc: "Profesyonel müşteri raporlarını anında PDF olarak oluşturun.",
     icon: "▣",
     href: "/report",
     accent: "#60a5fa",
-    bg: "rgba(96,165,250,0.04)",
-    border: "rgba(96,165,250,0.15)",
     tag: null,
   },
 ];
 
 export default function Dashboard() {
   const { agencyId } = useAgencyId();
-  const [stats, setStats] = useState({ total: 0, avg: 0, avgM2: 0, cities: 0 });
+  const [stats, setStats] = useState({ total: 0, avg: 0, cities: 0 });
   const [loading, setLoading] = useState(true);
-  const pathname = usePathname();
 
   useEffect(() => {
     if (!agencyId) return;
@@ -133,140 +92,176 @@ export default function Dashboard() {
       .then(d => {
         const l = d.listings || [];
         const avg = l.length ? Math.round(l.reduce((a: number, b: any) => a + Number(b.fiyat), 0) / l.length) : 0;
-        const avgM2 = l.length ? Math.round(l.reduce((a: number, b: any) => a + Number(b.net_m2 || 0), 0) / l.length) : 0;
         const cities = new Set(l.map((x: any) => x.il).filter(Boolean)).size;
-        setStats({ total: l.length, avg, avgM2, cities });
+        setStats({ total: l.length, avg, cities });
         setLoading(false);
       }).catch(() => setLoading(false));
   }, [agencyId]);
 
-  const STAT_CARDS = [
-    { label: "TOPLAM İLAN",  value: loading ? "..." : stats.total.toLocaleString("tr-TR"), color: "#FFD700" },
-    { label: "ORT. FİYAT",   value: loading ? "..." : `₺${(stats.avg / 1000000).toFixed(1)}M`, color: "#22c55e" },
-    { label: "ORT. M²",      value: loading ? "..." : `${stats.avgM2}m²`, color: "#e0e0e0" },
-    { label: "AKTİF İL",     value: loading ? "..." : stats.cities.toString(), color: "#aaaaaa" },
-  ];
-
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#080808", color: "#e0e0e0", fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", overflow: "hidden" }}>
+    <div style={{
+      minHeight: "100vh",
+      background: "#080808",
+      color: "#e0e0e0",
+      fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+      overflowY: "auto",
+    }}>
 
-      {/* Sol Panel */}
-      <div style={{ width: 220, borderRight: "1px solid #161616", display: "flex", flexDirection: "column", background: "#0a0a0a", flexShrink: 0 }}>
-        <div style={{ padding: "24px 20px 16px", borderBottom: "1px solid #161616" }}>
-          <div style={{ fontSize: 22, color: "#FFD700", letterSpacing: 4, fontWeight: 300 }}>VEGA</div>
-          <div style={{ fontSize: 9, color: "#2a2a2a", marginTop: 3, letterSpacing: 4 }}>INTELLIGENCE</div>
+      {/* Üst Header */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "20px 40px", borderBottom: "1px solid #161616",
+        background: "#080808", position: "sticky", top: 0, zIndex: 10,
+      }}>
+        <div>
+          <span style={{ fontSize: 22, color: "#FFD700", letterSpacing: 4, fontWeight: 300 }}>VEGA</span>
+          <span style={{ fontSize: 10, color: "#2a2a2a", marginLeft: 10, letterSpacing: 3 }}>INTELLIGENCE</span>
         </div>
-        <nav style={{ flex: 1, padding: "10px 0", overflowY: "auto" }}>
-          {NAV_ITEMS.map(item => {
-            const active = pathname === item.href;
-            return (
-              <Link key={item.href} href={item.href} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 18px", color: active ? "#FFD700" : "#444", textDecoration: "none", fontSize: 12, borderLeft: active ? "2px solid #FFD700" : "2px solid transparent", background: active ? "rgba(255,215,0,0.05)" : "transparent", transition: "all 0.15s" }}>
-                <span style={{ fontSize: 14, width: 18, textAlign: "center" }}>{item.icon}</span>
-                <span style={{ fontWeight: active ? 500 : 400 }}>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-        <div style={{ padding: "12px 18px", borderTop: "1px solid #161616" }}>
-          <div style={{ fontSize: 10, color: "#2a2a2a" }}>Model: v0.2-gbm · Aktif</div>
-        </div>
-      </div>
-
-      {/* Ana İçerik */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-
-        {/* Üst İstatistik Barı */}
-        <div style={{ padding: "14px 28px", borderBottom: "1px solid #161616", display: "flex", gap: 14, alignItems: "center", flexShrink: 0 }}>
-          {STAT_CARDS.map((card, i) => (
-            <div key={i} style={{ flex: 1, background: "rgba(255,255,255,0.02)", border: "1px solid #161616", borderRadius: 10, padding: "10px 14px", borderTop: `2px solid ${card.color}22` }}>
-              <div style={{ fontSize: 10, color: "#333", marginBottom: 4, letterSpacing: 1 }}>{card.label}</div>
-              <div style={{ fontSize: 18, fontWeight: 600, color: card.color }}>{card.value}</div>
+        <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+          {[
+            { label: "İlan", value: loading ? "…" : stats.total.toLocaleString("tr-TR"), color: "#FFD700" },
+            { label: "Ort. Fiyat", value: loading ? "…" : `₺${(stats.avg / 1000000).toFixed(1)}M`, color: "#22c55e" },
+            { label: "Şehir", value: loading ? "…" : stats.cities.toString(), color: "#aaa" },
+          ].map(s => (
+            <div key={s.label} style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: "#333", marginTop: 1 }}>{s.label}</div>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Modül Kartları — Merkez */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "28px 28px" }}>
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: "#333", letterSpacing: 3, marginBottom: 4 }}>MODÜLLER</div>
-            <div style={{ fontSize: 18, color: "#888", fontWeight: 300 }}>Hangi merkezi kullanmak istersiniz?</div>
+      {/* İçerik */}
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 32px 60px" }}>
+
+        {/* Karşılama */}
+        <div style={{ marginBottom: 36 }}>
+          <div style={{ fontSize: 26, fontWeight: 300, color: "#888", marginBottom: 6 }}>Hoş geldiniz</div>
+          <div style={{ fontSize: 13, color: "#2e2e2e" }}>Bir merkez seçerek başlayın</div>
+        </div>
+
+        {/* Emlak Yapay Zekası — Öne Çıkarılmış Kart */}
+        <Link href="/ai" style={{ textDecoration: "none", display: "block", marginBottom: 20 }}>
+          <div
+            style={{
+              background: "linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(255,215,0,0.02) 100%)",
+              border: "1px solid rgba(255,215,0,0.2)",
+              borderRadius: 18,
+              padding: "28px 32px",
+              display: "flex",
+              alignItems: "center",
+              gap: 28,
+              cursor: "pointer",
+              transition: "all 0.2s",
+              position: "relative",
+              overflow: "hidden",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,215,0,0.4)";
+              (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.04) 100%)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,215,0,0.2)";
+              (e.currentTarget as HTMLDivElement).style.background = "linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(255,215,0,0.02) 100%)";
+            }}
+          >
+            {/* Dekoratif arka plan */}
+            <div style={{
+              position: "absolute", right: -20, top: -20,
+              fontSize: 120, color: "rgba(255,215,0,0.03)",
+              fontWeight: 900, userSelect: "none", pointerEvents: "none",
+            }}>AI</div>
+
+            {/* İkon */}
+            <div style={{
+              width: 64, height: 64, borderRadius: 16, flexShrink: 0,
+              background: "rgba(255,215,0,0.1)",
+              border: "1px solid rgba(255,215,0,0.25)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 28, color: "#FFD700",
+            }}>◈</div>
+
+            {/* Metin */}
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                <span style={{ fontSize: 18, fontWeight: 600, color: "#e0e0e0" }}>Emlak Yapay Zekası</span>
+                <span style={{
+                  fontSize: 9, fontWeight: 700, letterSpacing: 1,
+                  padding: "3px 8px", borderRadius: 20,
+                  background: "rgba(255,215,0,0.15)", color: "#FFD700",
+                  border: "1px solid rgba(255,215,0,0.3)",
+                }}>AI</span>
+              </div>
+              <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6 }}>
+                Türkiye gayrimenkul piyasasının en kapsamlı AI asistanı — fiyat analizi, bölge karşılaştırması,
+                yatırım tavsiyeleri ve piyasa trendleri konusunda anında yanıt alın.
+              </div>
+            </div>
+
+            {/* Ok */}
+            <div style={{ fontSize: 20, color: "rgba(255,215,0,0.4)", flexShrink: 0 }}>→</div>
           </div>
+        </Link>
 
-          {/* 3'lü grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-            {MODULES.map(mod => (
-              <Link
-                key={mod.id}
-                href={mod.href}
-                style={{ textDecoration: "none" }}
+        {/* Diğer Modüller — 4'lü grid */}
+        <div style={{ fontSize: 10, color: "#2a2a2a", letterSpacing: 3, marginBottom: 14 }}>DİĞER MODÜLLER</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+          {MODULES.map(mod => (
+            <Link key={mod.id} href={mod.href} style={{ textDecoration: "none" }}>
+              <div
+                style={{
+                  background: `${mod.accent}08`,
+                  border: `1px solid ${mod.accent}20`,
+                  borderRadius: 14,
+                  padding: "20px 18px 16px",
+                  cursor: "pointer",
+                  transition: "all 0.18s",
+                  height: "100%",
+                  boxSizing: "border-box",
+                  position: "relative",
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = `${mod.accent}50`;
+                  (e.currentTarget as HTMLDivElement).style.background = `${mod.accent}12`;
+                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = `${mod.accent}20`;
+                  (e.currentTarget as HTMLDivElement).style.background = `${mod.accent}08`;
+                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                }}
               >
-                <div
-                  style={{
-                    background: mod.bg,
-                    border: `1px solid ${mod.border}`,
-                    borderRadius: 14,
-                    padding: "22px 22px 18px",
-                    cursor: "pointer",
-                    transition: "all 0.18s",
-                    position: "relative",
-                    height: "100%",
-                    boxSizing: "border-box",
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = mod.accent + "55";
-                    (e.currentTarget as HTMLDivElement).style.background = mod.bg.replace("0.04", "0.08");
-                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = mod.border;
-                    (e.currentTarget as HTMLDivElement).style.background = mod.bg;
-                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-                  }}
-                >
-                  {/* Badge */}
-                  {mod.tag && (
-                    <span style={{
-                      position: "absolute", top: 14, right: 14,
-                      fontSize: 9, fontWeight: 600, letterSpacing: 1,
-                      padding: "3px 8px", borderRadius: 20,
-                      background: mod.tag === "Yakında" ? "#1a1a1a" : mod.accent + "22",
-                      color: mod.tag === "Yakında" ? "#333" : mod.accent,
-                      border: `1px solid ${mod.tag === "Yakında" ? "#222" : mod.accent + "33"}`,
-                    }}>
-                      {mod.tag}
-                    </span>
-                  )}
+                {mod.tag && (
+                  <span style={{
+                    position: "absolute", top: 12, right: 12,
+                    fontSize: 9, fontWeight: 700, letterSpacing: 1,
+                    padding: "2px 7px", borderRadius: 20,
+                    background: `${mod.accent}20`, color: mod.accent,
+                    border: `1px solid ${mod.accent}35`,
+                  }}>{mod.tag}</span>
+                )}
 
-                  {/* İkon */}
-                  <div style={{
-                    fontSize: 28, color: mod.accent, marginBottom: 12,
-                    width: 44, height: 44, borderRadius: 10,
-                    background: mod.accent + "11",
-                    border: `1px solid ${mod.accent}22`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    {mod.icon}
-                  </div>
+                <div style={{
+                  fontSize: 22, color: mod.accent, marginBottom: 10,
+                  width: 40, height: 40, borderRadius: 10,
+                  background: `${mod.accent}12`,
+                  border: `1px solid ${mod.accent}25`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>{mod.icon}</div>
 
-                  {/* Başlık */}
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#e0e0e0", marginBottom: 6 }}>
-                    {mod.title}
-                  </div>
-
-                  {/* Açıklama */}
-                  <div style={{ fontSize: 11, color: "#444", lineHeight: 1.65 }}>
-                    {mod.desc}
-                  </div>
-
-                  {/* Ok */}
-                  <div style={{ marginTop: 14, fontSize: 11, color: mod.accent + "88", display: "flex", alignItems: "center", gap: 4 }}>
-                    <span>Aç</span>
-                    <span style={{ fontSize: 10 }}>→</span>
-                  </div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#d0d0d0", marginBottom: 5 }}>
+                  {mod.title}
                 </div>
-              </Link>
-            ))}
-          </div>
+                <div style={{ fontSize: 11, color: "#3a3a3a", lineHeight: 1.6 }}>
+                  {mod.desc}
+                </div>
+
+                <div style={{ marginTop: 12, fontSize: 11, color: `${mod.accent}70` }}>
+                  Aç →
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

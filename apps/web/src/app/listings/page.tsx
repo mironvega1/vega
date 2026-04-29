@@ -8,7 +8,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrend
 const D = { bg:"#080808", bg2:"#0d0d0d", brd:"#161616", brd2:"#1e1e1e", gold:"#FFD700", text:"#e0e0e0", muted:"#555", dim:"#333" }
 
 const NAV_ITEMS = [
-  { href:"/dashboard",          label:"Ana Merkez",        icon:"◈" },
+  { href:"/dashboard",          label:"Ana Merkez",           icon:"◈" },
+  { href:"/ai",                 label:"Emlak Yapay Zekası",   icon:"◈" },
   { href:"/analysis",           label:"Analiz Merkezi",    icon:"◎" },
   { href:"/valuation",          label:"AI Değerleme",      icon:"⚡" },
   { href:"/map",                label:"Canlı Harita",      icon:"◉" },
