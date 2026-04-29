@@ -1,43 +1,24 @@
 "use client";
 import React, { useState } from "react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
-
-const NAV_ITEMS = [
-  { href: "/dashboard",          label: "Ana Merkez",           icon: "◈" },
-  { href: "/ai",                 label: "Emlak Yapay Zekası",   icon: "◈" },
-  { href: "/sozlesme",           label: "Sözleşme Merkezi",     icon: "▣" },
-  { href: "/analysis",           label: "Analiz Merkezi",       icon: "◎" },
-  { href: "/valuation",          label: "AI Değerleme",         icon: "⚡" },
-  { href: "/map",                label: "Canlı Harita",         icon: "◉" },
-  { href: "/listings",           label: "İlan Yönetimi",        icon: "▦" },
-  { href: "/zone-scores",        label: "Bölge Skoru",          icon: "◐" },
-  { href: "/bina-karsilastirma", label: "Kat Analizi",          icon: "▤" },
-  { href: "/emsal",              label: "Emsal İstihbarat",     icon: "◭" },
-  { href: "/report",             label: "PDF Rapor",            icon: "▣" },
-];
 
 type SozlesmeType = "kira" | "satis";
 
 const SOZLESME_CARDS = [
   {
     id: "kira" as SozlesmeType,
-    title: "Kira Sözleşmesi",
-    desc: "TBK uyumlu, kefil ve depozito dahil tam kira sözleşmesi oluşturun.",
-    detail: "Mülk bilgileri, kiracı/kiraya veren TC kimlik, kefil, depozito, artış oranı ve özel şartlar dahil kapsamlı kira sözleşmesi. PDF olarak indirilebilir.",
+    title: "Kira Sozlesmesi",
+    detail: "TBK uyumlu, kefil ve depozito dahil eksiksiz kira sozlesmesi. PDF olarak indirin.",
     accent: "#FFD700",
-    icon: "▣",
     tag: "TBK Uyumlu",
   },
   {
     id: "satis" as SozlesmeType,
-    title: "Satış Ön Sözleşmesi",
-    desc: "Ada/parsel, ödeme planı ve cezai şart dahil tapu devir belgesi oluşturun.",
-    detail: "Taşınmaz bilgileri, alıcı/satıcı bilgileri, ödeme planı, peşinat, kalan tutar, teslim tarihi ve cezai şart ile tam promesse belgesi. PDF olarak indirilebilir.",
+    title: "Satis On Sozlesmesi",
+    detail: "Ada/parsel, odeme plani, pesinat ve cezai sart dahil tam promesse belgesi. PDF olarak indirin.",
     accent: "#22c55e",
-    icon: "◫",
     tag: "Promesse",
   },
 ];
@@ -73,7 +54,7 @@ const Section = ({ title, step }: { title: string; step?: number }) => (
 function downloadPDF(content: string, title: string) {
   const date = new Date().toLocaleDateString("tr-TR");
   const safeContent = content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const html = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${title}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Times New Roman',Times,serif;font-size:11.5pt;line-height:1.85;color:#1a1a1a;background:#fff}.page{max-width:21cm;margin:0 auto;padding:2.5cm 3cm}.hdr{text-align:center;border-bottom:2px solid #1a1a1a;padding-bottom:14px;margin-bottom:28px}.hdr h1{font-size:15pt;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}.hdr p{font-size:10pt;color:#666;margin-top:6px}.body{white-space:pre-wrap;font-family:'Times New Roman',Times,serif}.ftr{margin-top:48px;padding-top:12px;border-top:1px solid #ccc;font-size:8.5pt;color:#aaa;text-align:center}@media print{.page{padding:0}@page{margin:2cm 2.5cm;size:A4}}</style></head><body><div class="page"><div class="hdr"><h1>${title}</h1><p>${date} &nbsp;·&nbsp; Vega Intelligence Platform</p></div><div class="body">${safeContent}</div><div class="ftr">Bu belge Vega Intelligence Platform tarafından oluşturulmuştur. Hukuki bağlayıcılık için noter onayı gerekebilir.</div></div><script>window.onload=function(){setTimeout(function(){window.print()},400)}</script></body></html>`;
+  const html = `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${title}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Times New Roman',Times,serif;font-size:11.5pt;line-height:1.85;color:#1a1a1a;background:#fff}.page{max-width:21cm;margin:0 auto;padding:2.5cm 3cm}.hdr{text-align:center;border-bottom:2px solid #1a1a1a;padding-bottom:14px;margin-bottom:28px}.hdr h1{font-size:15pt;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}.hdr p{font-size:10pt;color:#666;margin-top:6px}.body{white-space:pre-wrap;font-family:'Times New Roman',Times,serif}.ftr{margin-top:48px;padding-top:12px;border-top:1px solid #ccc;font-size:8.5pt;color:#aaa;text-align:center}@media print{.page{padding:0}@page{margin:2cm 2.5cm;size:A4}}</style></head><body><div class="page"><div class="hdr"><h1>${title}</h1><p>${date} &nbsp;·&nbsp; Vega Intelligence Platform</p></div><div class="body">${safeContent}</div><div class="ftr">Bu belge Vega Intelligence Platform tarafindan olusturulmustur. Hukuki baglayicilik icin noter onayi gerekebilir.</div></div><script>window.onload=function(){setTimeout(function(){window.print()},400)}</script></body></html>`;
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   window.open(url, "_blank");
@@ -81,7 +62,6 @@ function downloadPDF(content: string, title: string) {
 }
 
 export default function SozlesmePage() {
-  const pathname = usePathname();
   const [selected, setSelected] = useState<SozlesmeType | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
@@ -89,8 +69,8 @@ export default function SozlesmePage() {
 
   const [kira, setKira] = useState({
     mulk_il: "istanbul", mulk_ilce: "", mulk_mahalle: "", mulk_sokak: "", mulk_kapi_no: "", mulk_daire_no: "",
-    mulk_tip: "Daire", mulk_m2: "", mulk_oda: "3+1", mulk_kat: "", mulk_esyali: "Hayır",
-    kira_bedeli: "", odeme_gunu: "Her ayın 1'i", sozlesme_suresi: "1 yıl",
+    mulk_tip: "Daire", mulk_m2: "", mulk_oda: "3+1", mulk_kat: "", mulk_esyali: "Hayir",
+    kira_bedeli: "", odeme_gunu: "Her ayin 1'i", sozlesme_suresi: "1 yil",
     baslangic_tarihi: "", depozito_ay: "2", artis_orani: "TUFE",
     kiraci_ad: "", kiraci_soyad: "", kiraci_tc: "", kiraci_telefon: "", kiraci_adres: "",
     ev_sahibi_ad: "", ev_sahibi_soyad: "", ev_sahibi_tc: "", ev_sahibi_telefon: "",
@@ -101,7 +81,7 @@ export default function SozlesmePage() {
     mulk_il: "istanbul", mulk_ilce: "", mulk_mahalle: "", mulk_sokak: "", mulk_kapi_no: "", mulk_daire_no: "",
     ada_parsel: "", mulk_tip: "Daire", mulk_m2: "", mulk_oda: "3+1",
     satis_bedeli: "", pesınat: "", kalan_odeme: "", odeme_tarihi: "", teslim_tarihi: "",
-    cezai_sart: "Satış bedelinin %10'u", ipotek_durumu: "Ipotek yok",
+    cezai_sart: "Satis bedelinin %10'u", ipotek_durumu: "Ipotek yok",
     alici_ad: "", alici_soyad: "", alici_tc: "", alici_telefon: "", alici_adres: "",
     satici_ad: "", satici_soyad: "", satici_tc: "", satici_telefon: "", satici_adres: "",
     ozel_sartlar: "",
@@ -113,7 +93,7 @@ export default function SozlesmePage() {
       const res = await fetch(`${API_URL}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const d = await res.json();
       setResult(d.sozlesme || JSON.stringify(d, null, 2));
-    } catch { setResult("Bağlantı hatası."); }
+    } catch { setResult("Baglanti hatasi."); }
     setLoading(false);
   };
 
@@ -124,7 +104,7 @@ export default function SozlesmePage() {
     <div>
       <div style={{ background: "rgba(255,215,0,0.05)", border: "1px solid rgba(255,215,0,0.15)", borderRadius: 8, padding: "10px 14px", marginBottom: 4 }}>
         <div style={{ fontSize: 12, color: D.gold, fontWeight: 500, marginBottom: 2 }}>TBK Uyumlu Kira Sozlesmesi</div>
-        <div style={{ fontSize: 11, color: D.muted, lineHeight: 1.5 }}>Tüm alanları doldurun — kefil, TC, depozito ve artış oranı sözleşmeye işlenir.</div>
+        <div style={{ fontSize: 11, color: D.muted, lineHeight: 1.5 }}>Tum alanlari doldurun — kefil, TC, depozito ve artis orani sozlesmeye islenir.</div>
       </div>
       <Section title="MULK BILGILERI" step={1} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -132,7 +112,7 @@ export default function SozlesmePage() {
           <select style={inp} value={kira.mulk_il} onChange={e => setKira({ ...kira, mulk_il: e.target.value })}>
             {ILLER.map(i => <option key={i}>{i}</option>)}
           </select></div>
-        <Inp label="ILCE *" val={kira.mulk_ilce} onChange={(e: any) => setKira({ ...kira, mulk_ilce: e.target.value })} ph="Kadıköy" />
+        <Inp label="ILCE *" val={kira.mulk_ilce} onChange={(e: any) => setKira({ ...kira, mulk_ilce: e.target.value })} ph="Kadikoy" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="MAHALLE *" val={kira.mulk_mahalle} onChange={(e: any) => setKira({ ...kira, mulk_mahalle: e.target.value })} ph="Moda" />
@@ -145,37 +125,37 @@ export default function SozlesmePage() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
         <div style={fld}><label style={lbl}>MULK TIPI</label>
           <select style={inp} value={kira.mulk_tip} onChange={e => setKira({ ...kira, mulk_tip: e.target.value })}>
-            {["Daire", "Dükkan", "Ofis", "Villa", "Depo"].map(o => <option key={o}>{o}</option>)}
+            {["Daire", "Dukkan", "Ofis", "Villa", "Depo"].map(o => <option key={o}>{o}</option>)}
           </select></div>
-        <Inp label="NET M²" val={kira.mulk_m2} onChange={(e: any) => setKira({ ...kira, mulk_m2: e.target.value })} ph="120" />
+        <Inp label="NET M2" val={kira.mulk_m2} onChange={(e: any) => setKira({ ...kira, mulk_m2: e.target.value })} ph="120" />
         <div style={fld}><label style={lbl}>ODA</label>
           <select style={inp} value={kira.mulk_oda} onChange={e => setKira({ ...kira, mulk_oda: e.target.value })}>
-            {["Stüdyo", "1+1", "2+1", "3+1", "4+1", "5+1"].map(o => <option key={o}>{o}</option>)}
+            {["Studyo", "1+1", "2+1", "3+1", "4+1", "5+1"].map(o => <option key={o}>{o}</option>)}
           </select></div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="KAT" val={kira.mulk_kat} onChange={(e: any) => setKira({ ...kira, mulk_kat: e.target.value })} ph="3" />
         <div style={fld}><label style={lbl}>ESYALI MI</label>
           <select style={inp} value={kira.mulk_esyali} onChange={e => setKira({ ...kira, mulk_esyali: e.target.value })}>
-            {["Hayır", "Evet", "Yarı Eşyalı"].map(o => <option key={o}>{o}</option>)}
+            {["Hayir", "Evet", "Yari Esyali"].map(o => <option key={o}>{o}</option>)}
           </select></div>
       </div>
       <Section title="KIRA KOSULLARI" step={2} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="AYLIK KIRA (TL) *" val={kira.kira_bedeli} onChange={(e: any) => setKira({ ...kira, kira_bedeli: e.target.value })} ph="25.000" />
-        <Inp label="ODEME GUNU" val={kira.odeme_gunu} onChange={(e: any) => setKira({ ...kira, odeme_gunu: e.target.value })} ph="Her ayın 1'i" />
+        <Inp label="ODEME GUNU" val={kira.odeme_gunu} onChange={(e: any) => setKira({ ...kira, odeme_gunu: e.target.value })} ph="Her ayin 1'i" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div style={fld}><label style={lbl}>SOZLESME SURESI</label>
           <select style={inp} value={kira.sozlesme_suresi} onChange={e => setKira({ ...kira, sozlesme_suresi: e.target.value })}>
-            {["6 ay", "1 yıl", "2 yıl", "3 yıl"].map(o => <option key={o}>{o}</option>)}
+            {["6 ay", "1 yil", "2 yil", "3 yil"].map(o => <option key={o}>{o}</option>)}
           </select></div>
         <Inp label="BASLANGIC TARIHI *" val={kira.baslangic_tarihi} onChange={(e: any) => setKira({ ...kira, baslangic_tarihi: e.target.value })} ph="01/06/2026" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div style={fld}><label style={lbl}>DEPOZITO</label>
           <select style={inp} value={kira.depozito_ay} onChange={e => setKira({ ...kira, depozito_ay: e.target.value })}>
-            {["1", "2", "3"].map(o => <option key={o}>{o + " aylık kira"}</option>)}
+            {["1", "2", "3"].map(o => <option key={o}>{o + " aylik kira"}</option>)}
           </select></div>
         <div style={fld}><label style={lbl}>ARTIS ORANI</label>
           <select style={inp} value={kira.artis_orani} onChange={e => setKira({ ...kira, artis_orani: e.target.value })}>
@@ -185,13 +165,13 @@ export default function SozlesmePage() {
       <Section title="KIRACI BILGILERI" step={3} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="AD *" val={kira.kiraci_ad} onChange={(e: any) => setKira({ ...kira, kiraci_ad: e.target.value })} ph="Ahmet" />
-        <Inp label="SOYAD *" val={kira.kiraci_soyad} onChange={(e: any) => setKira({ ...kira, kiraci_soyad: e.target.value })} ph="Yılmaz" />
+        <Inp label="SOYAD *" val={kira.kiraci_soyad} onChange={(e: any) => setKira({ ...kira, kiraci_soyad: e.target.value })} ph="Yilmaz" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="TC KIMLIK NO *" val={kira.kiraci_tc} onChange={(e: any) => setKira({ ...kira, kiraci_tc: e.target.value })} ph="12345678901" />
         <Inp label="TELEFON" val={kira.kiraci_telefon} onChange={(e: any) => setKira({ ...kira, kiraci_telefon: e.target.value })} ph="0532 xxx xx xx" />
       </div>
-      <Inp label="MEVCUT ADRES" val={kira.kiraci_adres} onChange={(e: any) => setKira({ ...kira, kiraci_adres: e.target.value })} ph="İstanbul, Şişli, Halaskargazi Cad. No:45" />
+      <Inp label="MEVCUT ADRES" val={kira.kiraci_adres} onChange={(e: any) => setKira({ ...kira, kiraci_adres: e.target.value })} ph="Istanbul, Sisli, Halaskargazi Cad. No:45" />
       <Section title="KIRAYA VEREN BILGILERI" step={4} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="AD *" val={kira.ev_sahibi_ad} onChange={(e: any) => setKira({ ...kira, ev_sahibi_ad: e.target.value })} ph="Fatma" />
@@ -211,8 +191,8 @@ export default function SozlesmePage() {
       <div style={fld}>
         <textarea style={{ ...inp, height: 80, resize: "vertical", lineHeight: 1.6 }}
           value={kira.ozel_sartlar} onChange={e => setKira({ ...kira, ozel_sartlar: e.target.value })}
-          placeholder="Evcil hayvan yasak. Aidat kiracıya ait. İzinsiz tadilat yapılamaz..." />
-        <div style={{ fontSize: 10, color: D.dim, marginTop: 4 }}>Boş bırakabilirsiniz — standart şartlar otomatik eklenir.</div>
+          placeholder="Evcil hayvan yasak. Aidat kiraciya ait. Izinsiz tadilat yapilamaz..." />
+        <div style={{ fontSize: 10, color: D.dim, marginTop: 4 }}>Bos birakabilirsiniz — standart sartlar otomatik eklenir.</div>
       </div>
       <button
         style={{ background: loading || !kira.mulk_ilce || !kira.kiraci_ad || !kira.kira_bedeli ? D.brd : D.gold, color: loading || !kira.mulk_ilce || !kira.kiraci_ad || !kira.kira_bedeli ? D.muted : "#000", border: "none", borderRadius: 8, padding: "13px 24px", fontSize: 13, fontWeight: 700, cursor: loading || !kira.mulk_ilce || !kira.kiraci_ad || !kira.kira_bedeli ? "not-allowed" : "pointer", width: "100%", marginTop: 8 }}
@@ -227,7 +207,7 @@ export default function SozlesmePage() {
     <div>
       <div style={{ background: "rgba(34,197,94,0.05)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 8, padding: "10px 14px", marginBottom: 4 }}>
         <div style={{ fontSize: 12, color: "#22c55e", fontWeight: 500, marginBottom: 2 }}>Satis On Sozlesmesi (Promesse)</div>
-        <div style={{ fontSize: 11, color: D.muted, lineHeight: 1.5 }}>Ada/parsel, ödeme planı ve cezai şart dahil tam tapu devir belgesi.</div>
+        <div style={{ fontSize: 11, color: D.muted, lineHeight: 1.5 }}>Ada/parsel, odeme plani ve cezai sart dahil tam tapu devir belgesi.</div>
       </div>
       <Section title="TASINMAZ BILGILERI" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -235,11 +215,11 @@ export default function SozlesmePage() {
           <select style={inp} value={satis.mulk_il} onChange={e => setSatis({ ...satis, mulk_il: e.target.value })}>
             {ILLER.map(i => <option key={i}>{i}</option>)}
           </select></div>
-        <Inp label="ILCE *" val={satis.mulk_ilce} onChange={(e: any) => setSatis({ ...satis, mulk_ilce: e.target.value })} ph="Beşiktaş" />
+        <Inp label="ILCE *" val={satis.mulk_ilce} onChange={(e: any) => setSatis({ ...satis, mulk_ilce: e.target.value })} ph="Besiktas" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="MAHALLE *" val={satis.mulk_mahalle} onChange={(e: any) => setSatis({ ...satis, mulk_mahalle: e.target.value })} ph="Levent" />
-        <Inp label="SOKAK *" val={satis.mulk_sokak} onChange={(e: any) => setSatis({ ...satis, mulk_sokak: e.target.value })} ph="Büyükdere Cad." />
+        <Inp label="SOKAK *" val={satis.mulk_sokak} onChange={(e: any) => setSatis({ ...satis, mulk_sokak: e.target.value })} ph="Buyukdere Cad." />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
         <Inp label="KAPI NO *" val={satis.mulk_kapi_no} onChange={(e: any) => setSatis({ ...satis, mulk_kapi_no: e.target.value })} ph="45" />
@@ -249,9 +229,9 @@ export default function SozlesmePage() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
         <div style={fld}><label style={lbl}>MULK TIPI</label>
           <select style={inp} value={satis.mulk_tip} onChange={e => setSatis({ ...satis, mulk_tip: e.target.value })}>
-            {["Daire", "Villa", "Dükkan", "Ofis", "Arsa"].map(o => <option key={o}>{o}</option>)}
+            {["Daire", "Villa", "Dukkan", "Ofis", "Arsa"].map(o => <option key={o}>{o}</option>)}
           </select></div>
-        <Inp label="NET M² *" val={satis.mulk_m2} onChange={(e: any) => setSatis({ ...satis, mulk_m2: e.target.value })} ph="150" />
+        <Inp label="NET M2 *" val={satis.mulk_m2} onChange={(e: any) => setSatis({ ...satis, mulk_m2: e.target.value })} ph="150" />
         <div style={fld}><label style={lbl}>ODA</label>
           <select style={inp} value={satis.mulk_oda} onChange={e => setSatis({ ...satis, mulk_oda: e.target.value })}>
             {["1+1", "2+1", "3+1", "4+1", "5+1"].map(o => <option key={o}>{o}</option>)}
@@ -272,18 +252,18 @@ export default function SozlesmePage() {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="TESLIM TARIHI" val={satis.teslim_tarihi} onChange={(e: any) => setSatis({ ...satis, teslim_tarihi: e.target.value })} ph="01/09/2026" />
-        <Inp label="CEZAI SART" val={satis.cezai_sart} onChange={(e: any) => setSatis({ ...satis, cezai_sart: e.target.value })} ph="Satış bedelinin %10'u" />
+        <Inp label="CEZAI SART" val={satis.cezai_sart} onChange={(e: any) => setSatis({ ...satis, cezai_sart: e.target.value })} ph="Satis bedelinin %10'u" />
       </div>
       <Section title="ALICI BILGILERI" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="AD *" val={satis.alici_ad} onChange={(e: any) => setSatis({ ...satis, alici_ad: e.target.value })} ph="Ali" />
-        <Inp label="SOYAD *" val={satis.alici_soyad} onChange={(e: any) => setSatis({ ...satis, alici_soyad: e.target.value })} ph="Çelik" />
+        <Inp label="SOYAD *" val={satis.alici_soyad} onChange={(e: any) => setSatis({ ...satis, alici_soyad: e.target.value })} ph="Celik" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="TC" val={satis.alici_tc} onChange={(e: any) => setSatis({ ...satis, alici_tc: e.target.value })} ph="12345678901" />
         <Inp label="TELEFON" val={satis.alici_telefon} onChange={(e: any) => setSatis({ ...satis, alici_telefon: e.target.value })} ph="0532 xxx xx xx" />
       </div>
-      <Inp label="ADRES" val={satis.alici_adres} onChange={(e: any) => setSatis({ ...satis, alici_adres: e.target.value })} ph="Ankara, Çankaya..." />
+      <Inp label="ADRES" val={satis.alici_adres} onChange={(e: any) => setSatis({ ...satis, alici_adres: e.target.value })} ph="Ankara, Cankaya..." />
       <Section title="SATICI BILGILERI" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Inp label="AD *" val={satis.satici_ad} onChange={(e: any) => setSatis({ ...satis, satici_ad: e.target.value })} ph="Zeynep" />
@@ -293,11 +273,11 @@ export default function SozlesmePage() {
         <Inp label="TC" val={satis.satici_tc} onChange={(e: any) => setSatis({ ...satis, satici_tc: e.target.value })} ph="98765432109" />
         <Inp label="TELEFON" val={satis.satici_telefon} onChange={(e: any) => setSatis({ ...satis, satici_telefon: e.target.value })} ph="0542 xxx xx xx" />
       </div>
-      <Inp label="ADRES" val={satis.satici_adres} onChange={(e: any) => setSatis({ ...satis, satici_adres: e.target.value })} ph="İstanbul, Beşiktaş..." />
+      <Inp label="ADRES" val={satis.satici_adres} onChange={(e: any) => setSatis({ ...satis, satici_adres: e.target.value })} ph="Istanbul, Besiktas..." />
       <Section title="OZEL SARTLAR" />
       <div style={fld}><textarea style={{ ...inp, height: 80, resize: "vertical" }} value={satis.ozel_sartlar}
         onChange={e => setSatis({ ...satis, ozel_sartlar: e.target.value })}
-        placeholder="Mutfak eşyaları dahil. Balkon tadilat alıcıya ait..." /></div>
+        placeholder="Mutfak esyalari dahil. Balkon tadilat aliciya ait..." /></div>
       <button style={{ background: loading || !satis.mulk_ilce || !satis.alici_ad ? D.brd : "#22c55e", color: loading || !satis.mulk_ilce || !satis.alici_ad ? D.muted : "#000", border: "none", borderRadius: 8, padding: "12px 24px", fontSize: 13, fontWeight: 700, cursor: loading || !satis.mulk_ilce || !satis.alici_ad ? "not-allowed" : "pointer", width: "100%", marginTop: 8 }}
         onClick={() => post("/api/v1/analysis/sozlesme/satis", satis)} disabled={loading || !satis.mulk_ilce || !satis.alici_ad}>
         {loading ? "Sozlesme Hazirlaniyor..." : "Satis On Sozlesmesi Olustur"}
@@ -306,78 +286,60 @@ export default function SozlesmePage() {
   );
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: D.bg, color: D.text, fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: D.bg, color: D.text, fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", overflow: "hidden" }}>
 
-      {/* Sol Nav */}
-      <div style={{ width: 220, borderRight: `1px solid ${D.brd}`, display: "flex", flexDirection: "column", background: "#0a0a0a", flexShrink: 0 }}>
-        <div style={{ padding: "22px 18px 18px", borderBottom: `1px solid ${D.brd}` }}>
-          <Link href="/dashboard" style={{ textDecoration: "none" }}>
-            <div style={{ fontSize: 20, color: D.gold, letterSpacing: 4, fontWeight: 300 }}>VEGA</div>
-            <div style={{ fontSize: 9, color: D.dim, marginTop: 3, letterSpacing: 4 }}>INTELLIGENCE</div>
-          </Link>
-        </div>
-        <nav style={{ flex: 1, padding: "10px 0", overflowY: "auto" }}>
-          {NAV_ITEMS.map(item => {
-            const active = pathname === item.href;
-            return (
-              <Link key={item.href} href={item.href} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 18px", color: active ? D.gold : D.muted, textDecoration: "none", fontSize: 12, borderLeft: active ? `2px solid ${D.gold}` : "2px solid transparent", background: active ? "rgba(255,215,0,0.05)" : "transparent" }}>
-                <span style={{ fontSize: 15, width: 18, textAlign: "center" }}>{item.icon}</span>
-                <span style={{ fontWeight: active ? 500 : 400 }}>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+      {/* Sticky Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 44, borderBottom: `1px solid ${D.brd}`, background: D.bg, flexShrink: 0, position: "sticky", top: 0, zIndex: 10 }}>
+        <Link href="/dashboard" style={{ textDecoration: "none", color: "#444", fontSize: 12 }}>
+          {"<-"} Ana Merkez
+        </Link>
+        <div style={{ fontSize: 16, color: D.gold, letterSpacing: 4, fontWeight: 300 }}>VEGA</div>
+        <div style={{ fontSize: 13, color: "#555" }}>Sozlesme Merkezi</div>
       </div>
 
-      {/* Ana Alan */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-
-        {/* Başlık */}
-        <div style={{ padding: "16px 28px", borderBottom: `1px solid ${D.brd}`, display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
-          {selected && (
-            <button onClick={() => { setSelected(null); setResult(""); }}
-              style={{ background: "transparent", border: `1px solid ${D.brd2}`, borderRadius: 6, padding: "5px 12px", color: D.muted, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-              Geri
-            </button>
-          )}
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 500 }}>{selected ? activeCard?.title : "Sozlesme Merkezi"}</div>
-            <div style={{ fontSize: 11, color: D.muted, marginTop: 1 }}>{selected ? activeCard?.detail : "Hangi sozlesmeyi olusturmak istersiniz?"}</div>
-          </div>
-        </div>
-
-        {/* Hub: Kart Seçimi */}
-        {!selected && (
-          <div style={{ flex: 1, overflowY: "auto", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 28px" }}>
-            <div style={{ width: "100%", maxWidth: 700 }}>
-              <div style={{ fontSize: 10, color: "#2a2a2a", letterSpacing: 3, marginBottom: 20, textAlign: "center" }}>SOZLESME TURU SECIN</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-                {SOZLESME_CARDS.map(card => (
-                  <div key={card.id} onClick={() => { setSelected(card.id); setResult(""); }}
-                    style={{ background: `${card.accent}07`, border: `1px solid ${card.accent}20`, borderRadius: 18, padding: "32px 28px", cursor: "pointer", transition: "all 0.18s", position: "relative" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = `${card.accent}50`; (e.currentTarget as HTMLDivElement).style.background = `${card.accent}12`; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = `${card.accent}20`; (e.currentTarget as HTMLDivElement).style.background = `${card.accent}07`; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}
-                  >
-                    <span style={{ position: "absolute", top: 16, right: 16, fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "3px 8px", borderRadius: 20, background: `${card.accent}20`, color: card.accent, border: `1px solid ${card.accent}35` }}>{card.tag}</span>
-                    <div style={{ width: 52, height: 52, borderRadius: 14, background: `${card.accent}14`, border: `1px solid ${card.accent}28`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, color: card.accent, marginBottom: 18 }}>
-                      {card.icon}
-                    </div>
-                    <div style={{ fontSize: 16, fontWeight: 600, color: "#d8d8d8", marginBottom: 10 }}>{card.title}</div>
-                    <div style={{ fontSize: 12, color: "#3a3a3a", lineHeight: 1.7, marginBottom: 16 }}>{card.detail}</div>
-                    <div style={{ fontSize: 12, color: card.accent, opacity: 0.7 }}>Olusturmaya Basla →</div>
-                  </div>
-                ))}
-              </div>
+      {/* Hub view */}
+      {!selected && (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px", overflowY: "auto" }}>
+          <div style={{ width: "100%", maxWidth: 700 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+              {SOZLESME_CARDS.map(card => (
+                <div key={card.id} onClick={() => { setSelected(card.id); setResult(""); }}
+                  style={{ background: `${card.accent}07`, border: `1px solid ${card.accent}20`, borderRadius: 18, padding: "32px 28px", cursor: "pointer", transition: "all 0.18s", position: "relative" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = `${card.accent}50`; (e.currentTarget as HTMLDivElement).style.background = `${card.accent}12`; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = `${card.accent}20`; (e.currentTarget as HTMLDivElement).style.background = `${card.accent}07`; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}
+                >
+                  <span style={{ position: "absolute", top: 16, right: 16, fontSize: 9, fontWeight: 700, letterSpacing: 1, padding: "3px 8px", borderRadius: 20, background: `${card.accent}20`, color: card.accent, border: `1px solid ${card.accent}35` }}>{card.tag}</span>
+                  <div style={{ width: 10, height: 10, borderRadius: 3, background: card.accent, marginBottom: 20, opacity: 0.8 }} />
+                  <div style={{ fontSize: 16, fontWeight: 600, color: "#d8d8d8", marginBottom: 10 }}>{card.title}</div>
+                  <div style={{ fontSize: 13, color: "#3a3a3a", lineHeight: 1.7, marginBottom: 18 }}>{card.detail}</div>
+                  <div style={{ fontSize: 12, color: card.accent, opacity: 0.7 }}>Olusturmaya Basla</div>
+                </div>
+              ))}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Form + Sonuç */}
-        {selected && (
+      {/* Work view */}
+      {selected && (
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          {/* Work header */}
+          <div style={{ padding: "12px 24px", borderBottom: `1px solid ${D.brd}`, display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+            <button onClick={() => { setSelected(null); setResult(""); }}
+              style={{ background: "transparent", border: `1px solid ${D.brd2}`, borderRadius: 6, padding: "5px 12px", color: D.muted, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
+              {"<-"} Geri
+            </button>
+            <div style={{ fontSize: 14, fontWeight: 500, color: D.text }}>{activeCard?.title}</div>
+          </div>
+
+          {/* Form + Result */}
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            {/* Form */}
             <div style={{ width: 480, borderRight: `1px solid ${D.brd}`, overflowY: "auto", padding: "20px 24px", flexShrink: 0 }}>
               {selected === "kira" ? renderKira() : renderSatis()}
             </div>
+
+            {/* Result */}
             <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", background: D.bg }}>
               {loading && (
                 <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
@@ -387,7 +349,7 @@ export default function SozlesmePage() {
               )}
               {!loading && !result && (
                 <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                  <div style={{ fontSize: 36, color: D.brd }}>▣</div>
+                  <div style={{ width: 32, height: 32, border: `1px solid ${D.brd2}`, borderRadius: 8 }} />
                   <div style={{ fontSize: 12, color: D.dim }}>Formu doldurun ve sozlesmeyi olusturun</div>
                 </div>
               )}
@@ -412,8 +374,9 @@ export default function SozlesmePage() {
               )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} *::-webkit-scrollbar{width:4px} *::-webkit-scrollbar-track{background:transparent} *::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px}`}</style>
     </div>
   );
