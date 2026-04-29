@@ -11,6 +11,7 @@ const D = { bg:"#080808", bg2:"#0a0a0a", brd:"#161616", gold:"#FFD700", text:"#e
 const NAV_ITEMS = [
   { href:"/dashboard",          label:"Ana Merkez",           icon:"◈" },
   { href:"/ai",                 label:"Emlak Yapay Zekası",   icon:"◈" },
+  { href:"/sozlesme",           label:"Sözleşme Merkezi",     icon:"▣" },
   { href:"/analysis",           label:"Analiz Merkezi",    icon:"◎" },
   { href:"/valuation",          label:"AI Değerleme",      icon:"⚡" },
   { href:"/map",                label:"Canlı Harita",      icon:"◉" },

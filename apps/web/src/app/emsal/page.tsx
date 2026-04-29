@@ -9,6 +9,7 @@ const D = { bg:"#080808", bg2:"#0d0d0d", bg3:"#111", brd:"#161616", brd2:"#1e1e1
 const NAV_ITEMS = [
   { href:"/dashboard",          label:"Ana Merkez",           icon:"◈" },
   { href:"/ai",                 label:"Emlak Yapay Zekası",   icon:"◈" },
+  { href:"/sozlesme",           label:"Sözleşme Merkezi",     icon:"▣" },
   { href:"/analysis",           label:"Analiz Merkezi",    icon:"◎" },
   { href:"/valuation",          label:"AI Değerleme",      icon:"⚡" },
   { href:"/map",                label:"Canlı Harita",      icon:"◉" },

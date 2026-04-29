@@ -9,6 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrend
 const NAV_ITEMS = [
   { href: "/dashboard",          label: "Ana Merkez",           icon: "◈" },
   { href: "/ai",                 label: "Emlak Yapay Zekası",   icon: "◈" },
+  { href: "/sozlesme",           label: "Sözleşme Merkezi",     icon: "▣" },
   { href: "/analysis",           label: "Analiz Merkezi",       icon: "◎" },
   { href: "/valuation",          label: "AI Değerleme",         icon: "⚡" },
   { href: "/map",                label: "Canlı Harita",         icon: "◉" },
