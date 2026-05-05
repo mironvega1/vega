@@ -1,7 +1,146 @@
 'use client'
+
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { opportunities } from '@/lib/mock/market'
-const tl=(n:number)=>new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(n)
-export default function OpportunitiesPage(){const [watched,setWatched]=useState<string[]>([]);const [q,setQ]=useState('');const [sort,setSort]=useState('deal');const [selected,setSelected]=useState<string|null>(null);const [msg,setMsg]=useState('');const rows=useMemo(()=>opportunities.filter(o=>o.title.toLowerCase().includes(q.toLowerCase())).sort((a,b)=>sort==='discount'?b.discountRate-a.discountRate:sort==='new'?+new Date(b.publishedAt)-+new Date(a.publishedAt):b.dealScore-a.dealScore),[q,sort]);
-return <div style={{minHeight:'100vh',background:'#080808',color:'#e0e0e0',padding:24,fontFamily:'Arial'}}><div style={{display:'flex',justifyContent:'space-between'}}><Link href='/dashboard' style={{color:'#777'}}>← Dashboard</Link><div>Son güncelleme: Bugün 09:30</div></div><h1>Fırsat Radarı</h1><p>Piyasa altı fırsatları takip edin.</p><div style={{display:'flex',gap:8,marginBottom:16}}><input value={q} onChange={e=>setQ(e.target.value)} placeholder='Ara...' style={{padding:10,background:'#111',border:'1px solid #222',color:'#fff'}}/><select value={sort} onChange={e=>setSort(e.target.value)} style={{padding:10,background:'#111',border:'1px solid #222',color:'#fff'}}><option value='deal'>En yüksek deal</option><option value='discount'>En yüksek iskonto</option><option value='new'>En yeni</option></select></div><div style={{display:'grid',gap:12}}>{rows.map(o=><div key={o.id} style={{border:'1px solid #222',borderRadius:10,padding:14,background:'#0e0e0e'}}><div style={{display:'flex',justifyContent:'space-between'}}><b>{o.title}</b><span style={{color:'#FFD700'}}>{o.dealScore}/100</span></div><div>{o.city}/{o.district}/{o.neighborhood} · {o.roomCount} · {o.squareMeters}m²</div><div>Fiyat: {tl(o.price)} · Piyasa: {tl(o.estimatedMarketPrice)} · İskonto: %{o.discountRate}</div><div style={{marginTop:6,color:'#a0a0a0'}}>{o.aiSummary}</div><div style={{display:'flex',gap:8,marginTop:10,flexWrap:'wrap'}}><button onClick={()=>setSelected(o.id)}>Detaylı İncele</button><button onClick={()=>setWatched(w=>w.includes(o.id)?w.filter(x=>x!==o.id):[...w,o.id])}>{watched.includes(o.id)?'İzlemeden Çıkar':'İzlemeye Al'}</button><button onClick={()=>setMsg(`Merhaba, ${o.district} ${o.neighborhood} bölgesinde ${o.roomCount} fırsatı var. Fiyat ${tl(o.price)}, piyasa ${tl(o.estimatedMarketPrice)}.`)}>Müşteriye Gönder</button><Link href='/report'>Rapor Oluştur</Link></div></div>)}</div>{selected&&<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.6)',display:'grid',placeItems:'center'}} onClick={()=>setSelected(null)}><div style={{background:'#111',padding:20,border:'1px solid #333',maxWidth:600}} onClick={e=>e.stopPropagation()}>{opportunities.find(o=>o.id===selected)?.aiSummary}<div style={{marginTop:12}}>Aksiyonlar: satıcıyı ara, tapuyu doğrula, aidat kontrol et.</div></div></div>}{msg&&<div style={{position:'fixed',right:20,bottom:20,background:'#111',padding:12,border:'1px solid #333',maxWidth:440}}><div>{msg}</div><button onClick={()=>navigator.clipboard.writeText(msg)}>Kopyala</button></div>}</div>}
+
+const tl = (n: number) =>
+  new Intl.NumberFormat('tr-TR', {
+    style: 'currency',
+    currency: 'TRY',
+    maximumFractionDigits: 0,
+  }).format(n)
+
+export default function OpportunitiesPage() {
+  const [watched, setWatched] = useState<string[]>([])
+  const [q, setQ] = useState('')
+  const [sort, setSort] = useState('deal')
+  const [selected, setSelected] = useState<string | null>(null)
+  const [msg, setMsg] = useState('')
+
+  const rows = useMemo(() => {
+    return opportunities
+      .filter((item) => item.title.toLowerCase().includes(q.toLowerCase()))
+      .sort((a, b) => {
+        if (sort === 'discount') return b.discountRate - a.discountRate
+        if (sort === 'new') return +new Date(b.publishedAt) - +new Date(a.publishedAt)
+        return b.dealScore - a.dealScore
+      })
+  }, [q, sort])
+
+  const selectedOpportunity = opportunities.find((item) => item.id === selected)
+
+  return (
+    <main className="vega-page">
+      <div className="vega-shell">
+        <header className="vega-topbar">
+          <Link href="/dashboard" className="vega-back">← Dashboard</Link>
+          <div className="vega-meta">Son güncelleme: Bugün 09:30</div>
+        </header>
+
+        <section className="vega-hero-copy">
+          <div className="vega-eyebrow">Fırsat Radarı</div>
+          <h1 className="vega-title">Piyasa altı fırsatları takip edin.</h1>
+          <p className="vega-subtitle">
+            Deal skoru, iskonto oranı ve AI özetiyle hızlı tarama yapın. İzlemeye alın,
+            müşteriye mesaj hazırlayın veya rapora geçin.
+          </p>
+        </section>
+
+        <div className="vega-toolbar">
+          <input
+            className="vega-input"
+            value={q}
+            onChange={(event) => setQ(event.target.value)}
+            placeholder="Başlık, mahalle veya oda tipi ara"
+          />
+          <select
+            className="vega-select"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+          >
+            <option value="deal">En yüksek deal</option>
+            <option value="discount">En yüksek iskonto</option>
+            <option value="new">En yeni</option>
+          </select>
+        </div>
+
+        <section className="vega-grid">
+          {rows.map((item) => {
+            const isWatched = watched.includes(item.id)
+
+            return (
+              <article key={item.id} className="vega-opportunity">
+                <div className="vega-row">
+                  <div>
+                    <h2 className="vega-opportunity-title">{item.title}</h2>
+                    <div className="vega-muted">
+                      {item.city} / {item.district} / {item.neighborhood} · {item.roomCount} ·{' '}
+                      {item.squareMeters}m²
+                    </div>
+                  </div>
+                  <div className="vega-score">{item.dealScore}/100</div>
+                </div>
+
+                <div className="vega-muted">
+                  Fiyat: {tl(item.price)} · Piyasa: {tl(item.estimatedMarketPrice)} · İskonto:
+                  %{item.discountRate}
+                </div>
+                <p className="vega-section-copy">{item.aiSummary}</p>
+
+                <div className="vega-actions">
+                  <button className="vega-button vega-button-primary" onClick={() => setSelected(item.id)}>
+                    Detaylı İncele
+                  </button>
+                  <button
+                    className="vega-button"
+                    onClick={() =>
+                      setWatched((current) =>
+                        isWatched ? current.filter((id) => id !== item.id) : [...current, item.id],
+                      )
+                    }
+                  >
+                    {isWatched ? 'İzlemeden Çıkar' : 'İzlemeye Al'}
+                  </button>
+                  <button
+                    className="vega-button"
+                    onClick={() =>
+                      setMsg(
+                        `Merhaba, ${item.district} ${item.neighborhood} bölgesinde ${item.roomCount} fırsatı var. Fiyat ${tl(item.price)}, piyasa ${tl(item.estimatedMarketPrice)}.`,
+                      )
+                    }
+                  >
+                    Müşteriye Gönder
+                  </button>
+                  <Link href="/report" className="vega-button">Rapor Oluştur</Link>
+                </div>
+              </article>
+            )
+          })}
+        </section>
+      </div>
+
+      {selectedOpportunity && (
+        <div className="vega-dialog-backdrop" onClick={() => setSelected(null)}>
+          <div className="vega-dialog" onClick={(event) => event.stopPropagation()}>
+            <h2 className="vega-section-title">{selectedOpportunity.title}</h2>
+            <p className="vega-section-copy">{selectedOpportunity.aiSummary}</p>
+            <div className="vega-muted">Aksiyonlar: satıcıyı ara, tapuyu doğrula, aidat kontrol et.</div>
+          </div>
+        </div>
+      )}
+
+      {msg && (
+        <div className="vega-toast">
+          <div className="vega-muted">{msg}</div>
+          <div className="vega-actions" style={{ marginTop: 12 }}>
+            <button className="vega-button vega-button-primary" onClick={() => navigator.clipboard.writeText(msg)}>
+              Kopyala
+            </button>
+            <button className="vega-button" onClick={() => setMsg('')}>Kapat</button>
+          </div>
+        </div>
+      )}
+    </main>
+  )
+}

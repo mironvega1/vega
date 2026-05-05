@@ -36,6 +36,7 @@ export default function LoginPage() {
 
   return (
     <div
+      className="auth-login-page"
       style={{
         minHeight: '100vh',
         display: 'grid',
@@ -45,11 +46,43 @@ export default function LoginPage() {
         fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
       }}
     >
-      <section style={{ padding: '52px 56px', borderRight: '1px solid #151515', position: 'relative' }}>
+      <style>{`
+        @media (max-width: 860px) {
+          .auth-login-page {
+            grid-template-columns: 1fr !important;
+          }
+          .auth-login-brand {
+            border-right: 0 !important;
+            border-bottom: 1px solid #151515;
+            padding: 34px 24px 24px !important;
+          }
+          .auth-login-copy {
+            margin-top: 34px !important;
+          }
+          .auth-login-copy h1 {
+            font-size: 34px !important;
+            line-height: 1.16 !important;
+          }
+          .auth-login-form {
+            align-items: flex-start !important;
+            padding: 30px 24px 42px !important;
+          }
+        }
+        @media (max-width: 520px) {
+          .auth-login-copy h1 {
+            font-size: 30px !important;
+          }
+          .auth-login-features {
+            gap: 8px !important;
+          }
+        }
+      `}</style>
+
+      <section className="auth-login-brand" style={{ padding: '52px 56px', borderRight: '1px solid #151515', position: 'relative' }}>
         <div style={{ fontSize: 30, letterSpacing: 8, fontWeight: 300, color: '#FFD700' }}>VEGA</div>
         <div style={{ fontSize: 10, color: '#686868', letterSpacing: 3, marginTop: 8 }}>EMLAK ZEKA PLATFORMU</div>
 
-        <div style={{ marginTop: 56, maxWidth: 560 }}>
+        <div className="auth-login-copy" style={{ marginTop: 56, maxWidth: 560 }}>
           <div
             style={{
               display: 'inline-block',
@@ -76,7 +109,7 @@ export default function LoginPage() {
             veriye dayalı, tutarlı ve ölçeklenebilir çalışmasını sağlar.
           </p>
 
-          <div style={{ marginTop: 28, display: 'grid', gap: 10 }}>
+          <div className="auth-login-features" style={{ marginTop: 28, display: 'grid', gap: 10 }}>
             {features.map((feature) => (
               <div key={feature} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#c5c5c5', fontSize: 14 }}>
                 <span style={{ color: '#22c55e' }}>●</span>
@@ -87,7 +120,7 @@ export default function LoginPage() {
         </div>
       </section>
 
-      <section style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 34px' }}>
+      <section className="auth-login-form" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 34px' }}>
         <div style={{ width: '100%', maxWidth: 380 }}>
           <h2 style={{ margin: 0, marginBottom: 8, fontSize: 28, fontWeight: 500, color: '#f5f5f5' }}>Giriş Yap</h2>
           <p style={{ margin: 0, marginBottom: 28, color: '#7b7b7b', fontSize: 13 }}>

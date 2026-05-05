@@ -66,7 +66,7 @@ function SimRole({ role }: { role: string }) {
           <div style={{ background: 'rgba(255,215,0,0.04)', border: '1px solid rgba(255,215,0,0.12)', borderRadius: 12, padding: '20px' }}>
             <div style={{ fontSize: 22, color: '#FFD700', marginBottom: 10 }}>{r.icon}</div>
             <div style={{ fontSize: 16, color: '#c0c0c0', fontWeight: 500, marginBottom: 6 }}>{r.label}</div>
-            <div style={{ fontSize: 12, color: '#333', marginBottom: 16 }}>{r.desc}</div>
+            <div style={{ fontSize: 12, color: '#747474', marginBottom: 16 }}>{r.desc}</div>
             <div style={{ fontSize: 10, color: '#2a2a2a', letterSpacing: 1, marginBottom: 10 }}>AKTİF MODÜLLER</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {r.modules.map((m, i) => (
@@ -101,13 +101,11 @@ function SimRole({ role }: { role: string }) {
 
 function SimCity({ city }: { city: string }) {
   const stats = CITY_STATS[city]
-  const [visible, setVisible] = useState(false)
-  useEffect(() => { if (city) { setVisible(false); const t = setTimeout(() => setVisible(true), 100); return () => clearTimeout(t) } }, [city])
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
       <div style={{ fontSize: 11, color: '#2a2a2a', letterSpacing: 2, marginBottom: 4 }}>PIYASA VERİSİ</div>
       {city && stats ? (
-        <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(10px)', transition: 'all 0.4s' }}>
+        <div>
           <div style={{ background: 'rgba(255,215,0,0.03)', border: '1px solid rgba(255,215,0,0.1)', borderRadius: 12, padding: '20px', marginBottom: 12 }}>
             <div style={{ fontSize: 22, fontWeight: 300, color: '#FFD700', letterSpacing: -1, marginBottom: 4 }}>{city}</div>
             <div style={{ fontSize: 11, color: '#2a2a2a' }}>Anlık piyasa verisi</div>
@@ -148,13 +146,13 @@ function SimAgency({ mode, name }: { mode: 'create' | 'join'; name: string }) {
       <div style={{ background: '#0a0a0a', border: '1px solid #161616', borderRadius: 12, overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid #111', display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
-          <span style={{ fontSize: 12, color: '#555' }}>{name || 'Acenteniz'}</span>
+          <span style={{ fontSize: 12, color: '#9a9a9a' }}>{name || 'Acenteniz'}</span>
           <span style={{ marginLeft: 'auto', fontSize: 10, color: '#2a2a2a' }}>Workspace</span>
         </div>
         <div style={{ padding: '14px 16px' }}>
           {mode === 'create' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ fontSize: 11, color: '#333', marginBottom: 6 }}>Ekip üyeleri</div>
+              <div style={{ fontSize: 11, color: '#747474', marginBottom: 6 }}>Ekip üyeleri</div>
               {['Siz (Yönetici)', 'Danışman 2', 'Danışman 3'].map((u, i) => (
                 <div key={u} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: 'rgba(255,255,255,0.02)', border: '1px solid #141414', borderRadius: 8 }}>
                   <div style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${i === 0 ? 'rgba(255,215,0,0.2)' : '#1a1a1a'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: i === 0 ? '#FFD700' : '#333' }}>
@@ -163,16 +161,16 @@ function SimAgency({ mode, name }: { mode: 'create' | 'join'; name: string }) {
                   <span style={{ fontSize: 11, color: i === 0 ? '#888' : '#2a2a2a' }}>{i > 0 && i === 2 ? `Davet bekleniyor${'.'.repeat(dots)}` : u}</span>
                 </div>
               ))}
-              <div style={{ marginTop: 8, padding: '8px 12px', background: 'rgba(255,215,0,0.04)', border: '1px solid rgba(255,215,0,0.1)', borderRadius: 8, fontSize: 11, color: '#444' }}>
+              <div style={{ marginTop: 8, padding: '8px 12px', background: 'rgba(255,215,0,0.04)', border: '1px solid rgba(255,215,0,0.1)', borderRadius: 8, fontSize: 11, color: '#8a8a8a' }}>
                 Acente kodunuzu paylaşarak ekibinizi davet edin
               </div>
             </div>
           ) : (
             <div>
-              <div style={{ fontSize: 11, color: '#333', marginBottom: 12 }}>Mevcut acenteye katılıyorsunuz</div>
+              <div style={{ fontSize: 11, color: '#747474', marginBottom: 12 }}>Mevcut acenteye katılıyorsunuz</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {['Ortak portföy erişimi', 'Paylaşılan ilanlar', 'Takım analitiği'].map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#555' }}>
+                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#9a9a9a' }}>
                     <span style={{ color: '#22c55e', fontSize: 10 }}>✓</span>{f}
                   </div>
                 ))}
@@ -203,12 +201,12 @@ function SimPlan({ plan }: { plan: string }) {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {p.features.slice(0, 5).map(f => (
-            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #111', fontSize: 12, color: '#555' }}>
+            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #111', fontSize: 12, color: '#9a9a9a' }}>
               <span style={{ color: '#22c55e', fontSize: 10 }}>✓</span>{f}
             </div>
           ))}
           {p.missing.slice(0, 2).map(f => (
-            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', fontSize: 12, color: '#1e1e1e' }}>
+            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', fontSize: 12, color: '#606060' }}>
               <span style={{ fontSize: 10 }}>—</span><span style={{ textDecoration: 'line-through' }}>{f}</span>
             </div>
           ))}
@@ -218,7 +216,17 @@ function SimPlan({ plan }: { plan: string }) {
   )
 }
 
-function SimSummary({ fullName, city, agencyName, plan }: any) {
+function SimSummary({
+  fullName,
+  city,
+  agencyName,
+  plan,
+}: {
+  fullName: string
+  city: string
+  agencyName: string
+  plan: string
+}) {
   const [tick, setTick] = useState(0)
   useEffect(() => { const t = setInterval(() => setTick(i => i + 1), 80); return () => clearTimeout(t) }, [])
   const items = [
@@ -243,7 +251,7 @@ function SimSummary({ fullName, city, agencyName, plan }: any) {
           ))}
         </div>
         <div style={{ marginTop: 20, textAlign: 'center' }}>
-          <div style={{ fontSize: 11, color: '#333', marginBottom: 8 }}>Platform hazır</div>
+          <div style={{ fontSize: 11, color: '#747474', marginBottom: 8 }}>Platform hazır</div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
             {['Analiz', 'Sözleşme', 'Rapor', 'AI', 'Harita'].map((m, i) => (
               <div key={m} style={{ padding: '3px 8px', background: tick > i * 8 ? 'rgba(255,215,0,0.08)' : 'transparent', border: `1px solid ${tick > i * 8 ? 'rgba(255,215,0,0.2)' : '#141414'}`, borderRadius: 4, fontSize: 9, color: tick > i * 8 ? '#FFD700' : '#1e1e1e', transition: 'all 0.3s' }}>{m}</div>
@@ -301,7 +309,7 @@ export default function SignupPage() {
   }
 
   const simPanel = (
-    <div style={{ flex: 1, padding: '32px 30px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div className="signup-sim-panel" style={{ flex: 1, padding: '32px 30px', display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div style={{ background: 'linear-gradient(120deg, rgba(255,215,0,0.08), rgba(255,255,255,0.02))', border: '1px solid rgba(255,215,0,0.18)', borderRadius: 14, padding: '16px 18px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ fontSize: 11, color: '#7a7a7a', letterSpacing: 1.4 }}>VEGA AKILLI KURULUM</div>
@@ -339,21 +347,71 @@ export default function SignupPage() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#050505', fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", color: '#e0e0e0', display: 'flex', flexDirection: 'column' }}>
+    <div className="signup-page" style={{ minHeight: '100vh', background: '#050505', fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", color: '#e0e0e0', display: 'flex', flexDirection: 'column' }}>
 
-      <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.step-in{animation:fadeUp 0.35s ease both}`}</style>
+      <style>{`
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        .step-in{animation:fadeUp 0.35s ease both}
+        @media (max-width: 1040px) {
+          .signup-main {
+            flex-direction: column !important;
+            overflow: visible !important;
+          }
+          .signup-form-pane {
+            width: 100% !important;
+            border-right: 0 !important;
+            border-bottom: 1px solid #0e0e0e;
+            padding: 34px 28px !important;
+          }
+          .signup-preview-pane {
+            min-height: 520px;
+          }
+        }
+        @media (max-width: 720px) {
+          .signup-header {
+            padding: 16px 22px !important;
+            align-items: flex-start !important;
+            gap: 10px;
+            flex-direction: column;
+          }
+          .signup-stepbar {
+            padding: 14px 18px !important;
+            overflow-x: auto;
+            gap: 8px;
+          }
+          .signup-stepbar > div {
+            flex: 0 0 auto !important;
+          }
+          .signup-stepbar > div[aria-hidden="true"] {
+            display: none !important;
+          }
+          .signup-form-pane {
+            padding: 28px 20px !important;
+          }
+          .signup-card-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .signup-preview-inner {
+            padding: 0 16px !important;
+            max-width: none !important;
+          }
+          .signup-sim-panel {
+            padding: 20px 0 !important;
+          }
+        }
+      `}</style>
 
       {/* Header */}
-      <div style={{ padding: '18px 48px', borderBottom: '1px solid #0e0e0e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+      <div className="signup-header" style={{ padding: '18px 48px', borderBottom: '1px solid #0e0e0e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <div>
           <span style={{ fontSize: 19, color: '#FFD700', letterSpacing: 5, fontWeight: 200 }}>VEGA</span>
           <span style={{ fontSize: 8, color: '#1a1a1a', letterSpacing: 3, marginLeft: 8 }}>INTELLIGENCE</span>
         </div>
-        <Link href="/auth/login" style={{ fontSize: 12, color: '#333', textDecoration: 'none' }}>Hesabın var mı? Giriş yap →</Link>
+        <Link href="/auth/login" style={{ fontSize: 12, color: '#b0b0b0', textDecoration: 'none' }}>Hesabın var mı? Giriş yap →</Link>
       </div>
 
       {/* Adım barı */}
-      <div style={{ padding: '20px 48px', borderBottom: '1px solid #0a0a0a', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+      <div className="signup-stepbar" style={{ padding: '20px 48px', borderBottom: '1px solid #0a0a0a', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
         {STEP_LABELS.map((s, i) => {
           const num = i + 1; const done = step > num; const active = step === num
           return (
@@ -364,31 +422,31 @@ export default function SignupPage() {
                 </div>
                 <span style={{ fontSize: 11, color: active ? '#FFD700' : done ? '#444' : '#1e1e1e' }}>{s}</span>
               </div>
-              {i < STEP_LABELS.length - 1 && <div style={{ flex: 1, height: 1, background: done ? 'rgba(255,215,0,0.2)' : '#111', margin: '0 12px' }} />}
+              {i < STEP_LABELS.length - 1 && <div aria-hidden="true" style={{ flex: 1, height: 1, background: done ? 'rgba(255,215,0,0.2)' : '#111', margin: '0 12px' }} />}
             </React.Fragment>
           )
         })}
       </div>
 
       {/* İki kolon: form + simülasyon */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div className="signup-main" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
         {/* Sol: Form */}
-        <div style={{ width: 520, borderRight: '1px solid #0e0e0e', padding: '48px 52px', overflowY: 'auto', flexShrink: 0 }}>
+        <div className="signup-form-pane" style={{ width: 520, borderRight: '1px solid #0e0e0e', padding: '48px 52px', overflowY: 'auto', flexShrink: 0 }}>
 
           {/* ── ADIM 1 ── */}
           {step === 1 && (
             <div className="step-in">
               <div style={{ marginBottom: 32 }}>
-                <div style={{ fontSize: 26, fontWeight: 300, color: '#c0c0c0', marginBottom: 8 }}>Nasıl kullanacaksınız?</div>
-                <div style={{ fontSize: 13, color: '#2e2e2e' }}>Rolünüze göre platform kişiselleşir.</div>
+                <div style={{ fontSize: 26, fontWeight: 400, color: '#f2f2f2', marginBottom: 8 }}>Nasıl kullanacaksınız?</div>
+                <div style={{ fontSize: 13, color: '#a0a0a0' }}>Rolünüze göre platform kişiselleşir.</div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
+              <div className="signup-card-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
                 {ROLES.map(r => (
-                  <div key={r.id} onClick={() => setRole(r.id)} style={{ background: role === r.id ? 'rgba(255,215,0,0.05)' : 'rgba(255,255,255,0.015)', border: `1px solid ${role === r.id ? 'rgba(255,215,0,0.35)' : '#161616'}`, borderRadius: 11, padding: '18px', cursor: 'pointer', transition: 'all 0.15s' }}>
-                    <div style={{ fontSize: 20, color: role === r.id ? '#FFD700' : '#252525', marginBottom: 10 }}>{r.icon}</div>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: role === r.id ? '#e0e0e0' : '#484848', marginBottom: 4 }}>{r.label}</div>
-                    <div style={{ fontSize: 11, color: role === r.id ? '#3a3a3a' : '#1c1c1c' }}>{r.desc}</div>
+                  <div key={r.id} onClick={() => setRole(r.id)} style={{ background: role === r.id ? 'rgba(255,215,0,0.08)' : '#121212', border: `1px solid ${role === r.id ? 'rgba(255,215,0,0.45)' : '#2a2a2a'}`, borderRadius: 11, padding: '18px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    <div style={{ fontSize: 20, color: role === r.id ? '#FFD700' : '#8a8a8a', marginBottom: 10 }}>{r.icon}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: role === r.id ? '#ffffff' : '#eeeeee', marginBottom: 4 }}>{r.label}</div>
+                    <div style={{ fontSize: 11, color: role === r.id ? '#c8c8c8' : '#a8a8a8' }}>{r.desc}</div>
                   </div>
                 ))}
               </div>
@@ -401,14 +459,14 @@ export default function SignupPage() {
             <div className="step-in">
               <div style={{ marginBottom: 28 }}>
                 <div style={{ fontSize: 26, fontWeight: 300, color: '#c0c0c0', marginBottom: 8 }}>Nerede faaliyet gösteriyorsunuz?</div>
-                <div style={{ fontSize: 13, color: '#2e2e2e' }}>Bölgesel piyasa verisi ve analizler için konumunuzu seçin.</div>
+                <div style={{ fontSize: 13, color: '#777' }}>Bölgesel piyasa verisi ve analizler için konumunuzu seçin.</div>
               </div>
               <div style={{ marginBottom: 22 }}>
-                <label style={{ fontSize: 11, color: '#3a3a3a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>ADINIZ SOYADINIZ</label>
+                <label style={{ fontSize: 11, color: '#8a8a8a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>ADINIZ SOYADINIZ</label>
                 <input style={inp} type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Ahmet Yılmaz" onFocus={e => (e.target.style.borderColor = 'rgba(255,215,0,0.3)')} onBlur={e => (e.target.style.borderColor = '#1c1c1c')} />
               </div>
               <div style={{ marginBottom: 28 }}>
-                <label style={{ fontSize: 11, color: '#3a3a3a', display: 'block', marginBottom: 10, letterSpacing: 1.5 }}>ŞEHİR</label>
+                <label style={{ fontSize: 11, color: '#8a8a8a', display: 'block', marginBottom: 10, letterSpacing: 1.5 }}>ŞEHİR</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
                   {CITIES.map(c => (
                     <div key={c} onClick={() => setCity(c)} style={{ padding: '7px 16px', borderRadius: 18, cursor: 'pointer', background: city === c ? 'rgba(255,215,0,0.07)' : 'rgba(255,255,255,0.02)', border: `1px solid ${city === c ? 'rgba(255,215,0,0.35)' : '#1a1a1a'}`, fontSize: 12, color: city === c ? '#FFD700' : '#3a3a3a', transition: 'all 0.12s' }}>{c}</div>
@@ -416,7 +474,7 @@ export default function SignupPage() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={back} style={{ padding: '13px 24px', borderRadius: 9, border: '1px solid #1a1a1a', background: 'transparent', color: '#444', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← Geri</button>
+                <button onClick={back} style={{ padding: '13px 24px', borderRadius: 9, border: '1px solid #1a1a1a', background: 'transparent', color: '#8a8a8a', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← Geri</button>
                 <button onClick={next} disabled={!city || !fullName.trim()} style={{ flex: 1, padding: '13px', borderRadius: 9, border: 'none', background: city && fullName.trim() ? '#FFD700' : '#111', color: city && fullName.trim() ? '#000' : '#333', fontSize: 14, fontWeight: 700, cursor: city && fullName.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit', transition: 'all 0.15s' }}>Devam Et →</button>
               </div>
             </div>
@@ -427,7 +485,7 @@ export default function SignupPage() {
             <div className="step-in">
               <div style={{ marginBottom: 28 }}>
                 <div style={{ fontSize: 26, fontWeight: 300, color: '#c0c0c0', marginBottom: 8 }}>Acenteniz hakkında</div>
-                <div style={{ fontSize: 13, color: '#2e2e2e' }}>Yeni kurun ya da mevcut acenteye katılın.</div>
+                <div style={{ fontSize: 13, color: '#777' }}>Yeni kurun ya da mevcut acenteye katılın.</div>
               </div>
               <div style={{ display: 'flex', marginBottom: 24, background: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: 9, padding: 3 }}>
                 {(['create', 'join'] as const).map(m => (
@@ -438,19 +496,19 @@ export default function SignupPage() {
               </div>
               {agencyMode === 'create' ? (
                 <div style={{ marginBottom: 24 }}>
-                  <label style={{ fontSize: 11, color: '#3a3a3a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>ACENTE / OFİS ADI</label>
+                  <label style={{ fontSize: 11, color: '#8a8a8a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>ACENTE / OFİS ADI</label>
                   <input style={inp} type="text" value={agencyName} onChange={e => setAgencyName(e.target.value)} placeholder="Miras Gayrimenkul" onFocus={e => (e.target.style.borderColor = 'rgba(255,215,0,0.3)')} onBlur={e => (e.target.style.borderColor = '#1c1c1c')} />
-                  <div style={{ fontSize: 11, color: '#1e1e1e', marginTop: 6 }}>Ekip arkadaşlarınız bu isim altında görünecek.</div>
+                  <div style={{ fontSize: 11, color: '#606060', marginTop: 6 }}>Ekip arkadaşlarınız bu isim altında görünecek.</div>
                 </div>
               ) : (
                 <div style={{ marginBottom: 24 }}>
-                  <label style={{ fontSize: 11, color: '#3a3a3a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>ACENTE KODU</label>
+                  <label style={{ fontSize: 11, color: '#8a8a8a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>ACENTE KODU</label>
                   <input style={inp} type="text" value={agencyCode} onChange={e => setAgencyCode(e.target.value.toUpperCase())} placeholder="MIRAS-2024" onFocus={e => (e.target.style.borderColor = 'rgba(255,215,0,0.3)')} onBlur={e => (e.target.style.borderColor = '#1c1c1c')} />
-                  <div style={{ fontSize: 11, color: '#1e1e1e', marginTop: 6 }}>Aynı kodu girerek ortak portföy ve ilanları paylaşırsınız.</div>
+                  <div style={{ fontSize: 11, color: '#606060', marginTop: 6 }}>Aynı kodu girerek ortak portföy ve ilanları paylaşırsınız.</div>
                 </div>
               )}
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={back} style={{ padding: '13px 24px', borderRadius: 9, border: '1px solid #1a1a1a', background: 'transparent', color: '#444', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← Geri</button>
+                <button onClick={back} style={{ padding: '13px 24px', borderRadius: 9, border: '1px solid #1a1a1a', background: 'transparent', color: '#8a8a8a', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← Geri</button>
                 <button onClick={next} disabled={agencyMode === 'create' ? !agencyName.trim() : !agencyCode.trim()} style={{ flex: 1, padding: '13px', borderRadius: 9, border: 'none', background: (agencyMode === 'create' ? agencyName.trim() : agencyCode.trim()) ? '#FFD700' : '#111', color: (agencyMode === 'create' ? agencyName.trim() : agencyCode.trim()) ? '#000' : '#333', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>Devam Et →</button>
               </div>
             </div>
@@ -461,7 +519,7 @@ export default function SignupPage() {
             <div className="step-in">
               <div style={{ marginBottom: 28 }}>
                 <div style={{ fontSize: 26, fontWeight: 300, color: '#c0c0c0', marginBottom: 8 }}>Planınızı seçin</div>
-                <div style={{ fontSize: 13, color: '#2e2e2e' }}>İstediğiniz zaman değiştirebilirsiniz.</div>
+                <div style={{ fontSize: 13, color: '#777' }}>İstediğiniz zaman değiştirebilirsiniz.</div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
                 {PLANS.map(p => (
@@ -470,7 +528,7 @@ export default function SignupPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                       <div>
                         <div style={{ fontSize: 15, fontWeight: 600, color: plan === p.id ? '#FFD700' : '#666' }}>{p.name}</div>
-                        <div style={{ fontSize: 11, color: '#242424', marginTop: 3 }}>{p.desc}</div>
+                        <div style={{ fontSize: 11, color: '#6d6d6d', marginTop: 3 }}>{p.desc}</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <span style={{ fontSize: 24, fontWeight: 700, color: plan === p.id ? '#FFD700' : '#444' }}>{p.price}</span>
@@ -484,7 +542,7 @@ export default function SignupPage() {
                 ))}
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={back} style={{ padding: '13px 24px', borderRadius: 9, border: '1px solid #1a1a1a', background: 'transparent', color: '#444', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← Geri</button>
+                <button onClick={back} style={{ padding: '13px 24px', borderRadius: 9, border: '1px solid #1a1a1a', background: 'transparent', color: '#8a8a8a', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← Geri</button>
                 <button onClick={next} style={{ flex: 1, padding: '13px', borderRadius: 9, border: 'none', background: '#FFD700', color: '#000', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Devam Et →</button>
               </div>
             </div>
@@ -495,25 +553,25 @@ export default function SignupPage() {
             <div className="step-in">
               <div style={{ marginBottom: 28 }}>
                 <div style={{ fontSize: 26, fontWeight: 300, color: '#c0c0c0', marginBottom: 8 }}>Hesabınızı oluşturun</div>
-                <div style={{ fontSize: 13, color: '#2e2e2e' }}>Son adım.</div>
+                <div style={{ fontSize: 13, color: '#777' }}>Son adım.</div>
               </div>
               <form onSubmit={handleSignup}>
                 <div style={{ marginBottom: 18 }}>
-                  <label style={{ fontSize: 11, color: '#3a3a3a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>E-POSTA</label>
+                  <label style={{ fontSize: 11, color: '#8a8a8a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>E-POSTA</label>
                   <input style={inp} type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="ornek@email.com" onFocus={e => (e.target.style.borderColor = 'rgba(255,215,0,0.3)')} onBlur={e => (e.target.style.borderColor = '#1c1c1c')} />
                 </div>
                 <div style={{ marginBottom: 24 }}>
-                  <label style={{ fontSize: 11, color: '#3a3a3a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>ŞİFRE</label>
+                  <label style={{ fontSize: 11, color: '#8a8a8a', display: 'block', marginBottom: 7, letterSpacing: 1.5 }}>ŞİFRE</label>
                   <input style={inp} type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="En az 6 karakter" onFocus={e => (e.target.style.borderColor = 'rgba(255,215,0,0.3)')} onBlur={e => (e.target.style.borderColor = '#1c1c1c')} />
                 </div>
                 {error && <div style={{ color: '#f87171', fontSize: 13, marginBottom: 16, padding: '11px 14px', background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.15)', borderRadius: 9 }}>{error}</div>}
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button type="button" onClick={back} style={{ padding: '13px 24px', borderRadius: 9, border: '1px solid #1a1a1a', background: 'transparent', color: '#444', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← Geri</button>
+                  <button type="button" onClick={back} style={{ padding: '13px 24px', borderRadius: 9, border: '1px solid #1a1a1a', background: 'transparent', color: '#8a8a8a', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← Geri</button>
                   <button type="submit" disabled={loading} style={{ flex: 1, padding: '13px', borderRadius: 9, border: 'none', background: loading ? '#111' : '#FFD700', color: loading ? '#333' : '#000', fontSize: 14, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
                     {loading ? 'Oluşturuluyor…' : 'Hesabı Oluştur →'}
                   </button>
                 </div>
-                <div style={{ textAlign: 'center', marginTop: 16, fontSize: 10, color: '#1a1a1a' }}>Devam ederek Kullanım Koşulları'nı kabul etmiş olursunuz.</div>
+                <div style={{ textAlign: 'center', marginTop: 16, fontSize: 10, color: '#1a1a1a' }}>Devam ederek Kullanım Koşulları&apos;nı kabul etmiş olursunuz.</div>
               </form>
             </div>
           )}
@@ -521,11 +579,11 @@ export default function SignupPage() {
         </div>
 
         {/* Sağ: Simülasyon */}
-        <div style={{ flex: 1, background: '#080808', position: 'relative', overflow: 'hidden' }}>
+        <div className="signup-preview-pane" style={{ flex: 1, background: '#080808', position: 'relative', overflow: 'hidden' }}>
           {/* Dekor */}
           <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,215,0,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px)', backgroundSize: '48px 48px', pointerEvents: 'none' }} />
-          <div style={{ position: 'relative', zIndex: 1, height: '100%', padding: '0 40px', maxWidth: 380, margin: '0 auto' }}>
+          <div className="signup-preview-inner" style={{ position: 'relative', zIndex: 1, height: '100%', padding: '0 40px', maxWidth: 380, margin: '0 auto' }}>
             {simPanel}
           </div>
         </div>
