@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { appendCapturedAnalysis } from "@/lib/commandCenterStore";
+import type { AnalysisSource, CapturedAnalysis } from "@/lib/commandCenterTypes";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
@@ -47,12 +49,57 @@ const lbl: React.CSSProperties = { fontSize: 11, color: D.muted, display: "block
 const fld: React.CSSProperties = { marginBottom: 14 };
 const ILLER = ["istanbul","ankara","izmir","bursa","antalya","adana","konya","gaziantep","mugla","kayseri","mersin"];
 
-const Inp = ({ label, val, onChange, ph = "", type = "text" }: any) => (
+type InpProps = {
+  label: string;
+  val: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  ph?: string;
+  type?: string;
+};
+
+const Inp = ({ label, val, onChange, ph = "", type = "text" }: InpProps) => (
   <div style={fld}>
     <label style={lbl}>{label}</label>
     <input style={inp} type={type} value={val} onChange={onChange} placeholder={ph} />
   </div>
 );
+
+function buildCapturedAnalysis(
+  capture: { source: AnalysisSource; title: string; location?: string; price?: number },
+  output: string,
+  raw: Record<string, unknown>,
+): CapturedAnalysis {
+  const numericValues = Object.values(raw).filter((value): value is number => typeof value === "number");
+  const score = pickNumber(raw, ["score", "skor", "deal_score", "dealScore", "puan"]) ?? numericValues.find((value) => value >= 0 && value <= 100);
+  const riskScore = pickNumber(raw, ["risk", "risk_score", "riskScore"]);
+  const marketPrice = pickNumber(raw, ["market_price", "marketPrice", "piyasa_fiyati", "tahmini_deger"]);
+
+  return {
+    id: crypto.randomUUID(),
+    source: capture.source,
+    title: capture.title,
+    createdAt: new Date().toISOString(),
+    location: capture.location,
+    score,
+    riskScore,
+    price: capture.price,
+    marketPrice,
+    summary: output.split("\n").find(Boolean)?.slice(0, 220) || "Analiz sonucu kaydedildi.",
+    raw: output,
+  };
+}
+
+function pickNumber(raw: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = raw[key];
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string") {
+      const parsed = Number(value.replace(/[^\d.-]/g, ""));
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+  return undefined;
+}
 
 export default function AnalysisPage() {
   const [selected, setSelected] = useState<AnalysisType | null>(null);
@@ -65,12 +112,23 @@ export default function AnalysisPage() {
   const [bolge, setBolge] = useState({ il: "istanbul", ilce: "", mahalle: "" });
   const [risk, setRisk]   = useState({ yatirim_tutari: "", il: "istanbul", ilce: "", mahalle: "", mulk_tipi: "daire", hedef: "kira_geliri" });
 
-  const post = async (path: string, body: object) => {
+  const post = async (
+    path: string,
+    body: object,
+    capture: {
+      source: AnalysisSource;
+      title: string;
+      location?: string;
+      price?: number;
+    },
+  ) => {
     setLoading(true); setResult("");
     try {
       const res = await fetch(`${API_URL}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const d = await res.json();
-      setResult(d.analiz || d.skor_analizi || d.strateji || d.risk_analizi || JSON.stringify(d, null, 2));
+      const output = d.analiz || d.skor_analizi || d.strateji || d.risk_analizi || JSON.stringify(d, null, 2);
+      setResult(output);
+      appendCapturedAnalysis(buildCapturedAnalysis(capture, output, d));
     } catch { setResult("Baglanti hatasi."); }
     setLoading(false);
   };
@@ -87,12 +145,12 @@ export default function AnalysisPage() {
           <select style={inp} value={adres.il} onChange={e => setAdres({ ...adres, il: e.target.value })}>
             {ILLER.map(i => <option key={i}>{i}</option>)}
           </select></div>
-        <Inp label="ILCE *" val={adres.ilce} onChange={(e: any) => setAdres({ ...adres, ilce: e.target.value })} ph="Kadikoy" />
+        <Inp label="ILCE *" val={adres.ilce} onChange={(e) => setAdres({ ...adres, ilce: e.target.value })} ph="Kadikoy" />
       </div>
-      <Inp label="MAHALLE *" val={adres.mahalle} onChange={(e: any) => setAdres({ ...adres, mahalle: e.target.value })} ph="Moda Mahallesi" />
+      <Inp label="MAHALLE *" val={adres.mahalle} onChange={(e) => setAdres({ ...adres, mahalle: e.target.value })} ph="Moda Mahallesi" />
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
-        <Inp label="SOKAK / CADDE" val={adres.sokak} onChange={(e: any) => setAdres({ ...adres, sokak: e.target.value })} ph="Bahariye Cad." />
-        <Inp label="KAPI NO" val={adres.numara} onChange={(e: any) => setAdres({ ...adres, numara: e.target.value })} ph="45" />
+        <Inp label="SOKAK / CADDE" val={adres.sokak} onChange={(e) => setAdres({ ...adres, sokak: e.target.value })} ph="Bahariye Cad." />
+        <Inp label="KAPI NO" val={adres.numara} onChange={(e) => setAdres({ ...adres, numara: e.target.value })} ph="45" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div style={fld}><label style={lbl}>ANALIZ TURU</label>
@@ -108,7 +166,11 @@ export default function AnalysisPage() {
           </select></div>
       </div>
       <button style={{ background: loading || !adres.ilce || !adres.mahalle ? D.brd : D.gold, color: loading || !adres.ilce || !adres.mahalle ? D.muted : "#000", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, fontWeight: 700, cursor: loading || !adres.ilce || !adres.mahalle ? "not-allowed" : "pointer", width: "100%", marginTop: 8 }}
-        onClick={() => post("/api/v1/analysis/adres-analiz", adres)} disabled={loading || !adres.ilce || !adres.mahalle}>
+        onClick={() => post("/api/v1/analysis/adres-analiz", adres, {
+          source: "adres",
+          title: `${adres.mahalle} adres analizi`,
+          location: `${adres.il}/${adres.ilce}/${adres.mahalle}${adres.sokak ? `/${adres.sokak}` : ""}`,
+        })} disabled={loading || !adres.ilce || !adres.mahalle}>
         {loading ? "Analiz Ediliyor..." : "Adres Analizi Yap"}
       </button>
     </div>
@@ -120,25 +182,25 @@ export default function AnalysisPage() {
         Tam adres + fiyat girerek o mulkun firsati mi pahali mi oldugunu ogrenin
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <Inp label="SATIS FIYATI (TL) *" val={deal.fiyat} onChange={(e: any) => setDeal({ ...deal, fiyat: e.target.value })} ph="4500000" />
-        <Inp label="NET M2 *" val={deal.net_m2} onChange={(e: any) => setDeal({ ...deal, net_m2: e.target.value })} ph="120" />
+        <Inp label="SATIS FIYATI (TL) *" val={deal.fiyat} onChange={(e) => setDeal({ ...deal, fiyat: e.target.value })} ph="4500000" />
+        <Inp label="NET M2 *" val={deal.net_m2} onChange={(e) => setDeal({ ...deal, net_m2: e.target.value })} ph="120" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div style={fld}><label style={lbl}>IL *</label>
           <select style={inp} value={deal.il} onChange={e => setDeal({ ...deal, il: e.target.value })}>
             {ILLER.map(i => <option key={i}>{i}</option>)}
           </select></div>
-        <Inp label="ILCE *" val={deal.ilce} onChange={(e: any) => setDeal({ ...deal, ilce: e.target.value })} ph="Kadikoy" />
+        <Inp label="ILCE *" val={deal.ilce} onChange={(e) => setDeal({ ...deal, ilce: e.target.value })} ph="Kadikoy" />
       </div>
-      <Inp label="MAHALLE *" val={deal.mahalle} onChange={(e: any) => setDeal({ ...deal, mahalle: e.target.value })} ph="Moda" />
+      <Inp label="MAHALLE *" val={deal.mahalle} onChange={(e) => setDeal({ ...deal, mahalle: e.target.value })} ph="Moda" />
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
-        <Inp label="SOKAK" val={deal.sokak} onChange={(e: any) => setDeal({ ...deal, sokak: e.target.value })} ph="Bahariye Cad." />
-        <Inp label="NO" val={deal.numara} onChange={(e: any) => setDeal({ ...deal, numara: e.target.value })} ph="45" />
+        <Inp label="SOKAK" val={deal.sokak} onChange={(e) => setDeal({ ...deal, sokak: e.target.value })} ph="Bahariye Cad." />
+        <Inp label="NO" val={deal.numara} onChange={(e) => setDeal({ ...deal, numara: e.target.value })} ph="45" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-        <Inp label="BINA YASI" val={deal.bina_yasi} onChange={(e: any) => setDeal({ ...deal, bina_yasi: e.target.value })} ph="10" />
-        <Inp label="KAT NO" val={deal.kat_no} onChange={(e: any) => setDeal({ ...deal, kat_no: e.target.value })} ph="3" />
-        <Inp label="TOPLAM KAT" val={deal.toplam_kat} onChange={(e: any) => setDeal({ ...deal, toplam_kat: e.target.value })} ph="8" />
+        <Inp label="BINA YASI" val={deal.bina_yasi} onChange={(e) => setDeal({ ...deal, bina_yasi: e.target.value })} ph="10" />
+        <Inp label="KAT NO" val={deal.kat_no} onChange={(e) => setDeal({ ...deal, kat_no: e.target.value })} ph="3" />
+        <Inp label="TOPLAM KAT" val={deal.toplam_kat} onChange={(e) => setDeal({ ...deal, toplam_kat: e.target.value })} ph="8" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div style={fld}><label style={lbl}>ODA</label>
@@ -151,7 +213,12 @@ export default function AnalysisPage() {
           </select></div>
       </div>
       <button style={{ background: loading || !deal.fiyat || !deal.ilce || !deal.mahalle ? D.brd : "#22c55e", color: loading || !deal.fiyat || !deal.ilce || !deal.mahalle ? D.muted : "#000", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, fontWeight: 700, cursor: loading || !deal.fiyat || !deal.ilce || !deal.mahalle ? "not-allowed" : "pointer", width: "100%", marginTop: 8 }}
-        onClick={() => post("/api/v1/analysis/deal-score", { ...deal, fiyat: parseFloat(deal.fiyat), net_m2: parseFloat(deal.net_m2), bina_yasi: parseInt(deal.bina_yasi), kat_no: parseInt(deal.kat_no), toplam_kat: parseInt(deal.toplam_kat) })}
+        onClick={() => post("/api/v1/analysis/deal-score", { ...deal, fiyat: parseFloat(deal.fiyat), net_m2: parseFloat(deal.net_m2), bina_yasi: parseInt(deal.bina_yasi), kat_no: parseInt(deal.kat_no), toplam_kat: parseInt(deal.toplam_kat) }, {
+          source: "deal",
+          title: `${deal.mahalle} ${deal.oda_sayisi} deal skoru`,
+          location: `${deal.il}/${deal.ilce}/${deal.mahalle}`,
+          price: parseFloat(deal.fiyat),
+        })}
         disabled={loading || !deal.fiyat || !deal.ilce || !deal.mahalle}>
         {loading ? "Skorlaniyor..." : "Deal Skoru Hesapla"}
       </button>
@@ -165,11 +232,15 @@ export default function AnalysisPage() {
           <select style={inp} value={bolge.il} onChange={e => setBolge({ ...bolge, il: e.target.value })}>
             {ILLER.map(i => <option key={i}>{i}</option>)}
           </select></div>
-        <Inp label="ILCE *" val={bolge.ilce} onChange={(e: any) => setBolge({ ...bolge, ilce: e.target.value })} ph="Esenyurt" />
+        <Inp label="ILCE *" val={bolge.ilce} onChange={(e) => setBolge({ ...bolge, ilce: e.target.value })} ph="Esenyurt" />
       </div>
-      <Inp label="MAHALLE (opsiyonel)" val={bolge.mahalle} onChange={(e: any) => setBolge({ ...bolge, mahalle: e.target.value })} ph="Birlik Mah." />
+      <Inp label="MAHALLE (opsiyonel)" val={bolge.mahalle} onChange={(e) => setBolge({ ...bolge, mahalle: e.target.value })} ph="Birlik Mah." />
       <button style={{ background: loading || !bolge.ilce ? D.brd : "#38bdf8", color: loading || !bolge.ilce ? D.muted : "#000", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, fontWeight: 700, cursor: loading || !bolge.ilce ? "not-allowed" : "pointer", width: "100%", marginTop: 8 }}
-        onClick={() => post("/api/v1/analysis/bolge-hakimiyet", bolge)} disabled={loading || !bolge.ilce}>
+        onClick={() => post("/api/v1/analysis/bolge-hakimiyet", bolge, {
+          source: "bolge",
+          title: `${bolge.ilce} bölge hakimiyeti`,
+          location: `${bolge.il}/${bolge.ilce}${bolge.mahalle ? `/${bolge.mahalle}` : ""}`,
+        })} disabled={loading || !bolge.ilce}>
         {loading ? "Strateji Olusturuluyor..." : "Hakimiyet Stratejisi Olustur"}
       </button>
     </div>
@@ -178,14 +249,14 @@ export default function AnalysisPage() {
   const renderRisk = () => (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <Inp label="YATIRIM TUTARI (TL) *" val={risk.yatirim_tutari} onChange={(e: any) => setRisk({ ...risk, yatirim_tutari: e.target.value })} ph="5000000" />
+        <Inp label="YATIRIM TUTARI (TL) *" val={risk.yatirim_tutari} onChange={(e) => setRisk({ ...risk, yatirim_tutari: e.target.value })} ph="5000000" />
         <div style={fld}><label style={lbl}>IL *</label>
           <select style={inp} value={risk.il} onChange={e => setRisk({ ...risk, il: e.target.value })}>
             {ILLER.map(i => <option key={i}>{i}</option>)}
           </select></div>
       </div>
-      <Inp label="ILCE *" val={risk.ilce} onChange={(e: any) => setRisk({ ...risk, ilce: e.target.value })} ph="Sarıyer" />
-      <Inp label="MAHALLE *" val={risk.mahalle} onChange={(e: any) => setRisk({ ...risk, mahalle: e.target.value })} ph="Zekeriyakoy" />
+      <Inp label="ILCE *" val={risk.ilce} onChange={(e) => setRisk({ ...risk, ilce: e.target.value })} ph="Sarıyer" />
+      <Inp label="MAHALLE *" val={risk.mahalle} onChange={(e) => setRisk({ ...risk, mahalle: e.target.value })} ph="Zekeriyakoy" />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div style={fld}><label style={lbl}>MULK TIPI</label>
           <select style={inp} value={risk.mulk_tipi} onChange={e => setRisk({ ...risk, mulk_tipi: e.target.value })}>
@@ -199,7 +270,12 @@ export default function AnalysisPage() {
           </select></div>
       </div>
       <button style={{ background: loading || !risk.ilce || !risk.mahalle ? D.brd : "#e879f9", color: loading || !risk.ilce || !risk.mahalle ? D.muted : "#000", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, fontWeight: 700, cursor: loading || !risk.ilce || !risk.mahalle ? "not-allowed" : "pointer", width: "100%", marginTop: 8 }}
-        onClick={() => post("/api/v1/analysis/risk", { ...risk, yatirim_tutari: parseFloat(risk.yatirim_tutari) })} disabled={loading || !risk.ilce || !risk.mahalle}>
+        onClick={() => post("/api/v1/analysis/risk", { ...risk, yatirim_tutari: parseFloat(risk.yatirim_tutari) }, {
+          source: "risk",
+          title: `${risk.mahalle} risk analizi`,
+          location: `${risk.il}/${risk.ilce}/${risk.mahalle}`,
+          price: parseFloat(risk.yatirim_tutari),
+        })} disabled={loading || !risk.ilce || !risk.mahalle}>
         {loading ? "Analiz Ediliyor..." : "Risk Analizi Yap"}
       </button>
     </div>

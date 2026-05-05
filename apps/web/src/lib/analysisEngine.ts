@@ -6,6 +6,10 @@ import type {
   ExperimentResult,
   FailureAnalysisResult,
   FailureRecord,
+  ProblemAsset,
+  ActionRecommendation,
+  RiskItem,
+  ForecastResult,
   MemoryGraphResult,
   StrategyVariantResult,
 } from './commandCenterTypes'
@@ -21,6 +25,8 @@ export const defaultCommandCenterData: CommandCenterData = {
   priceChanges: [],
   decisions: [],
   experiments: [],
+  analysisResults: [],
+  actionFeedback: [],
   constraints: {
     minimumRevenue: 0,
     maxDiscountRate: 8,
@@ -34,9 +40,19 @@ export function analyzeCommandCenter(data: CommandCenterData): CommandCenterAnal
   const experiments = analyzeExperiments(data)
   const memory = buildMemoryGraph(data)
   const plan = buildConstraintPlan(data)
+  const problemAssets = buildProblemAssets(data)
+  const actions = buildActionEngine(data, problemAssets, plan)
+  const risks = buildRiskPanel(data, failures, problemAssets)
+  const forecast = buildForecast(data)
+  const contextualInsights = buildContextualInsights(data, forecast, risks, problemAssets)
 
   return {
-    criticalAlerts: buildCriticalAlerts(data, failures, plan),
+    criticalAlerts: buildCriticalAlerts(data, failures, plan, risks),
+    problemAssets,
+    actions,
+    risks,
+    forecast,
+    contextualInsights,
     failures,
     experiments,
     memory,
@@ -55,6 +71,8 @@ export function normalizeCommandCenterData(input: unknown): CommandCenterData {
     priceChanges: Array.isArray(raw.priceChanges) ? raw.priceChanges : [],
     decisions: Array.isArray(raw.decisions) ? raw.decisions : [],
     experiments: Array.isArray(raw.experiments) ? raw.experiments : [],
+    analysisResults: Array.isArray(raw.analysisResults) ? raw.analysisResults : [],
+    actionFeedback: Array.isArray(raw.actionFeedback) ? raw.actionFeedback : [],
     constraints: {
       ...defaultCommandCenterData.constraints,
       ...(typeof raw.constraints === 'object' && raw.constraints !== null ? raw.constraints : {}),
@@ -308,7 +326,300 @@ export function buildConstraintPlan(data: CommandCenterData): ConstraintPlan {
   }
 }
 
-function buildCriticalAlerts(data: CommandCenterData, failures: FailureAnalysisResult, plan: ConstraintPlan) {
+function buildProblemAssets(data: CommandCenterData): ProblemAsset[] {
+  const items: ProblemAsset[] = []
+
+  data.deals
+    .filter((deal) => deal.status === 'active')
+    .forEach((deal) => {
+      const interactions = data.interactions.filter((item) => item.dealId === deal.id)
+      const portfolio = data.portfolios.find((item) => item.id === deal.portfolioId)
+      const durationDays = getDurationDays(deal)
+      const lastTouchGap = getLastTouchGapDays(deal, interactions.map((item) => item.at))
+      const avgQuality = interactions.length ? average(interactions.map((item) => item.quality)) : 0
+      const discountRate = getDiscountRate(data.priceChanges.filter((item) => item.dealId === deal.id))
+
+      if (lastTouchGap > 10 || durationDays > data.constraints.timeLimitDays) {
+        items.push({
+          id: `stale-${deal.id}`,
+          title: deal.title,
+          kind: 'stale',
+          severity: lastTouchGap > 18 || durationDays > data.constraints.timeLimitDays ? 'high' : 'medium',
+          metric: `${lastTouchGap} gün temassız`,
+          interpretation:
+            lastTouchGap > 18
+              ? 'Bu değer riskli; süreç müşteri zihninden düşmüş olabilir.'
+              : 'Bu değer normalin üstünde; takip ritmi zayıflıyor.',
+          evidence: [
+            `${durationDays} gündür açık`,
+            interactions.length ? `${interactions.length} etkileşim kaydı var` : 'Etkileşim kaydı yok',
+          ],
+        })
+      }
+
+      if (portfolio?.targetPrice && portfolio.listPrice > portfolio.targetPrice) {
+        const gap = ((portfolio.listPrice - portfolio.targetPrice) / portfolio.listPrice) * 100
+        items.push({
+          id: `pricing-${deal.id}`,
+          title: portfolio.title,
+          kind: 'pricing',
+          severity: gap > 10 ? 'high' : gap > 5 ? 'medium' : 'low',
+          metric: `%${gap.toFixed(1)} hedef üstü`,
+          interpretation:
+            gap > data.constraints.maxDiscountRate
+              ? 'Bu fiyat kısıt sınırını aşıyor; fiyat stratejisi karar üretmeden kapanma zorlaşır.'
+              : 'Bu değer izlenmeli; küçük revizyon kapanma ihtimalini artırabilir.',
+          evidence: [
+            `Liste fiyatı ${formatMoney(portfolio.listPrice)}`,
+            `Hedef fiyat ${formatMoney(portfolio.targetPrice)}`,
+            `Mevcut indirim izi %${discountRate.toFixed(1)}`,
+          ],
+        })
+      }
+
+      if ((avgQuality > 0 && avgQuality < 55) || (interactions.length < 2 && durationDays > 7)) {
+        items.push({
+          id: `performance-${deal.id}`,
+          title: deal.title,
+          kind: 'performance',
+          severity: avgQuality > 0 && avgQuality < 45 ? 'high' : 'medium',
+          metric: avgQuality ? `${Math.round(avgQuality)}/100 etkileşim kalitesi` : 'Düşük etkileşim',
+          interpretation: 'Bu değer düşük; işlem var ama karar verdiren temas kalitesi oluşmamış.',
+          evidence: [
+            `${interactions.length} etkileşim`,
+            deal.actionDueAt ? `Aksiyon tarihi: ${deal.actionDueAt}` : 'Planlı aksiyon tarihi yok',
+          ],
+        })
+      }
+    })
+
+  data.analysisResults.forEach((analysis) => {
+    const riskyScore = typeof analysis.score === 'number' && analysis.score < 55
+    const riskyRisk = typeof analysis.riskScore === 'number' && analysis.riskScore > 65
+    const priceGap =
+      analysis.price && analysis.marketPrice
+        ? ((analysis.price - analysis.marketPrice) / Math.max(analysis.price, 1)) * 100
+        : 0
+
+    if (riskyScore || riskyRisk || priceGap > 6) {
+      items.push({
+        id: `analysis-${analysis.id}`,
+        title: analysis.title,
+        kind: 'analysis',
+        severity: riskyRisk || priceGap > 10 ? 'high' : 'medium',
+        metric: riskyScore
+          ? `Skor ${analysis.score}/100`
+          : riskyRisk
+            ? `Risk ${analysis.riskScore}/100`
+            : `%${priceGap.toFixed(1)} piyasa üstü`,
+        interpretation: 'Analiz sonucu Command Center’a aktı; bu kayıt aksiyon motorunu etkiliyor.',
+        evidence: [analysis.location || 'Konum yok', analysis.summary.slice(0, 140)],
+      })
+    }
+  })
+
+  return items.sort((a, b) => riskWeight(b.severity) - riskWeight(a.severity)).slice(0, 12)
+}
+
+function buildActionEngine(
+  data: CommandCenterData,
+  problemAssets: ProblemAsset[],
+  plan: ConstraintPlan,
+): ActionRecommendation[] {
+  const feedbackByAction = new Map(data.actionFeedback.map((item) => [item.actionId, item]))
+  const actions: ActionRecommendation[] = []
+
+  problemAssets.forEach((asset) => {
+    const dealId = asset.id.split('-').slice(1).join('-') || undefined
+    const command =
+      asset.kind === 'pricing'
+        ? 'fiyatı düşür'
+        : asset.kind === 'stale'
+          ? 'müşteri ara'
+          : asset.kind === 'performance'
+            ? 'önceliklendir'
+            : 'güncelle'
+    const actionId = `${command}-${asset.id}`
+    actions.push({
+      id: actionId,
+      dealId,
+      title: asset.title,
+      command,
+      priority: riskWeight(asset.severity) * 30 + (asset.kind === 'pricing' ? 8 : 0),
+      impact: asset.severity === 'high' ? 88 : asset.severity === 'medium' ? 70 : 48,
+      risk: asset.severity,
+      reason: asset.interpretation,
+      feedback: feedbackByAction.get(actionId),
+    })
+  })
+
+  plan.actions.forEach((item, index) => {
+    const actionId = `plan-${item.dealId || 'global'}-${index}`
+    actions.push({
+      id: actionId,
+      dealId: item.dealId,
+      title: item.label,
+      command: item.dealId ? 'güncelle' : 'veri tamamla',
+      priority: item.impact,
+      impact: item.impact,
+      risk: item.risk,
+      reason: item.reason,
+      feedback: feedbackByAction.get(actionId),
+    })
+  })
+
+  if (!data.deals.length && !data.analysisResults.length) {
+    actions.push({
+      id: 'data-bootstrap',
+      title: 'Karar makinesi için kullanıcı verisi girilmeli',
+      command: 'veri tamamla',
+      priority: 95,
+      impact: 100,
+      risk: 'medium',
+      reason: 'Sistem sahte veri üretmez; müşteri, portföy veya analiz sonucu olmadan karar çıkaramaz.',
+      feedback: feedbackByAction.get('data-bootstrap'),
+    })
+  }
+
+  return actions
+    .filter((action) => action.feedback?.result !== 'done')
+    .sort((a, b) => b.priority - a.priority)
+    .slice(0, 14)
+}
+
+function buildRiskPanel(
+  data: CommandCenterData,
+  failures: FailureAnalysisResult,
+  problemAssets: ProblemAsset[],
+): RiskItem[] {
+  const activeDeals = data.deals.filter((deal) => deal.status === 'active')
+  const staleCount = problemAssets.filter((item) => item.kind === 'stale').length
+  const pricingCount = problemAssets.filter((item) => item.kind === 'pricing').length
+  const lostCount = data.deals.filter((deal) => deal.status === 'lost').length
+  const totalExpected = activeDeals.reduce((sum, deal) => sum + deal.expectedRevenue, 0)
+  const highProblemCount = problemAssets.filter((item) => item.severity === 'high').length
+
+  return [
+    {
+      id: 'low-performance',
+      label: 'Düşük performans',
+      level: highProblemCount > 1 ? 'high' : problemAssets.length ? 'medium' : 'low',
+      value: `${problemAssets.length} kayıt`,
+      interpretation: problemAssets.length
+        ? 'Bu değer operasyonun aksiyon beklediğini gösteriyor.'
+        : 'Şu an problemli kayıt görünmüyor; veri kapsamı yine de izlenmeli.',
+    },
+    {
+      id: 'delayed-deals',
+      label: 'Geciken işlemler',
+      level: staleCount > 2 ? 'high' : staleCount ? 'medium' : 'low',
+      value: `${staleCount} süreç`,
+      interpretation: staleCount
+        ? 'Takip boşluğu kapanma oranını düşürebilir.'
+        : 'Temas ritmi kritik eşik altında görünmüyor.',
+    },
+    {
+      id: 'pricing-risk',
+      label: 'Fiyat riski',
+      level: pricingCount > 1 ? 'high' : pricingCount ? 'medium' : 'low',
+      value: `${pricingCount} portföy`,
+      interpretation: pricingCount
+        ? 'Fiyat hedefle uyuşmuyor; revizyon veya savunma stratejisi gerekir.'
+        : 'Fiyat kaynaklı belirgin baskı yok.',
+    },
+    {
+      id: 'potential-loss',
+      label: 'Potansiyel kayıp',
+      level: totalExpected > 0 && highProblemCount ? 'high' : totalExpected > 0 ? 'medium' : 'low',
+      value: formatMoney(totalExpected),
+      interpretation: totalExpected
+        ? 'Aktif beklenen gelir risk ağırlığıyla izlenmeli.'
+        : 'Aktif işlem geliri kaydı yok.',
+    },
+    {
+      id: 'learned-failures',
+      label: 'Tekrarlayan hata',
+      level: failures.repeatedPatterns.length ? 'high' : lostCount ? 'medium' : 'low',
+      value: `${failures.repeatedPatterns.length} patern`,
+      interpretation: failures.repeatedPatterns.length
+        ? 'Aynı hata tekrar ediyor; sistem bunu aksiyon önceliğine taşıdı.'
+        : 'Tekrarlayan kayıp paterni için yeterli veri oluşmadı.',
+    },
+  ]
+}
+
+function buildForecast(data: CommandCenterData): ForecastResult {
+  const activeDeals = data.deals.filter((deal) => deal.status === 'active')
+  const closedDeals = data.deals.filter((deal) => deal.status !== 'active')
+  const historicalCloseRate = closedDeals.length
+    ? closedDeals.filter((deal) => deal.status === 'won').length / closedDeals.length
+    : 0
+  const activeQuality = activeDeals.length
+    ? average(
+        activeDeals.map((deal) => {
+          const interactions = data.interactions.filter((item) => item.dealId === deal.id)
+          const portfolio = data.portfolios.find((item) => item.id === deal.portfolioId)
+          const targetPenalty = portfolio?.targetPrice && portfolio.listPrice > portfolio.targetPrice ? 0.12 : 0
+          const touchBonus = Math.min(interactions.length * 0.06, 0.24)
+          return Math.max(0.12, Math.min(0.9, 0.36 + touchBonus - targetPenalty))
+        }),
+      )
+    : 0
+  const estimatedCloseRate = closedDeals.length ? historicalCloseRate * 0.65 + activeQuality * 0.35 : activeQuality
+  const expectedRevenue = activeDeals.reduce((sum, deal) => sum + deal.expectedRevenue, 0)
+  const expectedWonRevenue = expectedRevenue * estimatedCloseRate
+
+  return {
+    activeCount: activeDeals.length,
+    estimatedCloseRate,
+    expectedRevenue,
+    expectedWonRevenue,
+    expectedResult: activeDeals.length
+      ? `${activeDeals.length} aktif kayıttan yaklaşık ${Math.round(activeDeals.length * estimatedCloseRate)} kapanış bekleniyor.`
+      : 'Aktif işlem yok; tahmin üretmek için işlem kaydı gerekir.',
+    interpretation:
+      estimatedCloseRate >= 0.65
+        ? 'Bu değer güçlü; mevcut veri kapanma ihtimalinin yüksek olduğunu söylüyor.'
+        : estimatedCloseRate >= 0.4
+          ? 'Bu değer orta; doğru aksiyonlarla iyileştirilebilir.'
+          : 'Bu değer düşük; sistem takip ve fiyat baskısını risk olarak görüyor.',
+  }
+}
+
+function buildContextualInsights(
+  data: CommandCenterData,
+  forecast: ForecastResult,
+  risks: RiskItem[],
+  problemAssets: ProblemAsset[],
+) {
+  const insights: string[] = []
+  const highRisks = risks.filter((risk) => risk.level === 'high')
+  const latestAnalysis = [...data.analysisResults].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  )[0]
+
+  if (latestAnalysis) {
+    insights.push(`Son analiz "${latestAnalysis.title}" Command Center hafızasına işlendi.`)
+  }
+  if (highRisks.length) {
+    insights.push(`Önce ${highRisks[0].label.toLowerCase()} çözülmeli; diğer öneriler bu riske göre sıralandı.`)
+  }
+  if (forecast.activeCount) {
+    insights.push(`Tahmin motoru beklenen gelirin ${formatMoney(forecast.expectedWonRevenue)} kısmını kapanabilir görüyor.`)
+  }
+  if (problemAssets.some((asset) => asset.kind === 'pricing')) {
+    insights.push('Fiyat kaynaklı problem tespit edildi; analiz sonuçları risk paneliyle aynı yöne işaret ediyor.')
+  }
+
+  return insights.length ? insights : ['Sistem henüz kullanıcı verisi bekliyor; sahte sonuç üretilmedi.']
+}
+
+function buildCriticalAlerts(
+  data: CommandCenterData,
+  failures: FailureAnalysisResult,
+  plan: ConstraintPlan,
+  risks: RiskItem[],
+) {
   const alerts: CommandCenterAnalysis['criticalAlerts'] = []
   const overdueDeals = data.deals.filter((deal) => deal.status === 'active' && getDurationDays(deal) > data.constraints.timeLimitDays)
 
@@ -331,6 +642,13 @@ function buildCriticalAlerts(data: CommandCenterData, failures: FailureAnalysisR
       label: 'Kısıt dışı işlemler',
       detail: `${plan.blocked.length} işlem hedef veya risk sınırına takıldı.`,
       risk: 'medium',
+    })
+  }
+  if (risks.some((risk) => risk.level === 'high')) {
+    alerts.push({
+      label: 'Yüksek riskli operasyon',
+      detail: 'Risk paneli en az bir başlığı kritik seviyeye taşıdı.',
+      risk: 'high',
     })
   }
   if (!data.deals.length) {
@@ -492,6 +810,12 @@ function groupBy<T>(items: T[], getKey: (item: T) => string) {
     acc[key].push(item)
     return acc
   }, {})
+}
+
+function riskWeight(level: 'low' | 'medium' | 'high') {
+  if (level === 'high') return 3
+  if (level === 'medium') return 2
+  return 1
 }
 
 function formatMoney(value: number) {

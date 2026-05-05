@@ -1,6 +1,7 @@
 export type DealStatus = 'active' | 'won' | 'lost'
 export type RiskLevel = 'low' | 'medium' | 'high'
 export type StrategyMode = 'aggressive' | 'normal' | 'patient'
+export type AnalysisSource = 'adres' | 'deal' | 'bolge' | 'risk' | 'valuation' | 'manual'
 
 export type Customer = {
   id: string
@@ -88,6 +89,31 @@ export type ConstraintInput = {
   riskLevel: RiskLevel
 }
 
+export type CapturedAnalysis = {
+  id: string
+  source: AnalysisSource
+  title: string
+  createdAt: string
+  location?: string
+  portfolioId?: string
+  dealId?: string
+  score?: number
+  price?: number
+  marketPrice?: number
+  riskScore?: number
+  summary: string
+  raw: string
+}
+
+export type ActionFeedback = {
+  id: string
+  actionId: string
+  dealId?: string
+  result: 'done' | 'ignored' | 'won' | 'lost'
+  note?: string
+  createdAt: string
+}
+
 export type CommandCenterData = {
   customers: Customer[]
   portfolios: Portfolio[]
@@ -97,6 +123,8 @@ export type CommandCenterData = {
   priceChanges: PriceChange[]
   decisions: Decision[]
   experiments: Experiment[]
+  analysisResults: CapturedAnalysis[]
+  actionFeedback: ActionFeedback[]
   constraints: ConstraintInput
 }
 
@@ -164,8 +192,52 @@ export type ConstraintPlan = {
   summary: string
 }
 
+export type ProblemAsset = {
+  id: string
+  title: string
+  kind: 'stale' | 'pricing' | 'performance' | 'analysis'
+  severity: RiskLevel
+  metric: string
+  interpretation: string
+  evidence: string[]
+}
+
+export type ActionRecommendation = {
+  id: string
+  dealId?: string
+  title: string
+  command: 'fiyatı düşür' | 'güncelle' | 'önceliklendir' | 'pasife al' | 'müşteri ara' | 'veri tamamla'
+  priority: number
+  impact: number
+  risk: RiskLevel
+  reason: string
+  feedback?: ActionFeedback
+}
+
+export type RiskItem = {
+  id: string
+  label: string
+  level: RiskLevel
+  value: string
+  interpretation: string
+}
+
+export type ForecastResult = {
+  activeCount: number
+  estimatedCloseRate: number
+  expectedRevenue: number
+  expectedWonRevenue: number
+  expectedResult: string
+  interpretation: string
+}
+
 export type CommandCenterAnalysis = {
   criticalAlerts: Array<{ label: string; detail: string; risk: RiskLevel }>
+  problemAssets: ProblemAsset[]
+  actions: ActionRecommendation[]
+  risks: RiskItem[]
+  forecast: ForecastResult
+  contextualInsights: string[]
   failures: FailureAnalysisResult
   experiments: ExperimentResult[]
   memory: MemoryGraphResult

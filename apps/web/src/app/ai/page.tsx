@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAgencyId } from "@/hooks/useAgencyId";
+import { analyzeCommandCenter } from "@/lib/analysisEngine";
+import { readCommandCenterData } from "@/lib/commandCenterStore";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
@@ -29,6 +31,11 @@ const SUGGESTIONS = [
   "Kiraya vermek mi, satmak mı daha kârlı?",
 ];
 
+type Listing = {
+  fiyat?: number | string;
+  il?: string;
+};
+
 export default function AiPage() {
   const { agencyId } = useAgencyId();
   const [stats, setStats] = useState({ total: 0, avg: 0, cities: 0 });
@@ -41,7 +48,7 @@ export default function AiPage() {
   ]);
   const [input, setInput] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
-  const messagesEndRef = useRef<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -49,9 +56,9 @@ export default function AiPage() {
     fetch(`${API_URL}/api/v1/listings?limit=500`, { headers: { "agency-id": agencyId } })
       .then(r => r.json())
       .then(d => {
-        const l = d.listings || [];
-        const avg = l.length ? Math.round(l.reduce((a: number, b: any) => a + Number(b.fiyat), 0) / l.length) : 0;
-        const cities = new Set(l.map((x: any) => x.il).filter(Boolean)).size;
+        const l: Listing[] = Array.isArray(d.listings) ? d.listings : [];
+        const avg = l.length ? Math.round(l.reduce((a, b) => a + Number(b.fiyat), 0) / l.length) : 0;
+        const cities = new Set(l.map((x) => x.il).filter(Boolean)).size;
         setStats({ total: l.length, avg, cities });
       }).catch(() => {});
   }, [agencyId]);
@@ -66,13 +73,14 @@ export default function AiPage() {
     setInput("");
     setMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setAiLoading(true);
+    const commandContext = buildCommandCenterContext();
     try {
       const res = await fetch(`${API_URL}/api/v1/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [...messages, { role: "user", content: userMsg }],
-          context: `Sen Vega AI'sin. Türkiye gayrimenkul uzmanısın. Platform: ${stats.total} ilan, ort. ₺${stats.avg.toLocaleString("tr-TR")}, ${stats.cities} şehir. Kısa ve net Türkçe yanıt ver.`,
+          context: `Sen Vega AI'sin. Türkiye gayrimenkul uzmanısın. Platform: ${stats.total} ilan, ort. ₺${stats.avg.toLocaleString("tr-TR")}, ${stats.cities} şehir. Kullanıcının Command Center verisi: ${commandContext}. Kısa, net ve kullanıcının kendi verisine bağlı Türkçe yanıt ver. Veri yoksa bunu açıkça söyle; sahte sonuç uydurma.`,
         }),
       });
       const data = await res.json();
@@ -208,8 +216,8 @@ export default function AiPage() {
                 borderRadius: 16, padding: "5px 12px", fontSize: 11, color: "#444",
                 cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
               }}
-              onMouseEnter={e => { (e.target as any).style.color = "#FFD700"; (e.target as any).style.borderColor = "rgba(255,215,0,0.25)"; }}
-              onMouseLeave={e => { (e.target as any).style.color = "#444"; (e.target as any).style.borderColor = "#1a1a1a"; }}>
+              onMouseEnter={e => { e.currentTarget.style.color = "#FFD700"; e.currentTarget.style.borderColor = "rgba(255,215,0,0.25)"; }}
+              onMouseLeave={e => { e.currentTarget.style.color = "#444"; e.currentTarget.style.borderColor = "#1a1a1a"; }}>
               {s}
             </button>
           ))}
@@ -250,4 +258,22 @@ export default function AiPage() {
       </div>
     </div>
   );
+}
+
+function buildCommandCenterContext() {
+  const data = readCommandCenterData();
+  const analysis = analyzeCommandCenter(data);
+  const topAction = analysis.actions[0];
+  const highRisks = analysis.risks.filter((risk) => risk.level === "high").map((risk) => risk.label).join(", ") || "kritik risk yok";
+
+  return [
+    `${data.customers.length} müşteri`,
+    `${data.portfolios.length} portföy`,
+    `${data.deals.length} işlem`,
+    `${data.analysisResults.length} analiz sonucu`,
+    `tahmini kapanma %${Math.round(analysis.forecast.estimatedCloseRate * 100)}`,
+    `beklenen sonuç ${analysis.forecast.expectedResult}`,
+    `yüksek riskler: ${highRisks}`,
+    topAction ? `öncelikli aksiyon: ${topAction.command} - ${topAction.title}` : "öncelikli aksiyon yok",
+  ].join("; ");
 }

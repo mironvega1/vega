@@ -1,6 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { analyzeCommandCenter } from '@/lib/analysisEngine'
+import { readCommandCenterData } from '@/lib/commandCenterStore'
 import { marketPulse, opportunities } from '@/lib/mock/market'
 
 const MERKEZLER = [
@@ -113,6 +116,16 @@ const MARKET_ITEMS = [
 
 export default function Dashboard() {
   const top3 = opportunities.slice(0, 3)
+  const [commandSummary] = useState(() => {
+    const data = readCommandCenterData()
+    const analysis = analyzeCommandCenter(data)
+    return {
+      actions: analysis.actions.length,
+      highRisks: analysis.risks.filter((risk) => risk.level === 'high').length,
+      closeRate: Math.round(analysis.forecast.estimatedCloseRate * 100),
+      insight: analysis.contextualInsights[0] || analysis.forecast.interpretation,
+    }
+  })
 
   return (
     <div className="dash-page">
@@ -447,17 +460,22 @@ export default function Dashboard() {
               Günaydın, bugün piyasada {opportunities.length} yeni fırsat var.
             </h1>
             <p className="dash-copy">
-              Fırsat radarı, merkezler ve araçlar yeniden paketli görünümde. Analiz, sözleşme,
-              rapor ve AI modülleri alt özellikleriyle beraber tek ekranda.
+              Analiz Merkezi ve Command Center aynı kullanıcı verisini okur. Dashboard artık sadece
+              modül listesi değil; karar motorundan gelen risk ve aksiyon sinyalini öne çıkarır.
             </p>
           </div>
 
           <aside className="dash-panel">
-            <div className="dash-kicker">GÜNLÜK PİYASA NABZI</div>
+            <div className="dash-kicker">COMMAND CENTER SİNYALİ</div>
             <div style={{ color: '#e8e8e8', fontSize: 17, lineHeight: 1.55, marginBottom: 18 }}>
-              {marketPulse.aiDailyComment}
+              {commandSummary.insight}
             </div>
-            <Link href="/market-pulse" className="dash-link">Piyasayı İncele →</Link>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8, marginBottom: 18 }}>
+              <div className="dash-header-pill"><div style={{ color: '#FFD700', fontWeight: 800 }}>{commandSummary.actions}</div><div style={{ color: '#686868', fontSize: 9 }}>AKSİYON</div></div>
+              <div className="dash-header-pill"><div style={{ color: commandSummary.highRisks ? '#f87171' : '#22c55e', fontWeight: 800 }}>{commandSummary.highRisks}</div><div style={{ color: '#686868', fontSize: 9 }}>RİSK</div></div>
+              <div className="dash-header-pill"><div style={{ color: '#c0c0c0', fontWeight: 800 }}>%{commandSummary.closeRate}</div><div style={{ color: '#686868', fontSize: 9 }}>KAPANMA</div></div>
+            </div>
+            <Link href="/command-center" className="dash-link">Karar Merkezine Git →</Link>
           </aside>
         </section>
 

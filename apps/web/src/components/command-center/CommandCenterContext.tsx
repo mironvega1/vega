@@ -6,7 +6,12 @@ import {
   defaultCommandCenterData,
   normalizeCommandCenterData,
 } from '@/lib/analysisEngine'
-import type { CommandCenterAnalysis, CommandCenterData, RiskLevel } from '@/lib/commandCenterTypes'
+import {
+  appendActionFeedback,
+  readCommandCenterData,
+  writeCommandCenterData,
+} from '@/lib/commandCenterStore'
+import type { ActionFeedback, CommandCenterAnalysis, CommandCenterData, RiskLevel } from '@/lib/commandCenterTypes'
 
 type CommandCenterContextValue = {
   data: CommandCenterData
@@ -17,24 +22,22 @@ type CommandCenterContextValue = {
   importJson: () => void
   clearData: () => void
   updateConstraints: (patch: Partial<CommandCenterData['constraints']>) => void
+  recordFeedback: (feedback: Omit<ActionFeedback, 'id' | 'createdAt'>) => void
 }
 
-const STORAGE_KEY = 'vega.commandCenter.userData.v1'
 const CommandCenterContext = createContext<CommandCenterContextValue | null>(null)
 
 export function CommandCenterProvider({ children }: { children: React.ReactNode }) {
-  const [data, setData] = useState<CommandCenterData>(() => readStoredData())
-  const [jsonValue, setJsonValue] = useState(() => JSON.stringify(readStoredData(), null, 2))
+  const [data, setData] = useState<CommandCenterData>(() => readCommandCenterData())
+  const [jsonValue, setJsonValue] = useState(() => JSON.stringify(readCommandCenterData(), null, 2))
   const [jsonError, setJsonError] = useState('')
 
   const analysis = useMemo(() => analyzeCommandCenter(data), [data])
 
   const persist = (next: CommandCenterData) => {
-    setData(next)
-    setJsonValue(JSON.stringify(next, null, 2))
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-    }
+    const normalized = writeCommandCenterData(next)
+    setData(normalized)
+    setJsonValue(JSON.stringify(normalized, null, 2))
   }
 
   const importJson = () => {
@@ -65,6 +68,16 @@ export function CommandCenterProvider({ children }: { children: React.ReactNode 
     persist(next)
   }
 
+  const recordFeedback = (feedback: Omit<ActionFeedback, 'id' | 'createdAt'>) => {
+    const next = appendActionFeedback({
+      ...feedback,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    })
+    setData(next)
+    setJsonValue(JSON.stringify(next, null, 2))
+  }
+
   return (
     <CommandCenterContext.Provider
       value={{
@@ -76,6 +89,7 @@ export function CommandCenterProvider({ children }: { children: React.ReactNode 
         importJson,
         clearData,
         updateConstraints,
+        recordFeedback,
       }}
     >
       {children}
@@ -87,15 +101,4 @@ export function useCommandCenter() {
   const ctx = useContext(CommandCenterContext)
   if (!ctx) throw new Error('useCommandCenter must be used inside CommandCenterProvider')
   return ctx
-}
-
-function readStoredData() {
-  if (typeof window === 'undefined') return defaultCommandCenterData
-  const stored = window.localStorage.getItem(STORAGE_KEY)
-  if (!stored) return defaultCommandCenterData
-  try {
-    return normalizeCommandCenterData(JSON.parse(stored) as unknown)
-  } catch {
-    return defaultCommandCenterData
-  }
 }
