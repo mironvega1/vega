@@ -269,7 +269,13 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
+  const completion = Math.round((step / 5) * 100)
+  const roleLabel = ROLES.find(r => r.id === role)?.label || 'Rol seçilmedi'
+  const cityLabel = city || 'Şehir seçilmedi'
+  const agencyLabel = agencyMode === 'create'
+    ? (agencyName || 'Acente adı bekleniyor')
+    : (agencyCode || 'Acente kodu bekleniyor')
+  const planLabel = PLANS.find(p => p.id === plan)?.name || 'Plan seçilmedi'
 
   const next = () => setStep(s => (s + 1) as Step)
   const back = () => setStep(s => (s - 1) as Step)
@@ -277,6 +283,7 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true); setError('')
+    const supabase = createClient()
     const agencyId = agencyMode === 'join' ? agencyCode.trim() : crypto.randomUUID()
     const { data, error: err } = await supabase.auth.signUp({
       email, password,
@@ -294,12 +301,40 @@ export default function SignupPage() {
   }
 
   const simPanel = (
-    <div style={{ flex: 1, padding: '40px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      {step === 1 && <SimRole role={role} />}
-      {step === 2 && <SimCity city={city} />}
-      {step === 3 && <SimAgency mode={agencyMode} name={agencyMode === 'create' ? agencyName : agencyCode} />}
-      {step === 4 && <SimPlan plan={plan} />}
-      {step === 5 && <SimSummary fullName={fullName} city={city} agencyName={agencyMode === 'create' ? agencyName : agencyCode} plan={plan} />}
+    <div style={{ flex: 1, padding: '32px 30px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ background: 'linear-gradient(120deg, rgba(255,215,0,0.08), rgba(255,255,255,0.02))', border: '1px solid rgba(255,215,0,0.18)', borderRadius: 14, padding: '16px 18px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ fontSize: 11, color: '#7a7a7a', letterSpacing: 1.4 }}>VEGA AKILLI KURULUM</div>
+          <div style={{ fontSize: 12, color: '#FFD700', fontWeight: 600 }}>%{completion}</div>
+        </div>
+        <div style={{ height: 6, borderRadius: 999, background: '#171717', overflow: 'hidden', marginBottom: 12 }}>
+          <div style={{ width: `${completion}%`, height: '100%', background: '#FFD700', transition: 'width .25s' }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {[`Rol: ${roleLabel}`, `Şehir: ${cityLabel}`, `Acente: ${agencyLabel}`, `Plan: ${planLabel}`].map(item => (
+            <div key={item} style={{ fontSize: 11, color: '#bdbdbd', background: 'rgba(255,255,255,0.02)', border: '1px solid #1a1a1a', borderRadius: 8, padding: '7px 9px' }}>
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: '#0a0a0a', border: '1px solid #141414', borderRadius: 14, flex: 1, minHeight: 420, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid #131313' }}>
+          <div style={{ fontSize: 11, color: '#595959' }}>CANLI ÖNİZLEME</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e' }} />
+            <span style={{ fontSize: 11, color: '#3f3f3f' }}>Sinyal aktif</span>
+          </div>
+        </div>
+        <div style={{ padding: '14px 16px', height: 'calc(100% - 44px)' }}>
+          {step === 1 && <SimRole role={role} />}
+          {step === 2 && <SimCity city={city} />}
+          {step === 3 && <SimAgency mode={agencyMode} name={agencyMode === 'create' ? agencyName : agencyCode} />}
+          {step === 4 && <SimPlan plan={plan} />}
+          {step === 5 && <SimSummary fullName={fullName} city={city} agencyName={agencyMode === 'create' ? agencyName : agencyCode} plan={plan} />}
+        </div>
+      </div>
     </div>
   )
 
