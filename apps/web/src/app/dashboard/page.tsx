@@ -124,6 +124,14 @@ export default function Dashboard() {
       highRisks: analysis.risks.filter((risk) => risk.level === 'high').length,
       closeRate: Math.round(analysis.forecast.estimatedCloseRate * 100),
       insight: analysis.contextualInsights[0] || analysis.forecast.interpretation,
+      actionItems: analysis.actions.slice(0, 4).map((action) => `${action.command}: ${action.title}`),
+      riskItems: analysis.risks.slice(0, 5).map((risk) => `${risk.label} · ${risk.value}`),
+      sourceCounts: [
+        ['Müşteri', data.customers.length],
+        ['Portföy', data.portfolios.length],
+        ['İşlem', data.deals.length],
+        ['Analiz', data.analysisResults.length],
+      ] as Array<[string, number]>,
     }
   })
 
@@ -181,9 +189,76 @@ export default function Dashboard() {
           text-align: center;
         }
         .dash-shell {
-          max-width: 1180px;
-          margin: 0 auto;
-          padding: 34px 40px 80px;
+          width: 100%;
+          box-sizing: border-box;
+          padding: 18px 22px 80px;
+          display: grid;
+          grid-template-columns: 280px minmax(0, 1fr) 300px;
+          gap: 14px;
+          align-items: start;
+        }
+        .dash-main {
+          min-width: 0;
+        }
+        .dash-side {
+          display: grid;
+          gap: 12px;
+          position: sticky;
+          top: 74px;
+        }
+        .dash-side-card {
+          background:
+            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
+            linear-gradient(rgba(255,255,255,0.024) 1px, transparent 1px),
+            #0b0b0b;
+          background-size: 24px 24px;
+          border: 1px solid #171717;
+          border-radius: 12px;
+          padding: 16px;
+        }
+        .dash-side-title {
+          color: #eeeeee;
+          font-size: 13px;
+          font-weight: 750;
+          margin-bottom: 10px;
+        }
+        .dash-mini-line {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          border-bottom: 1px solid #171717;
+          padding: 8px 0;
+          color: #8b8b8b;
+          font-size: 11px;
+          line-height: 1.35;
+        }
+        .dash-mini-line b {
+          color: #FFD700;
+        }
+        .dash-architecture {
+          min-height: 220px;
+          position: relative;
+          overflow: hidden;
+        }
+        .dash-architecture span {
+          position: absolute;
+          border: 1px solid rgba(255,215,0,0.22);
+          background: rgba(255,215,0,0.045);
+          border-radius: 8px;
+        }
+        .dash-architecture span:nth-child(1) { inset: 22px 92px 118px 12px; }
+        .dash-architecture span:nth-child(2) { inset: 78px 36px 58px 84px; border-color: rgba(96,165,250,0.22); background: rgba(96,165,250,0.035); }
+        .dash-architecture span:nth-child(3) { inset: 138px 126px 16px 34px; border-color: rgba(34,197,94,0.22); background: rgba(34,197,94,0.035); }
+        .dash-architecture span:nth-child(4) { inset: 18px 18px 154px 178px; border-color: rgba(248,113,113,0.2); background: rgba(248,113,113,0.035); }
+        .dash-architecture p {
+          position: absolute;
+          left: 16px;
+          right: 16px;
+          bottom: 14px;
+          margin: 0;
+          color: #777;
+          font-size: 11px;
+          line-height: 1.55;
         }
         .dash-hero {
           display: grid;
@@ -403,7 +478,11 @@ export default function Dashboard() {
             justify-content: flex-start;
           }
           .dash-shell {
-            padding: 28px 20px 64px;
+            padding: 14px 14px 64px;
+            grid-template-columns: 1fr;
+          }
+          .dash-side {
+            position: static;
           }
           .dash-hero,
           .dash-market,
@@ -453,6 +532,31 @@ export default function Dashboard() {
       </header>
 
       <div className="dash-shell">
+        <aside className="dash-side">
+          <div className="dash-side-card">
+            <div className="dash-kicker">VERİ KAYNAKLARI</div>
+            <div className="dash-side-title">Sistemi Besleyen Kayıtlar</div>
+            {commandSummary.sourceCounts.map(([label, value]) => (
+              <div key={label} className="dash-mini-line">
+                <span>{label}</span>
+                <b>{value}</b>
+              </div>
+            ))}
+            <Link href="/command-center" className="dash-link" style={{ display: 'inline-block', marginTop: 12 }}>
+              Kayıt Ekle →
+            </Link>
+          </div>
+
+          <div className="dash-side-card dash-architecture">
+            <span />
+            <span />
+            <span />
+            <span />
+            <p>Müşteri, portföy, işlem ve aksiyon katmanları tek karar mimarisine bağlanır.</p>
+          </div>
+        </aside>
+
+        <main className="dash-main">
         <section className="dash-hero">
           <div className="dash-panel">
             <div className="dash-eyebrow">DASHBOARD</div>
@@ -597,6 +701,35 @@ export default function Dashboard() {
             ))}
           </div>
         </section>
+        </main>
+
+        <aside className="dash-side">
+          <div className="dash-side-card">
+            <div className="dash-kicker">AKSİYON SİNYALİ</div>
+            <div className="dash-side-title">Öncelikli İşler</div>
+            {commandSummary.actionItems.length ? (
+              commandSummary.actionItems.map((item) => (
+                <div key={item} className="dash-mini-line">
+                  <span>{item}</span>
+                </div>
+              ))
+            ) : (
+              <div className="dash-mini-line">
+                <span>Command Center veri bekliyor.</span>
+              </div>
+            )}
+          </div>
+
+          <div className="dash-side-card">
+            <div className="dash-kicker">RİSK MİMARİSİ</div>
+            <div className="dash-side-title">Canlı Uyarılar</div>
+            {commandSummary.riskItems.map((item) => (
+              <div key={item} className="dash-mini-line">
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </aside>
       </div>
     </div>
   )

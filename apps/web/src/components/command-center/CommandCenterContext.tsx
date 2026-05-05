@@ -11,7 +11,18 @@ import {
   readCommandCenterData,
   writeCommandCenterData,
 } from '@/lib/commandCenterStore'
-import type { ActionFeedback, CommandCenterAnalysis, CommandCenterData, RiskLevel } from '@/lib/commandCenterTypes'
+import type {
+  ActionFeedback,
+  CommandCenterAnalysis,
+  CommandCenterData,
+  Customer,
+  Deal,
+  Experiment,
+  Interaction,
+  Portfolio,
+  PriceChange,
+  RiskLevel,
+} from '@/lib/commandCenterTypes'
 
 type CommandCenterContextValue = {
   data: CommandCenterData
@@ -23,6 +34,12 @@ type CommandCenterContextValue = {
   clearData: () => void
   updateConstraints: (patch: Partial<CommandCenterData['constraints']>) => void
   recordFeedback: (feedback: Omit<ActionFeedback, 'id' | 'createdAt'>) => void
+  addCustomer: (customer: Omit<Customer, 'id'>) => void
+  addPortfolio: (portfolio: Omit<Portfolio, 'id'>) => void
+  addDeal: (deal: Omit<Deal, 'id'>) => void
+  addInteraction: (interaction: Omit<Interaction, 'id'>) => void
+  addPriceChange: (priceChange: Omit<PriceChange, 'id'>) => void
+  addExperiment: (experiment: Omit<Experiment, 'id'>) => void
 }
 
 const CommandCenterContext = createContext<CommandCenterContextValue | null>(null)
@@ -78,6 +95,48 @@ export function CommandCenterProvider({ children }: { children: React.ReactNode 
     setJsonValue(JSON.stringify(next, null, 2))
   }
 
+  const addCustomer = (customer: Omit<Customer, 'id'>) => {
+    persist({
+      ...data,
+      customers: [{ ...customer, id: crypto.randomUUID() }, ...data.customers],
+    })
+  }
+
+  const addPortfolio = (portfolio: Omit<Portfolio, 'id'>) => {
+    persist({
+      ...data,
+      portfolios: [{ ...portfolio, id: crypto.randomUUID() }, ...data.portfolios],
+    })
+  }
+
+  const addDeal = (deal: Omit<Deal, 'id'>) => {
+    persist({
+      ...data,
+      deals: [{ ...deal, id: crypto.randomUUID() }, ...data.deals],
+    })
+  }
+
+  const addInteraction = (interaction: Omit<Interaction, 'id'>) => {
+    persist({
+      ...data,
+      interactions: [{ ...interaction, id: crypto.randomUUID() }, ...data.interactions],
+    })
+  }
+
+  const addPriceChange = (priceChange: Omit<PriceChange, 'id'>) => {
+    persist({
+      ...data,
+      priceChanges: [{ ...priceChange, id: crypto.randomUUID() }, ...data.priceChanges],
+    })
+  }
+
+  const addExperiment = (experiment: Omit<Experiment, 'id'>) => {
+    persist({
+      ...data,
+      experiments: [{ ...experiment, id: crypto.randomUUID() }, ...data.experiments],
+    })
+  }
+
   return (
     <CommandCenterContext.Provider
       value={{
@@ -90,6 +149,12 @@ export function CommandCenterProvider({ children }: { children: React.ReactNode 
         clearData,
         updateConstraints,
         recordFeedback,
+        addCustomer,
+        addPortfolio,
+        addDeal,
+        addInteraction,
+        addPriceChange,
+        addExperiment,
       }}
     >
       {children}

@@ -33,6 +33,11 @@ export default function LoginPage() {
     'Bölge hakimiyeti ve risk analizi',
     'PDF değerleme ve sözleşme merkezi',
   ]
+  const simulationRows = [
+    { label: 'Takip ritmi', value: '12 temas', tone: '#22c55e' },
+    { label: 'Fiyat baskısı', value: '%6.4', tone: '#FFD700' },
+    { label: 'Risk uyarısı', value: '2 kritik', tone: '#f87171' },
+  ]
 
   return (
     <div
@@ -75,6 +80,9 @@ export default function LoginPage() {
           .auth-login-features {
             gap: 8px !important;
           }
+          .auth-sim-grid {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}</style>
 
@@ -116,6 +124,68 @@ export default function LoginPage() {
                 <span>{feature}</span>
               </div>
             ))}
+          </div>
+
+          <div
+            style={{
+              marginTop: 34,
+              border: '1px solid #1c1c1c',
+              borderRadius: 14,
+              background:
+                'linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.026) 1px, transparent 1px), #090909',
+              backgroundSize: '28px 28px',
+              padding: 16,
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', marginBottom: 14 }}>
+              <div>
+                <div style={{ color: '#FFD700', fontSize: 10, letterSpacing: 2 }}>CANLI SİMÜLASYON</div>
+                <div style={{ color: '#d8d8d8', fontSize: 14, marginTop: 4 }}>Operasyon karar mimarisi</div>
+              </div>
+              <div style={{ color: '#4a4a4a', fontSize: 11 }}>veri akışı aktif</div>
+            </div>
+
+            <div className="auth-sim-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr .8fr', gap: 12 }}>
+              <div style={{ border: '1px solid #202020', borderRadius: 10, background: 'rgba(0,0,0,0.28)', padding: 13 }}>
+                {[
+                  ['Müşteri', 'Portföy', 'İşlem'],
+                  ['Analiz', 'Risk', 'Aksiyon'],
+                  ['Geri Bildirim', 'Hafıza', 'Tahmin'],
+                ].map((row, rowIndex) => (
+                  <div key={row.join('-')} style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 7, marginTop: rowIndex ? 7 : 0 }}>
+                    {row.map((item, itemIndex) => (
+                      <div
+                        key={item}
+                        style={{
+                          minHeight: 42,
+                          border: `1px solid ${rowIndex === 1 && itemIndex === 1 ? 'rgba(255,215,0,0.45)' : '#202020'}`,
+                          borderRadius: 8,
+                          background: rowIndex === 1 && itemIndex === 1 ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.025)',
+                          color: rowIndex === 1 && itemIndex === 1 ? '#FFD700' : '#777',
+                          fontSize: 10,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'grid', gap: 8 }}>
+                {simulationRows.map((row) => (
+                  <div key={row.label} style={{ border: '1px solid #202020', borderRadius: 9, background: 'rgba(0,0,0,0.3)', padding: '10px 11px' }}>
+                    <div style={{ color: '#666', fontSize: 10, marginBottom: 5 }}>{row.label}</div>
+                    <div style={{ color: row.tone, fontSize: 16, fontWeight: 700 }}>{row.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
