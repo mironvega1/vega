@@ -35,6 +35,15 @@ const MERKEZLER = [
 
 const ARACLAR = [
   {
+    id: 'command-center',
+    title: 'Command Center',
+    icon: '▧',
+    href: '/command-center',
+    accent: '#FFD700',
+    tag: 'OS',
+    desc: 'Hata, deney, hafıza ve kısıt motoru',
+  },
+  {
     id: 'ai',
     title: 'Emlak Yapay Zekası',
     icon: '◈',
