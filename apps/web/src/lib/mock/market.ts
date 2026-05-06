@@ -1,11 +1,28 @@
 export type RiskLevel = 'low' | 'medium' | 'high'
 export type LiquidityLevel = 'low' | 'medium' | 'high'
-export const marketPulse = { priceDirection: 2.1, hottestRegion: 'Seyhan', demandIncrease: 'Kiralık 2+1', newListings: 42, avgCloseDays: 31, lastUpdate: 'Bugün 09:30', aiDailyComment: 'Bugün Çukurova ve Seyhan hattında kiralık 2+1 talebi belirgin şekilde öne çıkıyor.' }
-export const regions = [
-{ name:'Çukurova / Toros', m2Price:34500, dailyChange:3.2, weeklyChange:5.9, newListings:12, avgDays:24, demand:'Yüksek', opportunity:'Orta', risk:'Düşük' },
-{ name:'Seyhan / Reşatbey', m2Price:37200, dailyChange:2.8, weeklyChange:4.3, newListings:9, avgDays:27, demand:'Yüksek', opportunity:'Yüksek', risk:'Orta' },
-{ name:'Yüreğir / Güzelyalı', m2Price:26800, dailyChange:1.1, weeklyChange:2.2, newListings:7, avgDays:35, demand:'Orta', opportunity:'Orta', risk:'Orta' },]
-export const demandSignals = [
-{ title:'2+1 Kiralık Talebi Artıyor', effect:'high', region:'Çukurova / Mahfesığmaz', action:'Fiyat güncellemesi ve hızlı müşteri eşleştirmesi yapın.' },
-{ title:'3+1 Satılık İlanlar Hızlı Kapanıyor', effect:'medium', region:'Seyhan / Reşatbey', action:'Portföydeki 3+1 ilanlar için hızlı arama planı çıkarın.' },]
-export const dailyActions = ['Çukurova 3+1 portföylerini tekrar fiyatlandır.','Kiralık 2+1 arayan müşterileri kontrol et.','Command Center aksiyon listesini güncelle.','30+ gündür yayında olan portföyleri revize et.','En sıcak 3 bölge için müşteri mesajı hazırla.']
+export const marketPulse = {
+  priceDirection: 0,
+  hottestRegion: 'Kullanıcı verisi yok',
+  demandIncrease: 'Veri bekleniyor',
+  newListings: 0,
+  avgCloseDays: 0,
+  lastUpdate: 'Kişisel veri bekleniyor',
+  aiDailyComment: 'Bölge yorumu üretmek için kullanıcının kendi portföy, işlem ve analiz kayıtları gerekir.',
+}
+export const regions: Array<{
+  name: string
+  m2Price: number
+  dailyChange: number
+  weeklyChange: number
+  newListings: number
+  avgDays: number
+  demand: string
+  opportunity: string
+  risk: string
+}> = []
+export const demandSignals: Array<{ title: string; effect: string; region: string; action: string }> = []
+export const dailyActions = [
+  'Command Center içinde müşteri ve portföy kaydı oluştur.',
+  'Aktif işlemler için temas ve fiyat revizyonu gir.',
+  'Analiz sonuçlarını kişisel hafızaya aktar.',
+]
