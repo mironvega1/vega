@@ -9,23 +9,23 @@ import { readCommandCenterData } from '@/lib/commandCenterStore'
 const MODULES = [
   {
     id: 'feature-training',
-    title: 'Feature Training',
+    title: 'Özellik Rehberi',
     icon: '▥',
     href: '/feature-training',
     accent: '#fbbf24',
-    tag: 'EĞİTİM',
-    desc: 'Her modülün veri ihtiyacını, kalite kurallarını ve eksik eğitim adımlarını gösterir.',
-    features: ['Hazır Olma', 'Kalite Kuralı', 'Eksik Veri', 'Eğitim Planı'],
+    tag: 'REHBER',
+    desc: 'Hangi özelliğin hangi bilgiyle daha iyi çalıştığını sade şekilde gösterir.',
+    features: ['Nasıl Kullanılır', 'Eksik Bilgi', 'Sonraki Adım'],
   },
   {
     id: 'command-center',
-    title: 'Command Center',
+    title: 'İş Takibi',
     icon: '▧',
     href: '/command-center',
     accent: '#FFD700',
-    tag: 'OS',
-    desc: 'Müşteri, portföy, işlem ve aksiyon verisini tek karar motorunda birleştirir.',
-    features: ['Veri Girişi', 'Aksiyon Motoru', 'Risk Paneli', 'Hafıza Grafı'],
+    tag: 'TAKİP',
+    desc: 'Müşteri, portföy ve yapılacak işleri tek yerden takip edin.',
+    features: ['Müşteri', 'Portföy', 'Yapılacaklar', 'Hatırlatma'],
   },
   {
     id: 'analysis',
@@ -34,7 +34,7 @@ const MODULES = [
     href: '/analysis',
     accent: '#FFD700',
     tag: 'ANALİZ',
-    desc: 'Adres, deal skoru, bölge ve risk analizlerini Command Center hafızasına aktarır.',
+    desc: 'Fiyat, emsal, bölge ve risk kararları için hızlı analiz yapın.',
     features: ['Adres Analizi', 'Deal Skoru', 'Bölge Hakimiyeti', 'Risk Analizi'],
   },
   {
@@ -44,18 +44,18 @@ const MODULES = [
     href: '/listings',
     accent: '#fb923c',
     tag: 'PORTFÖY',
-    desc: 'Portföy kayıtlarını operasyon ve takip süreçleriyle bağlamlandırır.',
-    features: ['Portföy', 'CSV', 'Durum', 'Güncelleme'],
+    desc: 'Portföylerinizi girin, düzenleyin ve durumlarını takip edin.',
+    features: ['Portföy Ekle', 'CSV Aktar', 'Durum', 'Güncelleme'],
   },
   {
     id: 'ai',
-    title: 'Emlak Yapay Zekası',
+    title: 'Emlak Asistanı',
     icon: '◈',
     href: '/ai',
     accent: '#a3e635',
     tag: 'AI',
-    desc: 'Kullanıcının kendi Command Center verisini okuyarak bağlamsal yanıt üretir.',
-    features: ['Kişisel Context', 'Risk Yorumu', 'Aksiyon Önerisi'],
+    desc: 'Portföy ve müşterilerinize göre pratik cevaplar alın.',
+    features: ['Soru Sor', 'Risk Yorumu', 'Mesaj Taslağı'],
   },
   {
     id: 'valuation',
@@ -63,9 +63,9 @@ const MODULES = [
     icon: '⚡',
     href: '/valuation',
     accent: '#a78bfa',
-    tag: 'ML',
-    desc: 'Sokak bazlı değerleme sonuçlarını karar sürecine sinyal olarak ekler.',
-    features: ['Fiyat Tahmini', 'SHAP', 'Skor'],
+    tag: 'FİYAT',
+    desc: 'Mülkün tahmini fiyat aralığını ve pazarlık payını görün.',
+    features: ['Fiyat Tahmini', 'Fiyat Aralığı', 'Pazarlık'],
   },
   {
     id: 'sozlesme',
@@ -74,7 +74,7 @@ const MODULES = [
     href: '/sozlesme',
     accent: '#22c55e',
     tag: 'EVRAK',
-    desc: 'Kapanışa yaklaşan işlemler için sözleşme üretim akışını hızlandırır.',
+    desc: 'Kira ve satış belgelerini düzenli şekilde hazırlayın.',
     features: ['Kira', 'Satış', 'Kontrol'],
   },
   {
@@ -84,8 +84,8 @@ const MODULES = [
     href: '/report',
     accent: '#60a5fa',
     tag: 'RAPOR',
-    desc: 'Müşteri görüşmelerinde kullanılacak profesyonel rapor çıktıları üretir.',
-    features: ['PDF', 'Değerleme', 'Paylaşım'],
+    desc: 'Müşteri görüşmesine hazır değerleme ve emsal raporu oluşturun.',
+    features: ['PDF', 'Değerleme', 'Emsal'],
   },
   {
     id: 'emsal',
@@ -94,55 +94,55 @@ const MODULES = [
     href: '/emsal',
     accent: '#e879f9',
     tag: 'EMSAL',
-    desc: 'Kullanıcının arama kriterlerine göre emsal ve sapma analizi yapar.',
-    features: ['Emsal', 'Sapma', 'Likidite'],
+    desc: 'Benzer ilanları, fiyat sapmasını ve fırsatları karşılaştırın.',
+    features: ['Emsal', 'Sapma', 'Fırsat', 'Likidite'],
   },
 ]
 
 const CENTER_GROUPS = [
   {
     id: 'operations',
-    title: 'Operasyon Merkezi',
+    title: 'İş Takibi Merkezi',
     href: '/command-center',
     accent: '#FFD700',
-    desc: 'Müşteri, portföy, işlem, aksiyon ve geri bildirim tek karar akışında birleşir.',
-    modules: ['command-center', 'listings', 'feature-training'],
-    flow: 'Veri girişi -> karar -> aksiyon -> geri besleme',
+    desc: 'Günlük takip, müşteri görüşmeleri ve portföy işleri için ana çalışma alanı.',
+    features: ['Müşteri Ekle', 'Portföy Ekle', 'Yapılacaklar', 'Kaybedilen İşler'],
+    modules: ['command-center', 'listings'],
   },
   {
     id: 'analysis-center',
     title: 'Analiz Merkezi',
     href: '/analysis',
     accent: '#e879f9',
-    desc: 'Adres, deal skoru, AI değerleme, emsal, bölge, kat ve harita analizleri burada gruplanır.',
+    desc: 'Fiyatı, bölgeyi ve emsalleri daha güvenli yorumlamak için analiz araçları.',
+    features: ['Adres Analizi', 'Deal Skoru', 'AI Değerleme', 'Emsal', 'Bölge Skoru', 'Kat Analizi'],
     modules: ['analysis', 'valuation', 'emsal'],
-    flow: 'Mülk bilgisi -> analiz sinyali -> Command Center riski',
   },
   {
     id: 'documents',
     title: 'Belge Merkezi',
     href: '/sozlesme',
     accent: '#22c55e',
-    desc: 'Sözleşme ve PDF rapor üretimi işlem bağlamına göre ayrı belge merkezinde çalışır.',
+    desc: 'Kira, satış ve müşteri sunumu için hazır belge üretim alanı.',
+    features: ['Kira Sözleşmesi', 'Satış Ön Sözleşmesi', 'PDF Rapor', 'Müşteri Sunumu'],
     modules: ['sozlesme', 'report'],
-    flow: 'İşlem bağlamı -> belge üretimi -> müşteri çıktısı',
   },
   {
     id: 'ai-center',
-    title: 'AI Merkezi',
+    title: 'Asistan Merkezi',
     href: '/ai',
     accent: '#a3e635',
-    desc: 'AI asistan ve eğitim merkezi yalnızca kullanıcının kendi operasyon verisini yorumlar.',
-    modules: ['ai', 'feature-training'],
-    flow: 'Veri hafızası -> bağlamsal cevap -> eğitim eksiği',
+    desc: 'Müşteri mesajı, fiyat yorumu ve takip notu hazırlamak için pratik yardımcı.',
+    features: ['Soru Sor', 'Mesaj Taslağı', 'Risk Yorumu', 'Takip Önerisi'],
+    modules: ['ai'],
   },
 ]
 
 const WORKFLOW = [
-  ['01', 'Veri', 'Müşteri ve portföy kaydı girilir.'],
-  ['02', 'Analiz', 'Fiyat, risk ve takip sinyali hesaplanır.'],
-  ['03', 'Karar', 'Aksiyon motoru öncelik çıkarır.'],
-  ['04', 'Geri Besleme', 'Yapıldı/kaybedildi bilgisi hafızaya yazılır.'],
+  ['01', 'Portföy', 'Yeni portföyü veya müşteriyi kaydet.'],
+  ['02', 'Analiz', 'Fiyat, emsal veya bölge kontrolü yap.'],
+  ['03', 'Takip', 'Aranacak müşteri ve yapılacak işi işaretle.'],
+  ['04', 'Belge', 'Gerekirse sözleşme veya rapor hazırla.'],
 ]
 
 const money = (value: number) =>
@@ -193,11 +193,11 @@ export default function Dashboard() {
   ]
 
   const operatingMetrics = [
-    { label: 'Aktif İşlem', value: summary.activeDeals, note: 'Kişisel takip havuzu' },
-    { label: 'Aksiyon', value: summary.actions, note: 'Command Center önerisi' },
-    { label: 'Kapanma', value: `%${summary.closeRate}`, note: 'Veriden türeyen tahmin' },
-    { label: 'Beklenen Sonuç', value: money(summary.expectedRevenue), note: 'Risk ağırlıklı gelir' },
-    { label: 'Analiz', value: summary.analysisCount, note: 'Hafızaya yazılan sonuç' },
+    { label: 'Aktif İş', value: summary.activeDeals, note: 'Takipte' },
+    { label: 'Bugünkü İş', value: summary.actions, note: 'Öncelikli' },
+    { label: 'Kapanma', value: `%${summary.closeRate}`, note: 'Tahmin' },
+    { label: 'Beklenen Ciro', value: money(summary.expectedRevenue), note: 'Yaklaşık' },
+    { label: 'Analiz', value: summary.analysisCount, note: 'Hazır' },
   ]
 
   return (
@@ -225,7 +225,7 @@ export default function Dashboard() {
 
       <div className="dash-shell">
         <aside className="dash-side">
-          <Panel kicker="KİŞİSEL VERİ" title="Kayıt Katmanı">
+          <Panel kicker="ÖZET" title="Bugünkü Durum">
             {[
               ['Müşteri', summary.customers],
               ['Portföy', summary.portfolios],
@@ -237,10 +237,10 @@ export default function Dashboard() {
                 <b>{value}</b>
               </div>
             ))}
-            <Link href="/command-center" className="dash-link side-link">Yeni Kayıt Ekle →</Link>
+            <Link href="/command-center" className="dash-link side-link">Müşteri veya portföy ekle →</Link>
           </Panel>
 
-          <Panel kicker="MİMARİ" title="Operasyon Akışı">
+          <Panel kicker="HIZLI BAŞLANGIÇ" title="Sırayla Ne Yapılır?">
             <div className="dash-workflow">
               {WORKFLOW.map(([step, title, text]) => (
                 <div key={step}>
@@ -252,37 +252,35 @@ export default function Dashboard() {
             </div>
           </Panel>
 
-          <div className="dash-architecture" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <span />
-            <p>Kişiye özel veri katmanları üst üste binerek karar mimarisini oluşturur.</p>
-          </div>
+          <Panel kicker="KISA YOLLAR" title="En Çok Kullanılanlar">
+            <Link href="/analysis" className="dash-quick-link">Analiz Yap →</Link>
+            <Link href="/listings" className="dash-quick-link">Portföy Ekle →</Link>
+            <Link href="/sozlesme" className="dash-quick-link">Sözleşme Hazırla →</Link>
+          </Panel>
         </aside>
 
         <main className="dash-main">
           <section className="dash-hero">
             <div className="dash-panel hero-panel">
-              <div className="dash-eyebrow">KİŞİSEL OPERASYON</div>
+              <div className="dash-eyebrow">VEGA ANA EKRAN</div>
               <h1 className="dash-title">
-                Günaydın, bugün kendi operasyonunda {summary.actions} aksiyon sinyali var.
+                Bugün hangi işi öne alacağını daha net gör.
               </h1>
               <p className="dash-copy">
-                Bu ekran herkes için aynı demo piyasa haberini göstermez. Müşteri, portföy, işlem,
-                analiz ve geri bildirim kayıtların neyse dashboard sadece onu yorumlar.
+                Müşteri, portföy, analiz ve belge merkezleri tek ekranda. Büyük kartlardan merkeze gir,
+                işini seç ve kaldığın yerden devam et.
               </p>
             </div>
 
             <aside className="dash-panel command-panel">
-              <div className="dash-kicker">COMMAND CENTER SİNYALİ</div>
+              <div className="dash-kicker">BUGÜNKÜ ÖNERİ</div>
               <div className="dash-command-copy">{summary.insight}</div>
               <div className="dash-command-grid">
                 <MiniStat label="Aksiyon" value={summary.actions} color="#FFD700" />
                 <MiniStat label="Risk" value={summary.highRisks} color={summary.highRisks ? '#f87171' : '#22c55e'} />
                 <MiniStat label="Kapanma" value={`%${summary.closeRate}`} color="#c0c0c0" />
               </div>
-              <Link href="/command-center" className="dash-link">Karar Merkezine Git →</Link>
+              <Link href="/command-center" className="dash-link">İş Takibine Git →</Link>
             </aside>
           </section>
 
@@ -309,14 +307,14 @@ export default function Dashboard() {
 
           <section className="dash-section">
             <div className="dash-section-head">
-              <div className="dash-section-label">MERKEZLER ARASI AKIŞ</div>
+              <div className="dash-section-label">GÜNLÜK KULLANIM</div>
             </div>
             <div className="dash-routing-grid">
               {[
-                ['Analiz sonucu', 'Risk paneline ve aksiyon motoruna sinyal gönderir.'],
-                ['Portföy kaydı', 'Command Center içinde işlem ve takip hafızasına bağlanır.'],
-                ['Sözleşme/PDF', 'Kapanışa yaklaşan işlerde belge çıktısı üretir.'],
-                ['AI asistan', 'Sadece mevcut kullanıcı verisini ve eğitim durumunu yorumlar.'],
+                ['Portföy girişi', 'Yeni ilanı ekleyin, durumunu takipte tutun.'],
+                ['Fiyat kontrolü', 'Değerleme ve emsal ile fiyatı savunun.'],
+                ['Müşteri takibi', 'Aranacak ve mesaj atılacak kişileri görün.'],
+                ['Belge hazırlığı', 'Rapor veya sözleşmeyi görüşmeye hazır hale getirin.'],
               ].map(([title, text]) => (
                 <div key={title} className="dash-route-card">
                   <b>{title}</b>
@@ -328,7 +326,7 @@ export default function Dashboard() {
         </main>
 
         <aside className="dash-side">
-          <Panel kicker="BUGÜNKÜ PLAN" title="Öncelikli İşler">
+          <Panel kicker="BUGÜN" title="Öncelikli İşler">
             {summary.topActions.length ? (
               summary.topActions.map((item) => (
                 <div key={item.id} className={`dash-action-line ${item.risk}`}>
@@ -337,12 +335,12 @@ export default function Dashboard() {
               ))
             ) : (
               <div className="dash-empty">
-                Command Center veri bekliyor. Müşteri, portföy ve işlem eklenince kişisel plan burada oluşur.
+                Henüz takip edilecek iş yok. Müşteri veya portföy ekleyince öncelikler burada görünür.
               </div>
             )}
           </Panel>
 
-          <Panel kicker="RİSK ÇİZGİSİ" title="Canlı Uyarılar">
+          <Panel kicker="DİKKAT" title="Kontrol Edilecekler">
             {summary.riskItems.map((item) => (
               <div key={item.id} className={`dash-risk-line ${item.level}`}>
                 <span>{item.label}</span>
@@ -351,7 +349,7 @@ export default function Dashboard() {
             ))}
           </Panel>
 
-          <Panel kicker="DURUM" title="Kapanış Hafızası">
+          <Panel kicker="SONUÇ" title="İş Durumu">
             <div className="dash-split">
               <MiniStat label="Aktif" value={summary.activeDeals} color="#FFD700" />
               <MiniStat label="Kazanılan" value={summary.wonDeals} color="#22c55e" />
@@ -399,7 +397,11 @@ function CenterGroupCard({ group }: { group: (typeof CENTER_GROUPS)[number] }) {
           <div className="dash-card-desc">{group.desc}</div>
         </div>
       </div>
-      <div className="dash-center-flow">{group.flow}</div>
+      <div className="dash-center-feature-grid">
+        {group.features.map((feature) => (
+          <span key={feature}>{feature}</span>
+        ))}
+      </div>
       <div className="dash-center-links">
         {modules.map((module) => (
           <span key={module.id} style={{ color: module.accent, background: `${module.accent}10`, border: `1px solid ${module.accent}22` }}>
@@ -408,7 +410,7 @@ function CenterGroupCard({ group }: { group: (typeof CENTER_GROUPS)[number] }) {
         ))}
       </div>
       <div className="dash-card-foot">
-        <span>{modules.length} bağlı modül</span>
+        <span>{group.features.length} özellik</span>
         <span style={{ color: group.accent }}>Merkeze Gir →</span>
       </div>
     </Link>
@@ -472,8 +474,8 @@ const styles = `
 .dash-architecture{min-height:220px;position:relative;overflow:hidden}.dash-architecture span{position:absolute;border:1px solid rgba(255,215,0,.22);background:rgba(255,215,0,.045);border-radius:8px}.dash-architecture span:nth-child(1){inset:22px 92px 118px 12px}.dash-architecture span:nth-child(2){inset:78px 36px 58px 84px;border-color:rgba(96,165,250,.22);background:rgba(96,165,250,.035)}.dash-architecture span:nth-child(3){inset:138px 126px 16px 34px;border-color:rgba(34,197,94,.22);background:rgba(34,197,94,.035)}.dash-architecture span:nth-child(4){inset:18px 18px 154px 178px;border-color:rgba(248,113,113,.2);background:rgba(248,113,113,.035)}.dash-architecture p{position:absolute;left:16px;right:16px;bottom:14px;margin:0;color:#777;font-size:11px;line-height:1.55}
 .dash-hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:14px;margin-bottom:14px}.hero-panel{background:linear-gradient(135deg,rgba(255,215,0,.07),rgba(255,255,255,.018) 50%,#0b0b0b)}.dash-eyebrow{color:#FFD700;font-size:10px;letter-spacing:2.4px;margin-bottom:14px}.dash-title{margin:0;color:#f2f2f2;font-size:clamp(34px,4.2vw,68px);line-height:1.02;font-weight:300;letter-spacing:0}.dash-copy{margin:18px 0 0;color:#9a9a9a;font-size:14px;line-height:1.7}.dash-command-copy{color:#e8e8e8;font-size:17px;line-height:1.55;margin-bottom:18px}.dash-command-grid,.dash-split{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px}
 .dash-operating-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:30px}.dash-metric-card{min-height:96px}.dash-market-value{color:#d8d8d8;font-size:20px;font-weight:700;line-height:1.1}.dash-change{color:#22c55e;font-size:11px;margin-top:7px;line-height:1.35}
-.dash-section{margin-bottom:34px}.dash-section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}.dash-section-label{color:#767676;font-size:10px;letter-spacing:3px}.dash-centers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dash-routing-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.dash-route-card{border:1px solid #191919;border-radius:10px;background:#0b0b0b;padding:14px;min-height:96px}.dash-route-card b{display:block;color:#eeeeee;font-size:13px;margin-bottom:7px}.dash-route-card span{display:block;color:#888;font-size:11px;line-height:1.5}.dash-module-card,.dash-tool-card,.dash-center-card{position:relative;display:block;height:100%;background:rgba(255,255,255,.018);border:1px solid #171717;border-radius:14px;padding:20px;text-decoration:none;color:inherit;transition:transform .15s ease,border-color .15s ease,background .15s ease}.dash-center-card{border-top:2px solid rgba(255,215,0,.45);min-height:236px}.dash-tool-card{min-height:176px;padding:16px}.dash-module-card:hover,.dash-tool-card:hover,.dash-center-card:hover{transform:translateY(-2px);background:rgba(255,255,255,.028);border-color:rgba(255,215,0,.22)}
-.dash-center-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}.dash-center-mark{width:42px;height:42px;border:1px solid;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.6px}.dash-center-flow{border:1px solid #202020;background:#090909;border-radius:8px;color:#8d8d8d;font-size:11px;line-height:1.5;padding:10px 11px;margin:12px 0}.dash-center-links{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 16px}.dash-center-links span{border-radius:5px;padding:4px 8px;font-size:10px;font-weight:650}
+.dash-section{margin-bottom:34px}.dash-section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}.dash-section-label{color:#767676;font-size:10px;letter-spacing:3px}.dash-centers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.dash-routing-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.dash-route-card{border:1px solid #191919;border-radius:10px;background:#0b0b0b;padding:14px;min-height:96px}.dash-route-card b{display:block;color:#eeeeee;font-size:13px;margin-bottom:7px}.dash-route-card span{display:block;color:#888;font-size:11px;line-height:1.5}.dash-module-card,.dash-tool-card,.dash-center-card{position:relative;display:block;height:100%;background:rgba(255,255,255,.018);border:1px solid #171717;border-radius:14px;padding:20px;text-decoration:none;color:inherit;transition:transform .15s ease,border-color .15s ease,background .15s ease}.dash-center-card{border-top:2px solid rgba(255,215,0,.45);min-height:286px;padding:24px}.dash-tool-card{min-height:176px;padding:16px}.dash-module-card:hover,.dash-tool-card:hover,.dash-center-card:hover{transform:translateY(-2px);background:rgba(255,255,255,.028);border-color:rgba(255,215,0,.22)}
+.dash-center-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}.dash-center-mark{width:48px;height:48px;border:1px solid;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:12px;font-weight:900;letter-spacing:.6px}.dash-center-feature-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0}.dash-center-feature-grid span{border:1px solid #222;background:#090909;border-radius:8px;color:#d7d7d7;font-size:12px;font-weight:700;line-height:1.2;padding:10px 11px}.dash-center-links{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 16px}.dash-center-links span{border-radius:5px;padding:4px 8px;font-size:10px;font-weight:650}
 .dash-tag{position:absolute;top:10px;right:10px;border-radius:4px;padding:2px 6px;font-size:8px;font-weight:800}.dash-card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}.dash-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:16px}.dash-card-title{color:#eeeeee;font-size:14px;font-weight:700;margin-bottom:3px}.dash-card-desc{color:#8a8a8a;font-size:11px;line-height:1.45;max-width:92%}.dash-feature-list{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 16px}.dash-feature{border-radius:5px;padding:4px 8px;font-size:10px;font-weight:650}.dash-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#777;font-size:11px}
 @media(max-width:1180px){.dash-shell{grid-template-columns:1fr}.dash-side{position:static}.dash-hero,.dash-operating-grid,.dash-centers{grid-template-columns:1fr 1fr}.dash-routing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.dash-header{align-items:flex-start;flex-direction:column;padding:16px 22px}.dash-header-stats{justify-content:flex-start}.dash-shell{padding:12px 12px 64px}.dash-hero,.dash-operating-grid,.dash-centers,.dash-routing-grid,.dash-command-grid,.dash-split{grid-template-columns:1fr}.dash-title{font-size:32px}.dash-panel,.dash-module-card,.dash-tool-card,.dash-center-card{padding:16px}}

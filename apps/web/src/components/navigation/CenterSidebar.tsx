@@ -20,55 +20,55 @@ const CENTER_NAV: Record<CenterKey, {
 }> = {
   analysis: {
     title: 'Analiz Merkezi',
-    subtitle: 'Değerleme · Emsal · Bölge · Kat',
+    subtitle: 'Fiyat, emsal ve bölge kararları',
     items: [
-      { href: '/dashboard', label: 'Ana Merkez', icon: '◈', note: 'Genel operasyon' },
-      { href: '/analysis', label: 'Analiz Merkezi', icon: '◎', note: 'Adres, deal, risk' },
-      { href: '/valuation', label: 'AI Değerleme', icon: '⚡', note: 'Fiyat tahmini' },
-      { href: '/emsal', label: 'Emsal İstihbarat', icon: '◭', note: 'Emsal ve sapma' },
-      { href: '/zone-scores', label: 'Bölge Skoru', icon: '◐', note: 'Bölge puanı' },
-      { href: '/bina-karsilastirma', label: 'Kat Analizi', icon: '▤', note: 'Bina içi fark' },
-      { href: '/map', label: 'Canlı Harita', icon: '◉', note: 'Görsel analiz' },
+      { href: '/dashboard', label: 'Ana Ekran', icon: '◈', note: 'Merkezlere dön' },
+      { href: '/analysis', label: '4 Ana Analiz', icon: '◎', note: 'Adres, deal, bölge, risk' },
+      { href: '/valuation', label: 'Fiyat Tahmini', icon: '⚡', note: 'Mülkün değer aralığı' },
+      { href: '/emsal', label: 'Emsal Araştırması', icon: '◭', note: 'Benzer ilan ve sapma' },
+      { href: '/zone-scores', label: 'Bölge Skoru', icon: '◐', note: 'Lokasyon gücü' },
+      { href: '/bina-karsilastirma', label: 'Kat Karşılaştırma', icon: '▤', note: 'Aynı binada kat farkı' },
+      { href: '/map', label: 'Harita Görünümü', icon: '◉', note: 'Portföy konumları' },
     ],
   },
   portfolio: {
     title: 'Portföy Merkezi',
-    subtitle: 'Kayıt · CSV · İşlem · Takip',
+    subtitle: 'İlan, müşteri ve takip işleri',
     items: [
-      { href: '/dashboard', label: 'Ana Merkez', icon: '◈', note: 'Genel operasyon' },
-      { href: '/listings', label: 'İlan Yönetimi', icon: '▦', note: 'Portföy girişi' },
-      { href: '/command-center', label: 'Command Center', icon: '▧', note: 'Aksiyon motoru' },
-      { href: '/feature-training', label: 'Feature Training', icon: '▥', note: 'Eğitim durumu' },
+      { href: '/dashboard', label: 'Ana Ekran', icon: '◈', note: 'Merkezlere dön' },
+      { href: '/listings', label: 'Portföy Girişi', icon: '▦', note: 'İlan ekle ve düzenle' },
+      { href: '/command-center', label: 'İş Takibi', icon: '▧', note: 'Müşteri ve aksiyonlar' },
+      { href: '/feature-training', label: 'Kullanım Durumu', icon: '▥', note: 'Eksik kalan alanlar' },
     ],
   },
   documents: {
     title: 'Belge Merkezi',
-    subtitle: 'Sözleşme · PDF · Rapor',
+    subtitle: 'Sözleşme ve müşteri raporu',
     items: [
-      { href: '/dashboard', label: 'Ana Merkez', icon: '◈', note: 'Genel operasyon' },
-      { href: '/sozlesme', label: 'Sözleşme Merkezi', icon: '▣', note: 'Kira ve satış' },
-      { href: '/report', label: 'PDF Rapor Merkezi', icon: '▣', note: 'Müşteri raporu' },
-      { href: '/command-center', label: 'Command Center', icon: '▧', note: 'İşlem bağlamı' },
+      { href: '/dashboard', label: 'Ana Ekran', icon: '◈', note: 'Merkezlere dön' },
+      { href: '/sozlesme', label: 'Sözleşme Üret', icon: '▣', note: 'Kira ve satış belgeleri' },
+      { href: '/report', label: 'PDF Rapor Hazırla', icon: '▣', note: 'Müşteri sunumu' },
+      { href: '/command-center', label: 'İşe Bağla', icon: '▧', note: 'Belgeyi işlemle ilişkilendir' },
     ],
   },
   ai: {
     title: 'AI Merkezi',
-    subtitle: 'Asistan · Context · Eğitim',
+    subtitle: 'Asistan ve kullanım yardımı',
     items: [
-      { href: '/dashboard', label: 'Ana Merkez', icon: '◈', note: 'Genel operasyon' },
-      { href: '/ai', label: 'Emlak Yapay Zekası', icon: '◈', note: 'Veriye bağlı cevap' },
-      { href: '/feature-training', label: 'Feature Training', icon: '▥', note: 'Modül eğitimi' },
-      { href: '/command-center', label: 'Command Center', icon: '▧', note: 'Karar verisi' },
+      { href: '/dashboard', label: 'Ana Ekran', icon: '◈', note: 'Merkezlere dön' },
+      { href: '/ai', label: 'Emlak Asistanı', icon: '◈', note: 'Portföye göre cevap' },
+      { href: '/feature-training', label: 'Özellik Rehberi', icon: '▥', note: 'Neyi nasıl beslerim?' },
+      { href: '/command-center', label: 'İş Takibi', icon: '▧', note: 'Aksiyonlara dön' },
     ],
   },
   operations: {
-    title: 'Operasyon Merkezi',
-    subtitle: 'Karar · Eğitim · Portföy',
+    title: 'İş Takibi',
+    subtitle: 'Müşteri, portföy ve aksiyon',
     items: [
-      { href: '/dashboard', label: 'Ana Merkez', icon: '◈', note: 'Genel operasyon' },
-      { href: '/command-center', label: 'Command Center', icon: '▧', note: 'Karar motoru' },
-      { href: '/feature-training', label: 'Feature Training', icon: '▥', note: 'Eğitim planı' },
-      { href: '/listings', label: 'İlan Yönetimi', icon: '▦', note: 'Portföy verisi' },
+      { href: '/dashboard', label: 'Ana Ekran', icon: '◈', note: 'Merkezlere dön' },
+      { href: '/command-center', label: 'Günlük İşler', icon: '▧', note: 'Takip ve aksiyon' },
+      { href: '/listings', label: 'Portföyler', icon: '▦', note: 'İlan kayıtları' },
+      { href: '/feature-training', label: 'Eksik Bilgiler', icon: '▥', note: 'Tamamlanacak alanlar' },
     ],
   },
 }
@@ -78,7 +78,7 @@ export function CenterSidebar({ center }: { center: CenterKey }) {
   const config = CENTER_NAV[center]
 
   return (
-    <aside style={{ width: 240, borderRight: `1px solid ${D.brd}`, display: 'flex', flexDirection: 'column', background: D.bg2, flexShrink: 0 }}>
+    <aside style={{ width: 282, borderRight: `1px solid ${D.brd}`, display: 'flex', flexDirection: 'column', background: D.bg2, flexShrink: 0 }}>
       <div style={{ padding: '22px 18px 18px', borderBottom: `1px solid ${D.brd}` }}>
         <Link href="/dashboard" style={{ textDecoration: 'none' }}>
           <div style={{ fontSize: 20, color: D.gold, letterSpacing: 4, fontWeight: 300 }}>VEGA</div>
@@ -91,7 +91,7 @@ export function CenterSidebar({ center }: { center: CenterKey }) {
         <div style={{ color: D.muted, fontSize: 10, lineHeight: 1.45, marginTop: 5 }}>{config.subtitle}</div>
       </div>
 
-      <nav style={{ flex: 1, padding: '10px 0', overflowY: 'auto' }}>
+      <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
         {config.items.map((item) => {
           const active = pathname === item.href
           return (
@@ -100,19 +100,21 @@ export function CenterSidebar({ center }: { center: CenterKey }) {
               href={item.href}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '22px 1fr',
-                gap: 10,
-                padding: '10px 18px',
+                gridTemplateColumns: '36px 1fr',
+                gap: 12,
+                padding: '14px 13px',
+                marginBottom: 8,
                 color: active ? D.gold : D.muted,
                 textDecoration: 'none',
-                borderLeft: active ? `2px solid ${D.gold}` : '2px solid transparent',
-                background: active ? 'rgba(255,215,0,0.06)' : 'transparent',
+                border: active ? `1px solid rgba(255,215,0,0.28)` : `1px solid ${D.brd}`,
+                borderRadius: 10,
+                background: active ? 'rgba(255,215,0,0.07)' : '#0a0a0a',
               }}
             >
-              <span style={{ fontSize: 15, textAlign: 'center', lineHeight: '18px' }}>{item.icon}</span>
+              <span style={{ width: 36, height: 36, borderRadius: 8, border: active ? '1px solid rgba(255,215,0,0.28)' : `1px solid ${D.brd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, textAlign: 'center', lineHeight: '18px', color: active ? D.gold : D.muted, background: active ? 'rgba(255,215,0,0.08)' : '#080808' }}>{item.icon}</span>
               <span>
-                <span style={{ display: 'block', fontSize: 12, fontWeight: active ? 700 : 500 }}>{item.label}</span>
-                <span style={{ display: 'block', fontSize: 9, color: active ? 'rgba(255,215,0,0.55)' : D.dim, marginTop: 2 }}>{item.note}</span>
+                <span style={{ display: 'block', fontSize: 14, fontWeight: active ? 800 : 650, color: active ? D.gold : '#d5d5d5' }}>{item.label}</span>
+                <span style={{ display: 'block', fontSize: 11, lineHeight: 1.35, color: active ? 'rgba(255,215,0,0.62)' : D.muted, marginTop: 4 }}>{item.note}</span>
               </span>
             </Link>
           )
