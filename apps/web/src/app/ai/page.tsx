@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAgencyId } from "@/hooks/useAgencyId";
 import { analyzeCommandCenter } from "@/lib/analysisEngine";
 import { readCommandCenterData } from "@/lib/commandCenterStore";
+import { buildFeatureTraining } from "@/lib/featureTraining";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com";
 
@@ -263,8 +264,11 @@ export default function AiPage() {
 function buildCommandCenterContext() {
   const data = readCommandCenterData();
   const analysis = analyzeCommandCenter(data);
+  const training = buildFeatureTraining(data);
   const topAction = analysis.actions[0];
   const highRisks = analysis.risks.filter((risk) => risk.level === "high").map((risk) => risk.label).join(", ") || "kritik risk yok";
+  const weakestFeature = [...training].sort((a, b) => a.readiness - b.readiness)[0];
+  const strongestFeature = [...training].sort((a, b) => b.readiness - a.readiness)[0];
 
   return [
     `${data.customers.length} müşteri`,
@@ -275,5 +279,7 @@ function buildCommandCenterContext() {
     `beklenen sonuç ${analysis.forecast.expectedResult}`,
     `yüksek riskler: ${highRisks}`,
     topAction ? `öncelikli aksiyon: ${topAction.command} - ${topAction.title}` : "öncelikli aksiyon yok",
+    weakestFeature ? `en zayıf eğitim: ${weakestFeature.title} ${weakestFeature.readiness}/100` : "özellik eğitimi yok",
+    strongestFeature ? `en güçlü eğitim: ${strongestFeature.title} ${strongestFeature.readiness}/100` : "güçlü özellik yok",
   ].join("; ");
 }

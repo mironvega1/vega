@@ -1,11 +1,22 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useState } from 'react'
 import Link from 'next/link'
 import { analyzeCommandCenter } from '@/lib/analysisEngine'
 import { readCommandCenterData } from '@/lib/commandCenterStore'
 
 const MODULES = [
+  {
+    id: 'feature-training',
+    title: 'Feature Training',
+    icon: '▥',
+    href: '/feature-training',
+    accent: '#fbbf24',
+    tag: 'EĞİTİM',
+    desc: 'Her modülün veri ihtiyacını, kalite kurallarını ve eksik eğitim adımlarını gösterir.',
+    features: ['Hazır Olma', 'Kalite Kuralı', 'Eksik Veri', 'Eğitim Planı'],
+  },
   {
     id: 'command-center',
     title: 'Command Center',
@@ -306,7 +317,7 @@ export default function Dashboard() {
   )
 }
 
-function Panel({ kicker, title, children }: { kicker: string; title: string; children: React.ReactNode }) {
+function Panel({ kicker, title, children }: { kicker: string; title: string; children: ReactNode }) {
   return (
     <section className="dash-side-card">
       <div className="dash-kicker">{kicker}</div>
