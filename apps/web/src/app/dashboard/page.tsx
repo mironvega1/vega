@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { analyzeCommandCenter } from '@/lib/analysisEngine'
 import { readCommandCenterData } from '@/lib/commandCenterStore'
-import { marketPulse, opportunities } from '@/lib/mock/market'
+import { marketPulse } from '@/lib/mock/market'
 
 const MERKEZLER = [
   {
@@ -107,15 +107,14 @@ const ARACLAR = [
 ]
 
 const MARKET_ITEMS = [
-  { label: 'Fırsat', value: String(opportunities.length), change: 'Bugün', up: true },
-  { label: 'Kritik Deal', value: String(opportunities.filter((item) => item.dealScore >= 85).length), change: '85+', up: true },
   { label: 'Piyasa Yönü', value: `+%${marketPulse.priceDirection}`, change: 'Günlük', up: true },
   { label: 'Yeni İlan', value: String(marketPulse.newListings), change: 'Aktif', up: true },
   { label: 'Sıcak Bölge', value: marketPulse.hottestRegion, change: marketPulse.demandIncrease, up: true },
+  { label: 'Ortalama Kapanış', value: `${marketPulse.avgCloseDays} gün`, change: 'Operasyon', up: true },
+  { label: 'Talep Sinyali', value: marketPulse.demandIncrease, change: 'Canlı', up: true },
 ]
 
 export default function Dashboard() {
-  const top3 = opportunities.slice(0, 3)
   const [commandSummary] = useState(() => {
     const data = readCommandCenterData()
     const analysis = analyzeCommandCenter(data)
@@ -354,8 +353,7 @@ export default function Dashboard() {
           gap: 12px;
         }
         .dash-center-card,
-        .dash-tool-card,
-        .dash-opportunity {
+        .dash-tool-card {
           display: block;
           height: 100%;
           background: rgba(255, 255, 255, 0.018);
@@ -367,8 +365,7 @@ export default function Dashboard() {
           transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
         }
         .dash-center-card:hover,
-        .dash-tool-card:hover,
-        .dash-opportunity:hover {
+        .dash-tool-card:hover {
           transform: translateY(-2px);
           background: rgba(255, 255, 255, 0.028);
           border-color: rgba(255, 215, 0, 0.22);
@@ -449,14 +446,6 @@ export default function Dashboard() {
           font-size: 14px;
           margin-bottom: 12px;
         }
-        .dash-opportunities {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 10px;
-        }
-        .dash-opportunity {
-          padding: 16px;
-        }
         .dash-score {
           display: inline-flex;
           align-items: center;
@@ -487,9 +476,6 @@ export default function Dashboard() {
           .dash-hero,
           .dash-market,
           .dash-centers,
-          .dash-opportunities {
-            grid-template-columns: 1fr;
-          }
           .dash-tools {
             grid-template-columns: repeat(2, minmax(0, 1fr));
           }
@@ -501,9 +487,6 @@ export default function Dashboard() {
           .dash-panel,
           .dash-center-card,
           .dash-tool-card,
-          .dash-opportunity {
-            padding: 16px;
-          }
         }
       `}</style>
 
@@ -514,8 +497,8 @@ export default function Dashboard() {
         </div>
         <div className="dash-header-stats">
           {[
-            { label: 'Fırsat', value: opportunities.length, color: '#FFD700' },
-            { label: 'Kritik', value: opportunities.filter((item) => item.dealScore >= 85).length, color: '#22c55e' },
+            { label: 'Aksiyon', value: commandSummary.actions, color: '#FFD700' },
+            { label: 'Risk', value: commandSummary.highRisks, color: commandSummary.highRisks ? '#f87171' : '#22c55e' },
             { label: 'İlan', value: marketPulse.newListings, color: '#c0c0c0' },
             { label: 'Bölge', value: marketPulse.hottestRegion, color: '#8a8a8a' },
           ].map((stat) => (
@@ -561,7 +544,7 @@ export default function Dashboard() {
           <div className="dash-panel">
             <div className="dash-eyebrow">DASHBOARD</div>
             <h1 className="dash-title">
-              Günaydın, bugün piyasada {opportunities.length} yeni fırsat var.
+              Günaydın, operasyon merkezinde {commandSummary.actions} aksiyon sinyali var.
             </h1>
             <p className="dash-copy">
               Analiz Merkezi ve Command Center aynı kullanıcı verisini okur. Dashboard artık sadece
@@ -636,29 +619,6 @@ export default function Dashboard() {
                 <div className="dash-card-foot">
                   <span>{center.features.length} özellik</span>
                   <span style={{ color: center.accent }}>Merkeze Gir →</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="dash-section">
-          <div className="dash-section-head">
-            <div className="dash-section-label">FIRSAT RADARI</div>
-            <Link href="/opportunities" className="dash-link">Fırsatları İncele →</Link>
-          </div>
-          <div className="dash-opportunities">
-            {top3.map((item) => (
-              <Link key={item.id} href="/opportunities" className="dash-opportunity">
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
-                  <div className="dash-card-title">{item.title}</div>
-                  <div className="dash-score">{item.dealScore}</div>
-                </div>
-                <div className="dash-card-desc">
-                  {item.district} / {item.neighborhood} · {item.roomCount} · {item.squareMeters}m²
-                </div>
-                <div style={{ color: '#9a9a9a', fontSize: 12, lineHeight: 1.55, marginTop: 12 }}>
-                  {item.aiSummary}
                 </div>
               </Link>
             ))}
