@@ -68,7 +68,8 @@ export function DataIntake() {
       budget: customer.budget ? numberValue(customer.budget) : undefined,
     })
     setCustomer({ name: '', segment: 'Satıcı', urgency: '60', budget: '' })
-    setMessage('Müşteri hafızaya eklendi; artık işlem ve graph analizinde kullanılacak.')
+    setTab('portfolio')
+    setMessage('Müşteri eklendi. Şimdi bu müşteriye bağlanacak portföyü ekle.')
   }
 
   const submitPortfolio = () => {
@@ -82,7 +83,8 @@ export function DataIntake() {
       targetPrice: portfolio.targetPrice ? numberValue(portfolio.targetPrice) : undefined,
     })
     setPortfolio({ title: '', type: 'Daire', city: '', district: '', listPrice: '', targetPrice: '' })
-    setMessage('Portföy eklendi; fiyat farkı varsa risk ve aksiyon motoruna düşecek.')
+    setTab('deal')
+    setMessage('Portföy eklendi. Şimdi müşteri + portföyü bir işlem olarak bağla.')
   }
 
   const submitDeal = () => {
@@ -100,7 +102,8 @@ export function DataIntake() {
       actionDueAt: deal.actionDueAt ? new Date(deal.actionDueAt).toISOString() : undefined,
     })
     setDeal({ ...deal, title: '', expectedRevenue: '' })
-    setMessage('İşlem eklendi; tahmin, risk ve aksiyon motoru yeniden hesaplandı.')
+    setTab('activity')
+    setMessage('İşlem eklendi. Şimdi arama, görüşme veya fiyat revizyonu girersen ekrandaki tahmin ve öneriler değişir.')
   }
 
   const submitActivity = () => {
@@ -124,7 +127,7 @@ export function DataIntake() {
       })
     }
     setActivity({ ...activity, note: '', from: '', to: '' })
-    setMessage('Temas kaydı işlendi; takip boşluğu ve fiyat stratejisi yeniden ölçüldü.')
+    setMessage('Temas kaydı işlendi. Takip boşluğu, fiyat baskısı ve yapılacak işler yeniden hesaplandı.')
   }
 
   const submitExperiment = () => {
@@ -145,10 +148,14 @@ export function DataIntake() {
     <section className="cc-panel cc-intake">
       <div className="cc-panel-head">
         <div>
-          <div className="cc-kicker">VERİ KAYNAKLARI</div>
+          <div className="cc-kicker">KAYIT AKIŞI</div>
           <h2>Müşteri ve Portföy Ekle</h2>
         </div>
-        <span>form akışı</span>
+        <span>{data.customers.length + data.portfolios.length + data.deals.length} kayıt</span>
+      </div>
+
+      <div className="cc-intake-help">
+        1 müşteri ekle, 2 portföy ekle, 3 ikisini işlem olarak bağla. Oranlar ve öneriler özellikle işlem bağlanınca değişir.
       </div>
 
       <div className="cc-intake-steps">

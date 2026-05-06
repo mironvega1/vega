@@ -412,7 +412,7 @@ function buildProblemAssets(data: CommandCenterData): ProblemAsset[] {
           : riskyRisk
             ? `Risk ${analysis.riskScore}/100`
             : `%${priceGap.toFixed(1)} piyasa üstü`,
-        interpretation: 'Analiz sonucu Command Center’a aktı; bu kayıt aksiyon motorunu etkiliyor.',
+        interpretation: 'Analiz sonucu iş takibine geldi; bu kayıt yapılacak işleri etkiliyor.',
         evidence: [analysis.location || 'Konum yok', analysis.summary.slice(0, 140)],
       })
     }
@@ -468,16 +468,49 @@ function buildActionEngine(
     })
   })
 
-  if (!data.deals.length && !data.analysisResults.length) {
+  if (!data.customers.length) {
     actions.push({
-      id: 'data-bootstrap',
-      title: 'Karar makinesi için kullanıcı verisi girilmeli',
+      id: 'setup-customer',
+      title: 'İlk müşteriyi ekle',
       command: 'veri tamamla',
       priority: 95,
       impact: 100,
       risk: 'medium',
-      reason: 'Sistem sahte veri üretmez; müşteri, portföy veya analiz sonucu olmadan karar çıkaramaz.',
-      feedback: feedbackByAction.get('data-bootstrap'),
+      reason: 'İş takibi müşteri kaydıyla başlar. Müşteri eklenince portföy adımına geçilir.',
+      feedback: feedbackByAction.get('setup-customer'),
+    })
+  } else if (!data.portfolios.length) {
+    actions.push({
+      id: 'setup-portfolio',
+      title: 'Müşteriye portföy ekle',
+      command: 'veri tamamla',
+      priority: 94,
+      impact: 96,
+      risk: 'medium',
+      reason: `${data.customers.length} müşteri var; öneri ve tahmin için en az bir portföy kaydı gerekir.`,
+      feedback: feedbackByAction.get('setup-portfolio'),
+    })
+  } else if (!data.deals.length) {
+    actions.push({
+      id: 'setup-deal',
+      title: 'Müşteri ve portföyü işlem olarak bağla',
+      command: 'veri tamamla',
+      priority: 93,
+      impact: 94,
+      risk: 'medium',
+      reason: 'Tahmin, risk ve aksiyonlar işlem kaydı oluşunca görünür hale gelir.',
+      feedback: feedbackByAction.get('setup-deal'),
+    })
+  } else if (!data.interactions.length && data.deals.some((deal) => deal.status === 'active')) {
+    actions.push({
+      id: 'setup-interaction',
+      title: 'İlk temas veya görüşmeyi kaydet',
+      command: 'müşteri ara',
+      priority: 85,
+      impact: 82,
+      risk: 'low',
+      reason: 'Aktif işlem var; takip kalitesi için arama, mesaj veya görüşme kaydı girilmeli.',
+      feedback: feedbackByAction.get('setup-interaction'),
     })
   }
 
@@ -576,7 +609,9 @@ function buildForecast(data: CommandCenterData): ForecastResult {
     expectedWonRevenue,
     expectedResult: activeDeals.length
       ? `${activeDeals.length} aktif kayıttan yaklaşık ${Math.round(activeDeals.length * estimatedCloseRate)} kapanış bekleniyor.`
-      : 'Aktif işlem yok; tahmin üretmek için işlem kaydı gerekir.',
+      : data.customers.length || data.portfolios.length
+        ? 'Müşteri/portföy kaydı geldi; tahmin için bunları işlem olarak bağla.'
+        : 'Tahmin için önce müşteri, portföy ve işlem kaydı gerekir.',
     interpretation:
       estimatedCloseRate >= 0.65
         ? 'Bu değer güçlü; mevcut veri kapanma ihtimalinin yüksek olduğunu söylüyor.'
@@ -599,13 +634,22 @@ function buildContextualInsights(
   )[0]
 
   if (latestAnalysis) {
-    insights.push(`Son analiz "${latestAnalysis.title}" Command Center hafızasına işlendi.`)
+    insights.push(`Son analiz "${latestAnalysis.title}" iş takibine eklendi.`)
+  }
+  if (data.customers.length && !data.portfolios.length) {
+    insights.push(`${data.customers.length} müşteri eklendi. Sıradaki adım: portföy eklemek.`)
+  }
+  if (data.customers.length && data.portfolios.length && !data.deals.length) {
+    insights.push('Müşteri ve portföy hazır. Sıradaki adım: bunları işlem olarak bağlamak.')
+  }
+  if (data.deals.length && !data.interactions.length) {
+    insights.push('İşlem kaydı hazır. İlk temas girilince takip ve risk önerileri değişir.')
   }
   if (highRisks.length) {
     insights.push(`Önce ${highRisks[0].label.toLowerCase()} çözülmeli; diğer öneriler bu riske göre sıralandı.`)
   }
   if (forecast.activeCount) {
-    insights.push(`Tahmin motoru beklenen gelirin ${formatMoney(forecast.expectedWonRevenue)} kısmını kapanabilir görüyor.`)
+    insights.push(`Mevcut kayıtlara göre ${formatMoney(forecast.expectedWonRevenue)} kapanabilir gelir görünüyor.`)
   }
   if (problemAssets.some((asset) => asset.kind === 'pricing')) {
     insights.push('Fiyat kaynaklı problem tespit edildi; analiz sonuçları risk paneliyle aynı yöne işaret ediyor.')
@@ -651,10 +695,22 @@ function buildCriticalAlerts(
       risk: 'high',
     })
   }
-  if (!data.deals.length) {
+  if (!data.customers.length) {
     alerts.push({
-      label: 'Kullanıcı verisi yok',
-      detail: 'Karar makinesi çalışmak için müşteri, portföy ve işlem kayıtlarına ihtiyaç duyar.',
+      label: 'Müşteri bekleniyor',
+      detail: 'İlk adım olarak müşteri kaydı eklenmeli.',
+      risk: 'medium',
+    })
+  } else if (!data.portfolios.length) {
+    alerts.push({
+      label: 'Portföy bekleniyor',
+      detail: `${data.customers.length} müşteri var; şimdi portföy eklenmeli.`,
+      risk: 'medium',
+    })
+  } else if (!data.deals.length) {
+    alerts.push({
+      label: 'İşlem bağlantısı bekleniyor',
+      detail: 'Müşteri ve portföy işlem olarak bağlanınca tahmin çalışır.',
       risk: 'medium',
     })
   }
