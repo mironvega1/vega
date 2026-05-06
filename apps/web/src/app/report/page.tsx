@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from "react"
 import Link from "next/link"
+import { CenterSidebar } from "@/components/navigation/CenterSidebar"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com"
 const D = { bg:"#080808", bg2:"#0d0d0d", bg3:"#111", brd:"#161616", brd2:"#1e1e1e", gold:"#FFD700", text:"#e0e0e0", muted:"#555", dim:"#333" }
@@ -145,7 +146,10 @@ export default function Report() {
   }
 
   return (
-    <div style={{ display:"flex", flexDirection:"column", height:"100vh", background:D.bg, color:D.text, fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif", overflow:"hidden" }}>
+    <div style={{ display:"flex", height:"100vh", background:D.bg, color:D.text, fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif", overflow:"hidden" }}>
+      <CenterSidebar center="documents" />
+
+      <main style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
 
       {/* Sticky Header */}
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", height:44, borderBottom:`1px solid ${D.brd}`, background:D.bg, flexShrink:0, position:"sticky", top:0, zIndex:10 }}>
@@ -285,6 +289,7 @@ export default function Report() {
           )}
         </div>
       </div>
+      </main>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}*::-webkit-scrollbar{width:4px}*::-webkit-scrollbar-track{background:transparent}*::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px}`}</style>
     </div>
   )

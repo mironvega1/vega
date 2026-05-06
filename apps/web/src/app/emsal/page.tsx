@@ -1,24 +1,9 @@
 "use client"
 import React, { useState } from "react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
+import { CenterSidebar } from "@/components/navigation/CenterSidebar"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com"
 const D = { bg:"#080808", bg2:"#0d0d0d", bg3:"#111", brd:"#161616", brd2:"#1e1e1e", gold:"#FFD700", text:"#e0e0e0", muted:"#555", dim:"#333" }
-
-const NAV_ITEMS = [
-  { href:"/dashboard",          label:"Ana Merkez",           icon:"◈" },
-  { href:"/ai",                 label:"Emlak Yapay Zekası",   icon:"◈" },
-  { href:"/sozlesme",           label:"Sözleşme Merkezi",     icon:"▣" },
-  { href:"/analysis",           label:"Analiz Merkezi",    icon:"◎" },
-  { href:"/valuation",          label:"AI Değerleme",      icon:"⚡" },
-  { href:"/map",                label:"Canlı Harita",      icon:"◉" },
-  { href:"/listings",           label:"İlan Yönetimi",     icon:"▦" },
-  { href:"/zone-scores",        label:"Bölge Skoru",       icon:"◐" },
-  { href:"/bina-karsilastirma", label:"Kat Analizi",       icon:"▤" },
-  { href:"/emsal",              label:"Emsal İstihbarat",  icon:"◭" },
-  { href:"/report",             label:"PDF Rapor",         icon:"▣" },
-]
 
 type Tab = "arama" | "fiyat" | "firsat" | "sapma" | "eslestirme" | "arz_talep" | "likidite" | "rapor"
 const TABS: { id: Tab; label: string }[] = [
@@ -31,6 +16,73 @@ const TABS: { id: Tab; label: string }[] = [
   { id:"likidite",   label:"Likidite Skoru" },
   { id:"rapor",      label:"Rapor Merkezi" },
 ]
+
+const TAB_META: Record<Tab, { title: string; badge: string; purpose: string; how: string[]; output: string[]; needs: string[] }> = {
+  arama: {
+    title: "Emsal Arama Merkezi",
+    badge: "◭ EMSAL",
+    purpose: "Seçtiğiniz il, ilçe, m², fiyat ve oda kriterlerine göre karşılaştırılabilir ilan havuzu çıkarır.",
+    how: ["Sol panelden bölge ve fiyat/m² aralığını girin.", "Limit değerini veri yoğunluğuna göre artırın.", "Analiz sonucu oluşunca diğer Emsal alt modülleri aynı veriyi kullanır."],
+    output: ["Analiz edilen kayıt sayısı", "Ortalama fiyat ve m² fiyatı", "AI piyasa yorumu", "Karşılaştırılabilir ilan tablosu"],
+    needs: ["İl", "İlçe veya daha geniş bölge", "m²/fiyat aralığı"],
+  },
+  fiyat: {
+    title: "Fiyat Analizi Merkezi",
+    badge: "⚡ FİYAT",
+    purpose: "Tek bir mülkün tahmini değerini, adil fiyat aralığını, sapmasını ve satış süresi beklentisini hesaplar.",
+    how: ["Mülk bilgilerini eksiksiz girin.", "İstenen fiyat varsa sapma analizi için ekleyin.", "Çıkan fiyat notunu Command Center fiyat kararında kullanın."],
+    output: ["Tahmini değer", "Alt-üst değer aralığı", "Fırsat ve likidite skoru", "Danışman önerisi"],
+    needs: ["İlçe", "Net m²", "Kat", "Bina yaşı", "Oda sayısı"],
+  },
+  firsat: {
+    title: "Fırsat Motoru Merkezi",
+    badge: "◎ FIRSAT",
+    purpose: "Emsal arama sonucundaki kayıtları skorlayarak piyasa altı veya dikkat isteyen kayıtları sıralar.",
+    how: ["Önce Emsal Arama sekmesinde veri üretin.", "Fırsat skoruna göre kayıtları inceleyin.", "Risk etiketi taşıyanları doğrulama listesine alın."],
+    output: ["Fırsat ilan sayısı", "Piyasa altı kayıtlar", "Fırsat sıralaması", "Risk etiketi"],
+    needs: ["Emsal arama sonucu", "Fiyat ve m² verisi"],
+  },
+  sapma: {
+    title: "Sapma Analizi Merkezi",
+    badge: "◐ SAPMA",
+    purpose: "Kayıtların piyasa ortalamasına göre ne kadar ucuz veya pahalı kaldığını görselleştirir.",
+    how: ["Emsal araması üretin.", "Negatif sapmayı fırsat, yüksek pozitif sapmayı fiyat riski olarak okuyun.", "Aşırı sapmaları manuel doğrulayın."],
+    output: ["Ucuz/pahalı dağılımı", "Sapma grafiği", "Fiyat riski sinyali"],
+    needs: ["Emsal arama sonucu", "M² fiyatı", "Piyasa ortalaması"],
+  },
+  eslestirme: {
+    title: "Portföy Eşleşme Merkezi",
+    badge: "▦ EŞLEŞME",
+    purpose: "Hedeflediğiniz portföye en çok benzeyen kayıtları benzerlik yüzdesine göre sıralar.",
+    how: ["Emsal aramasında hedef m² ve hedef fiyat girin.", "Benzerlik skoru yüksek kayıtları portföy referansı yapın.", "Düşük eşleşmeleri karar dışı bırakın."],
+    output: ["Benzerlik skoru", "Hedefe yakın kayıtlar", "Fiyat/m² karşılaştırması"],
+    needs: ["Hedef m²", "Hedef fiyat", "Emsal arama sonucu"],
+  },
+  arz_talep: {
+    title: "Arz-Talep Merkezi",
+    badge: "◉ ARZ",
+    purpose: "Arama sonucundaki portföy yoğunluğunu oda tipi, m² fiyat bandı ve arz çeşitliliğiyle okur.",
+    how: ["Emsal araması üretin.", "Oda tipi ve fiyat bandı dağılımını inceleyin.", "Yoğun arz varsa fiyat savunmasını daha dikkatli yapın."],
+    output: ["Arz dağılımı", "M² fiyat bandı", "Fırsat oranı", "AI arz-talep yorumu"],
+    needs: ["Emsal arama sonucu", "Oda tipi", "M² fiyatı"],
+  },
+  likidite: {
+    title: "Likidite Skoru Merkezi",
+    badge: "▤ LİKİDİTE",
+    purpose: "Kayıtların satılabilirlik/hareket kabiliyetini skorlayarak hızlı kapanma ihtimalini gösterir.",
+    how: ["Emsal araması üretin.", "Likidite skoru yüksek kayıtları hızlı aksiyona alın.", "Skor düşükse fiyat veya pazarlama stratejisini revize edin."],
+    output: ["Likidite sıralaması", "Hızlı satılabilir kayıtlar", "Zor satılabilir kayıtlar"],
+    needs: ["Emsal arama sonucu", "Fiyat", "M²", "Oda tipi"],
+  },
+  rapor: {
+    title: "Emsal Rapor Merkezi",
+    badge: "▣ RAPOR",
+    purpose: "Emsal arama ve fiyat istihbaratı sonuçlarını müşteriye sunulabilir PDF raporuna dönüştürür.",
+    how: ["Önce Emsal Arama veya Fiyat Analizi üretin.", "Rapor içerik kontrolünde eksik veri kalmadığını doğrulayın.", "PDF çıktısını müşteri görüşmesi için kullanın."],
+    output: ["Piyasa özeti", "İlk 10 kayıt", "Mülk istihbaratı", "PDF çıktı"],
+    needs: ["Emsal verisi veya mülk istihbaratı"],
+  },
+}
 
 const inp: React.CSSProperties = { width:"100%", padding:"8px 10px", borderRadius:6, border:"1px solid #1e1e1e", background:"#111", color:"#e0e0e0", fontSize:12, outline:"none", boxSizing:"border-box", fontFamily:"inherit" }
 const lbl: React.CSSProperties = { fontSize:10, color:"#555", display:"block", marginBottom:4, letterSpacing:1 }
@@ -63,6 +115,30 @@ const EmptyState = ({ icon, title, sub }: { icon:string; title:string; sub:strin
     <div style={{ fontSize:14, color:D.dim, fontWeight:500 }}>{title}</div>
     <div style={{ fontSize:12, color:"#2a2a2a", maxWidth:320, textAlign:"center", lineHeight:1.6 }}>{sub}</div>
   </div>
+)
+
+const GuidePanel = ({ meta }: { meta: (typeof TAB_META)[Tab] }) => (
+  <aside style={{ width:280, borderLeft:`1px solid ${D.brd}`, background:D.bg2, padding:"18px 16px", overflowY:"auto", flexShrink:0 }}>
+    <div style={{ fontSize:10, color:D.gold, letterSpacing:2, marginBottom:8 }}>BU MERKEZ NE İŞE YARAR?</div>
+    <div style={{ fontSize:13, color:D.text, fontWeight:600, lineHeight:1.4, marginBottom:8 }}>{meta.title}</div>
+    <p style={{ color:D.muted, fontSize:12, lineHeight:1.65, margin:"0 0 16px" }}>{meta.purpose}</p>
+
+    {[
+      ["NASIL YAPILIR?", meta.how],
+      ["GEREKLİ VERİ", meta.needs],
+      ["ÇIKTI", meta.output],
+    ].map(([title, items]) => (
+      <div key={title as string} style={{ border:"1px solid #202020", background:"#090909", borderRadius:8, padding:"12px", marginBottom:10 }}>
+        <div style={{ fontSize:9, color:D.dim, letterSpacing:1.7, marginBottom:8 }}>{title as string}</div>
+        {(items as string[]).map((item, index) => (
+          <div key={item} style={{ display:"grid", gridTemplateColumns:"18px 1fr", gap:8, color:"#8f8f8f", fontSize:11, lineHeight:1.45, padding:"6px 0", borderBottom:index === (items as string[]).length - 1 ? "0" : "1px solid #161616" }}>
+            <span style={{ color:D.gold }}>{index + 1}</span>
+            <span>{item}</span>
+          </div>
+        ))}
+      </div>
+    ))}
+  </aside>
 )
 
 const ListingRow = ({ l, idx }: { l: any; idx: number }) => {
@@ -200,8 +276,8 @@ ${intelData ? `
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function EmsalPage() {
-  const pathname = usePathname()
   const [tab, setTab] = useState<Tab>("arama")
+  const activeMeta = TAB_META[tab]
 
   const [sf, setSf] = useState({ il:"istanbul", ilce:"", net_m2_min:"", net_m2_max:"", fiyat_min:"", fiyat_max:"", oda_sayisi:"", bina_yasi_max:"", kat_min:"", kat_max:"", hedef_m2:"", hedef_fiyat:"", limit:"80" })
   const [searchData, setSearchData] = useState<any>(null)
@@ -268,24 +344,7 @@ export default function EmsalPage() {
   return (
     <div style={{ display:"flex", height:"100vh", background:D.bg, color:D.text, fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif", overflow:"hidden" }}>
 
-      {/* Sidebar */}
-      <div style={{ width:220, borderRight:`1px solid ${D.brd}`, display:"flex", flexDirection:"column", background:D.bg2, flexShrink:0 }}>
-        <div style={{ padding:"22px 18px 18px", borderBottom:`1px solid ${D.brd}` }}>
-          <div style={{ fontSize:20, color:D.gold, letterSpacing:4, fontWeight:300 }}>VEGA</div>
-          <div style={{ fontSize:9, color:D.dim, marginTop:3, letterSpacing:4 }}>INTELLIGENCE PLATFORM</div>
-        </div>
-        <nav style={{ flex:1, padding:"10px 0", overflowY:"auto" }}>
-          {NAV_ITEMS.map(item => {
-            const active = pathname === item.href
-            return (
-              <Link key={item.href} href={item.href} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 18px", color:active?D.gold:D.muted, textDecoration:"none", fontSize:12, borderLeft:active?`2px solid ${D.gold}`:`2px solid transparent`, background:active?"rgba(255,215,0,0.05)":"transparent" }}>
-                <span style={{ fontSize:15, width:18, textAlign:"center" }}>{item.icon}</span>
-                <span style={{ fontWeight:active?500:400 }}>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
-      </div>
+      <CenterSidebar center="analysis" />
 
       {/* Main */}
       <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
@@ -293,10 +352,10 @@ export default function EmsalPage() {
         {/* Header */}
         <div style={{ padding:"16px 24px", borderBottom:`1px solid ${D.brd}`, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div>
-            <div style={{ fontSize:16, fontWeight:500 }}>Emsal İstihbarat Merkezi</div>
-            <div style={{ fontSize:11, color:D.muted, marginTop:2 }}>Piyasa araştırması · Fırsat tespiti · Sapma analizi · Portföy eşleşme · Likidite · Rapor</div>
+            <div style={{ fontSize:17, fontWeight:650 }}>{activeMeta.title}</div>
+            <div style={{ fontSize:11, color:D.muted, marginTop:4, maxWidth:780, lineHeight:1.5 }}>{activeMeta.purpose}</div>
           </div>
-          <div style={{ background:"rgba(255,215,0,0.08)", border:"1px solid rgba(255,215,0,0.2)", borderRadius:16, padding:"4px 12px", fontSize:11, color:D.gold, letterSpacing:1 }}>◭ EMSAL</div>
+          <div style={{ background:"rgba(255,215,0,0.08)", border:"1px solid rgba(255,215,0,0.2)", borderRadius:16, padding:"4px 12px", fontSize:11, color:D.gold, letterSpacing:1, whiteSpace:"nowrap" }}>{activeMeta.badge}</div>
         </div>
 
         {/* Tab Bar */}
@@ -391,7 +450,7 @@ export default function EmsalPage() {
           )}
 
           {/* Right Panel */}
-          <div style={{ flex:1, overflowY:"auto", padding:"22px 24px" }}>
+          <div style={{ flex:1, overflowY:"auto", padding:"22px 20px", minWidth:0 }}>
 
             {/* ── EMSAL ARAMA ── */}
             {tab === "arama" && (
@@ -741,6 +800,8 @@ export default function EmsalPage() {
             )}
 
           </div>
+
+          <GuidePanel meta={activeMeta} />
         </div>
       </div>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}*::-webkit-scrollbar{width:4px}*::-webkit-scrollbar-track{background:transparent}*::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px}`}</style>

@@ -1,30 +1,15 @@
 "use client"
 import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { useAgencyId } from "@/hooks/useAgencyId"
 import { createClient } from "@/lib/supabase/client"
+import { CenterSidebar } from "@/components/navigation/CenterSidebar"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com"
 const D = { bg:"#080808", bg2:"#0a0a0a", brd:"#161616", gold:"#FFD700", text:"#e0e0e0", muted:"#555", dim:"#333" }
 
-const NAV_ITEMS = [
-  { href:"/dashboard",          label:"Ana Merkez",           icon:"◈" },
-  { href:"/ai",                 label:"Emlak Yapay Zekası",   icon:"◈" },
-  { href:"/sozlesme",           label:"Sözleşme Merkezi",     icon:"▣" },
-  { href:"/analysis",           label:"Analiz Merkezi",    icon:"◎" },
-  { href:"/valuation",          label:"AI Değerleme",      icon:"⚡" },
-  { href:"/map",                label:"Canlı Harita",      icon:"◉" },
-  { href:"/listings",           label:"İlan Yönetimi",     icon:"▦" },
-  { href:"/zone-scores",        label:"Bölge Skoru",       icon:"◐" },
-  { href:"/bina-karsilastirma", label:"Kat Analizi",       icon:"▤" },
-  { href:"/emsal",              label:"Emsal İstihbarat",  icon:"◭" },
-  { href:"/report",             label:"PDF Rapor",         icon:"▣" },
-]
-
 export default function MapPage() {
   const { agencyId } = useAgencyId()
-  const pathname = usePathname()
   const [accountType, setAccountType] = useState<string>("")
   const [listings, setListings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -114,46 +99,35 @@ export default function MapPage() {
   return (
     <div style={{ display:"flex", height:"100vh", background:D.bg, color:D.text, fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif", overflow:"hidden" }}>
 
-      {/* Sidebar */}
-      <div style={{ width:220, borderRight:`1px solid ${D.brd}`, display:"flex", flexDirection:"column", background:D.bg2, flexShrink:0 }}>
-        <div style={{ padding:"22px 18px 18px", borderBottom:`1px solid ${D.brd}` }}>
-          <div style={{ fontSize:20, color:D.gold, letterSpacing:4, fontWeight:300 }}>VEGA</div>
-          <div style={{ fontSize:9, color:D.dim, marginTop:3, letterSpacing:4 }}>INTELLIGENCE PLATFORM</div>
-        </div>
-        <nav style={{ flex:1, padding:"10px 0", overflowY:"auto" }}>
-          {NAV_ITEMS.map(item => {
-            const active = pathname === item.href
-            return (
-              <Link key={item.href} href={item.href} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 18px", color:active?D.gold:D.muted, textDecoration:"none", fontSize:12, borderLeft:active?`2px solid ${D.gold}`:`2px solid transparent`, background:active?"rgba(255,215,0,0.05)":"transparent" }}>
-                <span style={{ fontSize:15, width:18, textAlign:"center" }}>{item.icon}</span>
-                <span style={{ fontWeight:active?500:400 }}>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
+      <CenterSidebar center="analysis" />
 
-        {/* Listings panel */}
-        <div style={{ height:300, borderTop:`1px solid ${D.brd}`, display:"flex", flexDirection:"column" }}>
-          <div style={{ padding:"10px 14px", borderBottom:`1px solid ${D.brd}` }}>
-            <div style={{ fontSize:10, color:D.dim, letterSpacing:2 }}>PORTFÖY — {listings.length} İLAN</div>
-          </div>
-          <div style={{ flex:1, overflowY:"auto", padding:"6px" }}>
-            {loading ? (
-              <div style={{ padding:16, textAlign:"center", color:D.dim, fontSize:12 }}>Yükleniyor...</div>
-            ) : listings.length === 0 ? (
-              <div style={{ padding:16, textAlign:"center", color:D.dim, fontSize:12 }}>İlan bulunamadı</div>
-            ) : listings.map((l, i) => (
-              <div key={l.id || i}
-                onClick={() => setSelected(l)}
-                style={{ border:`1px solid ${selected?.id===l.id?"rgba(255,215,0,0.3)":D.brd}`, borderRadius:7, padding:"8px 10px", marginBottom:4, background:selected?.id===l.id?"rgba(255,215,0,0.04)":"transparent", cursor:"pointer" }}>
-                <div style={{ fontSize:12, fontWeight:500, color:D.gold }}>₺{(Number(l.fiyat)/1000000).toFixed(1)}M</div>
-                <div style={{ fontSize:11, color:D.muted, marginTop:1 }}>{l.net_m2}m² · {l.oda_sayisi}</div>
-                <div style={{ fontSize:10, color:D.dim, marginTop:1 }}>{l.ilce}{l.il?`, ${l.il}`:""}</div>
-              </div>
-            ))}
+      <aside style={{ width:260, borderRight:`1px solid ${D.brd}`, background:D.bg2, display:"flex", flexDirection:"column", flexShrink:0 }}>
+        <div style={{ padding:"16px 14px", borderBottom:`1px solid ${D.brd}` }}>
+          <div style={{ fontSize:11, color:D.gold, letterSpacing:2, marginBottom:6 }}>HARİTA PORTFÖYÜ</div>
+          <div style={{ fontSize:12, color:D.muted, lineHeight:1.5 }}>
+            Harita yalnızca kurum portföyündeki konumlu kayıtları gösterir. Bir kayda tıklayınca detay kartı açılır.
           </div>
         </div>
-      </div>
+        <div style={{ padding:"10px 14px", borderBottom:`1px solid ${D.brd}`, display:"flex", justifyContent:"space-between", gap:10 }}>
+          <span style={{ fontSize:10, color:D.dim, letterSpacing:2 }}>KAYIT</span>
+          <b style={{ color:D.gold, fontSize:12 }}>{listings.length}</b>
+        </div>
+        <div style={{ flex:1, overflowY:"auto", padding:"8px" }}>
+          {loading ? (
+            <div style={{ padding:16, textAlign:"center", color:D.dim, fontSize:12 }}>Yükleniyor...</div>
+          ) : listings.length === 0 ? (
+            <div style={{ padding:16, textAlign:"center", color:D.dim, fontSize:12 }}>Konumlu portföy bulunamadı.</div>
+          ) : listings.map((l, i) => (
+            <button key={l.id || i}
+              onClick={() => setSelected(l)}
+              style={{ width:"100%", textAlign:"left", border:`1px solid ${selected?.id===l.id?"rgba(255,215,0,0.34)":D.brd}`, borderRadius:8, padding:"9px 10px", marginBottom:6, background:selected?.id===l.id?"rgba(255,215,0,0.05)":"#090909", cursor:"pointer", fontFamily:"inherit" }}>
+              <div style={{ fontSize:12, fontWeight:700, color:D.gold }}>₺{(Number(l.fiyat)/1000000).toFixed(1)}M</div>
+              <div style={{ fontSize:11, color:D.muted, marginTop:2 }}>{l.net_m2}m² · {l.oda_sayisi}</div>
+              <div style={{ fontSize:10, color:D.dim, marginTop:2 }}>{l.ilce}{l.il?`, ${l.il}`:""}</div>
+            </button>
+          ))}
+        </div>
+      </aside>
 
       {/* Map */}
       <div style={{ flex:1, position:"relative" }}>

@@ -1,31 +1,15 @@
 "use client"
 import React, { useState } from "react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
+import { CenterSidebar } from "@/components/navigation/CenterSidebar"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vega-api-9ps9.onrender.com"
 const D = { bg:"#080808", bg2:"#0d0d0d", bg3:"#111", brd:"#161616", brd2:"#1e1e1e", gold:"#FFD700", text:"#e0e0e0", muted:"#555", dim:"#333" }
-
-const NAV_ITEMS = [
-  { href:"/dashboard",          label:"Ana Merkez",           icon:"◈" },
-  { href:"/ai",                 label:"Emlak Yapay Zekası",   icon:"◈" },
-  { href:"/sozlesme",           label:"Sözleşme Merkezi",     icon:"▣" },
-  { href:"/analysis",           label:"Analiz Merkezi",    icon:"◎" },
-  { href:"/valuation",          label:"AI Değerleme",      icon:"⚡" },
-  { href:"/map",                label:"Canlı Harita",      icon:"◉" },
-  { href:"/listings",           label:"İlan Yönetimi",     icon:"▦" },
-  { href:"/zone-scores",        label:"Bölge Skoru",       icon:"◐" },
-  { href:"/bina-karsilastirma", label:"Kat Analizi",       icon:"▤" },
-  { href:"/emsal",              label:"Emsal İstihbarat",  icon:"◭" },
-  { href:"/report",             label:"PDF Rapor",         icon:"▣" },
-]
 
 const inp: React.CSSProperties = { width:"100%", padding:"9px 12px", borderRadius:7, border:"1px solid #1e1e1e", background:"#111", color:"#e0e0e0", fontSize:13, outline:"none", boxSizing:"border-box", fontFamily:"inherit" }
 const lbl: React.CSSProperties = { fontSize:11, color:"#555", display:"block", marginBottom:5, letterSpacing:1 }
 const fld: React.CSSProperties = { marginBottom:14 }
 
 export default function Valuation() {
-  const pathname = usePathname()
   const [form, setForm] = useState({
     net_m2:"", kat_no:"3", toplam_kat:"8", bina_yasi:"10",
     cephe:"güney", oda_sayisi:"3+1", il:"istanbul", ilce:"kadıköy", mahalle:"moda"
@@ -70,24 +54,7 @@ export default function Valuation() {
   return (
     <div style={{ display:"flex", height:"100vh", background:D.bg, color:D.text, fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif", overflow:"hidden" }}>
 
-      {/* Sidebar */}
-      <div style={{ width:220, borderRight:`1px solid ${D.brd}`, display:"flex", flexDirection:"column", background:D.bg2, flexShrink:0 }}>
-        <div style={{ padding:"22px 18px 18px", borderBottom:`1px solid ${D.brd}` }}>
-          <div style={{ fontSize:20, color:D.gold, letterSpacing:4, fontWeight:300 }}>VEGA</div>
-          <div style={{ fontSize:9, color:D.dim, marginTop:3, letterSpacing:4 }}>INTELLIGENCE PLATFORM</div>
-        </div>
-        <nav style={{ flex:1, padding:"10px 0", overflowY:"auto" }}>
-          {NAV_ITEMS.map(item => {
-            const active = pathname === item.href
-            return (
-              <Link key={item.href} href={item.href} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 18px", color:active?D.gold:D.muted, textDecoration:"none", fontSize:12, borderLeft:active?`2px solid ${D.gold}`:`2px solid transparent`, background:active?"rgba(255,215,0,0.05)":"transparent" }}>
-                <span style={{ fontSize:15, width:18, textAlign:"center" }}>{item.icon}</span>
-                <span style={{ fontWeight:active?500:400 }}>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
-      </div>
+      <CenterSidebar center="analysis" />
 
       {/* Main */}
       <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
