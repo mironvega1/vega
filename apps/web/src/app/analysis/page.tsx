@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { CenterSidebar } from "@/components/navigation/CenterSidebar";
 import { appendCapturedAnalysis } from "@/lib/commandCenterStore";
 import type { AnalysisSource, CapturedAnalysis } from "@/lib/commandCenterTypes";
 
@@ -285,7 +286,10 @@ export default function AnalysisPage() {
   const activeCard = ANALYSIS_CARDS.find(c => c.id === selected);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: D.bg, color: D.text, fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", overflow: "hidden" }}>
+    <div style={{ display: "flex", height: "100vh", background: D.bg, color: D.text, fontFamily: "'Helvetica Neue',Helvetica,Arial,sans-serif", overflow: "hidden" }}>
+      <CenterSidebar center="analysis" />
+
+      <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
       {/* Sticky Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 44, borderBottom: `1px solid ${D.brd}`, background: D.bg, flexShrink: 0, position: "sticky", top: 0, zIndex: 10 }}>
@@ -369,6 +373,7 @@ export default function AnalysisPage() {
         </div>
       )}
 
+      </main>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} *::-webkit-scrollbar{width:4px} *::-webkit-scrollbar-track{background:transparent} *::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:2px}`}</style>
     </div>
   );

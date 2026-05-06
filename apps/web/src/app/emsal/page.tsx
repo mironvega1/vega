@@ -14,7 +14,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id:"eslestirme", label:"Portföy Eşleşme" },
   { id:"arz_talep",  label:"Arz-Talep" },
   { id:"likidite",   label:"Likidite Skoru" },
-  { id:"rapor",      label:"Rapor Merkezi" },
+  { id:"rapor",      label:"Emsal PDF" },
 ]
 
 const TAB_META: Record<Tab, { title: string; badge: string; purpose: string; how: string[]; output: string[]; needs: string[] }> = {
@@ -81,6 +81,57 @@ const TAB_META: Record<Tab, { title: string; badge: string; purpose: string; how
     how: ["Önce Emsal Arama veya Fiyat Analizi üretin.", "Rapor içerik kontrolünde eksik veri kalmadığını doğrulayın.", "PDF çıktısını müşteri görüşmesi için kullanın."],
     output: ["Piyasa özeti", "İlk 10 kayıt", "Mülk istihbaratı", "PDF çıktı"],
     needs: ["Emsal verisi veya mülk istihbaratı"],
+  },
+}
+
+const SEARCH_WORKFLOWS: Record<Exclude<Tab, "fiyat" | "rapor">, { panelTitle: string; panelNote: string; dataLabel: string; button: string; loading: string; showTarget: boolean }> = {
+  arama: {
+    panelTitle: "EMSAL ARAMA KAYNAĞI",
+    panelNote: "Bu panel doğrudan karşılaştırılabilir ilan havuzu üretir. Diğer Emsal alt modülleri bu havuzdan beslenir.",
+    dataLabel: "Karşılaştırma filtresi",
+    button: "Emsal Havuzu Oluştur →",
+    loading: "Emsal havuzu oluşturuluyor...",
+    showTarget: false,
+  },
+  firsat: {
+    panelTitle: "FIRSAT MOTORU KAYNAĞI",
+    panelNote: "Fırsat Motoru aynı filtreyle kayıtları skorlar; amaç piyasa altı ve hızlı aksiyon isteyen ilanları ayırmaktır.",
+    dataLabel: "Fırsat filtresi",
+    button: "Fırsat Skorlarını Üret →",
+    loading: "Fırsat skorları üretiliyor...",
+    showTarget: false,
+  },
+  sapma: {
+    panelTitle: "SAPMA ANALİZİ KAYNAĞI",
+    panelNote: "Sapma Analizi fiyatları piyasa ortalamasına göre okur. Negatif sapma fırsat, yüksek pozitif sapma fiyat riski demektir.",
+    dataLabel: "Sapma filtresi",
+    button: "Sapma Dağılımını Hesapla →",
+    loading: "Sapma dağılımı hesaplanıyor...",
+    showTarget: false,
+  },
+  eslestirme: {
+    panelTitle: "PORTFÖY EŞLEŞME KAYNAĞI",
+    panelNote: "Bu modül hedef mülk ister. Hedef m² ve hedef fiyat girilirse benzer kayıtları referans portföy olarak sıralar.",
+    dataLabel: "Eşleşme filtresi",
+    button: "Benzer Portföyleri Bul →",
+    loading: "Benzerlik analizi çalışıyor...",
+    showTarget: true,
+  },
+  arz_talep: {
+    panelTitle: "ARZ-TALEP KAYNAĞI",
+    panelNote: "Arz-Talep Merkezi seçilen bölgede hangi oda/fiyat bandının yoğunlaştığını ve fiyat savunmasının zorlaşıp zorlaşmadığını gösterir.",
+    dataLabel: "Arz filtresi",
+    button: "Arz-Talep Tablosunu Kur →",
+    loading: "Arz-talep tablosu kuruluyor...",
+    showTarget: false,
+  },
+  likidite: {
+    panelTitle: "LİKİDİTE KAYNAĞI",
+    panelNote: "Likidite Skoru kayıtların hareket kabiliyetini ölçer. Düşük skor fiyat veya pazarlama stratejisi gerektirir.",
+    dataLabel: "Likidite filtresi",
+    button: "Likidite Skorlarını Hesapla →",
+    loading: "Likidite skorları hesaplanıyor...",
+    showTarget: false,
   },
 }
 
@@ -340,6 +391,7 @@ export default function EmsalPage() {
   const listings: any[] = searchData?.listings || []
   const showSearchForm = tab !== "fiyat" && tab !== "rapor"
   const showIntelForm = tab === "fiyat"
+  const searchWorkflow = showSearchForm ? SEARCH_WORKFLOWS[tab as Exclude<Tab, "fiyat" | "rapor">] : null
 
   return (
     <div style={{ display:"flex", height:"100vh", background:D.bg, color:D.text, fontFamily:"'Helvetica Neue',Helvetica,Arial,sans-serif", overflow:"hidden" }}>
@@ -374,9 +426,21 @@ export default function EmsalPage() {
           {/* Left Form Panel */}
           {(showSearchForm || showIntelForm) && (
             <div style={{ width:272, borderRight:`1px solid ${D.brd}`, overflowY:"auto", padding:"18px 16px", flexShrink:0 }}>
-              {showSearchForm && (
+              {showSearchForm && searchWorkflow && (
                 <>
-                  <div style={{ fontSize:10, color:D.dim, letterSpacing:2, marginBottom:12 }}>ARAMA FİLTRELERİ</div>
+                  <div style={{ fontSize:10, color:D.gold, letterSpacing:2, marginBottom:8 }}>{searchWorkflow.panelTitle}</div>
+                  <div style={{ border:"1px solid #202020", background:"#090909", borderRadius:8, padding:"10px 11px", marginBottom:12, color:D.muted, fontSize:11, lineHeight:1.55 }}>
+                    {searchWorkflow.panelNote}
+                  </div>
+                  {tab !== "arama" && (
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:8, border:"1px solid #202020", background:searchData?"rgba(34,197,94,0.05)":"rgba(255,215,0,0.04)", borderRadius:8, padding:"8px 10px", marginBottom:12 }}>
+                      <span style={{ color:D.dim, fontSize:10, letterSpacing:1.4 }}>BAĞLI VERİ</span>
+                      <b style={{ color:searchData?"#22c55e":D.gold, fontSize:11 }}>
+                        {searchData ? `${listings.length} kayıt hazır` : "Henüz yok"}
+                      </b>
+                    </div>
+                  )}
+                  <div style={{ fontSize:10, color:D.dim, letterSpacing:2, marginBottom:12 }}>{searchWorkflow.dataLabel.toUpperCase()}</div>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                     <div style={fld}><label style={lbl}>İL</label><input style={inp} value={sf.il} onChange={e=>setSf(p=>({...p,il:e.target.value}))} placeholder="istanbul"/></div>
                     <div style={fld}><label style={lbl}>İLÇE</label><input style={inp} value={sf.ilce} onChange={e=>setSf(p=>({...p,ilce:e.target.value}))} placeholder="beşiktaş"/></div>
@@ -398,22 +462,30 @@ export default function EmsalPage() {
                     <div style={fld}><label style={lbl}>BINA YAŞI MAX</label><input style={inp} type="number" value={sf.bina_yasi_max} onChange={e=>setSf(p=>({...p,bina_yasi_max:e.target.value}))} placeholder="20"/></div>
                     <div style={fld}><label style={lbl}>LİMİT</label><input style={inp} type="number" value={sf.limit} onChange={e=>setSf(p=>({...p,limit:e.target.value}))} placeholder="80"/></div>
                   </div>
-                  <div style={{ height:1, background:D.brd, margin:"4px 0 12px" }}/>
-                  <div style={{ fontSize:10, color:D.dim, letterSpacing:2, marginBottom:10 }}>HEDEF MÜLK (opsiyonel)</div>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-                    <div style={fld}><label style={lbl}>HEDEF M²</label><input style={inp} type="number" value={sf.hedef_m2} onChange={e=>setSf(p=>({...p,hedef_m2:e.target.value}))} placeholder="100"/></div>
-                    <div style={fld}><label style={lbl}>HEDEF FİYAT</label><input style={inp} type="number" value={sf.hedef_fiyat} onChange={e=>setSf(p=>({...p,hedef_fiyat:e.target.value}))} placeholder="10M"/></div>
-                  </div>
+                  {searchWorkflow.showTarget && (
+                    <>
+                      <div style={{ height:1, background:D.brd, margin:"4px 0 12px" }}/>
+                      <div style={{ fontSize:10, color:D.gold, letterSpacing:2, marginBottom:10 }}>HEDEF PORTFÖY</div>
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                        <div style={fld}><label style={lbl}>HEDEF M²</label><input style={inp} type="number" value={sf.hedef_m2} onChange={e=>setSf(p=>({...p,hedef_m2:e.target.value}))} placeholder="100"/></div>
+                        <div style={fld}><label style={lbl}>HEDEF FİYAT</label><input style={inp} type="number" value={sf.hedef_fiyat} onChange={e=>setSf(p=>({...p,hedef_fiyat:e.target.value}))} placeholder="10M"/></div>
+                      </div>
+                    </>
+                  )}
                   {searchError && <div style={{ color:"#f87171", fontSize:11, padding:"8px 10px", background:"rgba(248,113,113,0.06)", borderRadius:6, marginBottom:10 }}>{searchError}</div>}
                   <button onClick={runSearch} disabled={searchLoading}
                     style={{ width:"100%", padding:"11px", borderRadius:7, border:"none", fontSize:12, fontWeight:700, background:searchLoading?D.brd:D.gold, color:searchLoading?D.muted:"#000", cursor:searchLoading?"not-allowed":"pointer", letterSpacing:0.3, fontFamily:"inherit" }}>
-                    {searchLoading ? "Analiz Ediliyor..." : "Emsal Analizi Başlat →"}
+                    {searchLoading ? searchWorkflow.loading : searchWorkflow.button}
                   </button>
                 </>
               )}
 
               {showIntelForm && (
                 <>
+                  <div style={{ fontSize:10, color:D.gold, letterSpacing:2, marginBottom:8 }}>FİYAT ANALİZİ KAYNAĞI</div>
+                  <div style={{ border:"1px solid #202020", background:"#090909", borderRadius:8, padding:"10px 11px", marginBottom:12, color:D.muted, fontSize:11, lineHeight:1.55 }}>
+                    Bu panel emsal arama değil; tek bir mülkün fiyatını, sapmasını, likiditesini ve önerilen ilan stratejisini hesaplar.
+                  </div>
                   <div style={{ fontSize:10, color:D.dim, letterSpacing:2, marginBottom:12 }}>MÜLK BİLGİLERİ</div>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                     <div style={fld}><label style={lbl}>İL</label><input style={inp} value={inf.il} onChange={e=>setInf(p=>({...p,il:e.target.value}))} placeholder="istanbul"/></div>
